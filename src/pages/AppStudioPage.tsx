@@ -15,6 +15,7 @@ import initSqlJs from 'sql.js';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { resolveImageUrl, DEFAULT_AVATAR } from '../utils/imageResolver';
+import { NotificationIconRenderer } from '../utils/imageProcessor';
 
 interface ProjectFile {
   name: string;
@@ -358,6 +359,7 @@ export const AppStudioPage: React.FC = () => {
   const [newSnapshotName, setNewSnapshotName] = useState('');
   const [isSnapshotLoading, setIsSnapshotLoading] = useState(false);
   const [expandedLogs, setExpandedLogs] = useState<Record<string, boolean>>({});
+  const [copiedMsgId, setCopiedMsgId] = useState<string | null>(null);
 
   const toggleLogs = (msgId: string) => {
     setExpandedLogs(prev => ({ ...prev, [msgId]: !prev[msgId] }));
@@ -2555,22 +2557,6 @@ export const AppStudioPage: React.FC = () => {
             <ArrowLeft size={13} className={language === 'ar' ? 'rotate-180' : ''} />
           </button>
 
-          {logoSrc && (
-            <div className="h-5 max-h-5 max-w-[100px] shrink-0 hidden sm:flex items-center justify-center overflow-hidden">
-              <img 
-                src={resolveImageUrl(logoSrc, 'general')} 
-                alt="Studio Logo" 
-                className="h-full max-h-5 w-auto max-w-[100px] object-contain block" 
-                style={{ maxHeight: '20px', maxWidth: '100px' }}
-                onError={(e) => {
-                  (e.currentTarget as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            </div>
-          )}
-
-          <div className="h-4 w-px bg-[var(--border-default)] hidden sm:block shrink-0" />
-
           {/* Project Title & Cloud Sync Radar */}
           <div className="flex items-center gap-2 min-w-0">
 
@@ -2739,12 +2725,27 @@ export const AppStudioPage: React.FC = () => {
               setSideNavActiveTab('chat');
               setMobileActiveTab('chat');
             }}
-            className={`w-8 h-8 rounded-shape-sm flex items-center justify-center transition-all cursor-pointer relative group shrink-0 before:absolute before:-inset-1.5 ${
-              sideNavActiveTab === 'chat' ? 'bg-accent text-white shadow-md shadow-accent/20' : 'text-[var(--text-muted)] hover:bg-[var(--surface-subtle)] hover:text-[var(--text-primary)]'
-            }`}
+            className={`w-9 h-9 flex items-center justify-center transition-all cursor-pointer relative group shrink-0 border before:absolute before:-inset-1.5 ${
+              sideNavActiveTab === 'chat'
+                ? 'bg-[var(--surface-subtle)] border-[var(--border-accent)] text-[var(--fg-accent)] shadow-2xs'
+                : 'bg-transparent border-[var(--border-default)] hover:border-[var(--border-accent)] hover:bg-[var(--surface-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+            } rounded-shape-md rtl:rounded-es-2xs ltr:rounded-ee-2xs`}
             title={language === 'ar' ? 'المساعد الذكي' : 'AI Assistant'}
           >
-            <AssistantIcon size={16} isSpinning={isGenerating} fallbackType="sparkles" />
+            <div className="relative w-6 h-6 flex items-center justify-center shrink-0">
+              <div className={`absolute -inset-1 rounded-full border border-dashed ${sideNavActiveTab === 'chat' ? 'border-accent' : 'border-accent/50'} ${isGenerating ? 'animate-[spin_2s_linear_infinite_reverse]' : 'animate-[spin_8s_linear_infinite_reverse] group-hover:border-accent group-hover:scale-105'} transition-all opacity-80 group-hover:opacity-100`} />
+              {logoSrc ? (
+                <NotificationIconRenderer
+                  src={resolveImageUrl(logoSrc, 'general')}
+                  alt="Platform Logo"
+                  size={18}
+                  className="w-4.5 h-4.5 object-contain block relative z-10"
+                  fallbackIcon={<AssistantIcon size={16} isSpinning={isGenerating} spinDirection="reverse" fallbackType="sparkles" className="text-accent relative z-10" />}
+                />
+              ) : (
+                <AssistantIcon size={16} isSpinning={isGenerating} spinDirection="reverse" fallbackType="sparkles" className="relative z-10" />
+              )}
+            </div>
             <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
               {language === 'ar' ? 'المساعد الذكي' : 'AI Assistant'}
             </span>
@@ -3067,20 +3068,96 @@ export const AppStudioPage: React.FC = () => {
                     )}
 
                     {chatMessages.map((msg, idx) => (
-                      <div key={msg.id} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} group animate-in fade-in slide-in-from-bottom-2 duration-300`}>
+                      <div key={msg.id} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} group/msg animate-in fade-in slide-in-from-bottom-2 duration-300`}>
                         <div className={`flex items-center gap-1.5 mb-1 px-1 text-[10px] text-[var(--text-muted)] font-medium ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
                           <span>{msg.role === 'user' ? (language === 'ar' ? 'أنت' : 'You') : (language === 'ar' ? 'المساعد البرمجي' : 'Assistant')}</span>
                           <span>•</span>
                           <span>{msg.timestamp}</span>
                         </div>
-                        <div className={`max-w-[92%] rounded-shape-lg p-3 text-xs leading-relaxed shadow-sm transition-all ${
-                          msg.role === 'user' 
-                            ? 'bg-accent text-white rounded-te-none' 
-                            : 'bg-[var(--surface-card)] border border-[var(--border-default)] text-[var(--text-primary)] rounded-ts-none'
-                        }`}>
-                          <div className="whitespace-pre-wrap break-words">{msg.text}</div>
-                          {msg.role === 'assistant' && msg.text === liveStreamText && isGenerating && (
-                            <span className="inline-block w-1 h-3.5 bg-accent/40 animate-pulse ms-1 align-middle" />
+                        <div className="relative group/bubble max-w-[92%] flex flex-col items-end">
+                          <div className={`rounded-shape-lg p-3 text-xs leading-relaxed shadow-sm transition-all ${
+                            msg.role === 'user' 
+                              ? 'bg-accent text-white rounded-te-none' 
+                              : 'bg-[var(--surface-card)] border border-[var(--border-default)] text-[var(--text-primary)] rounded-ts-none'
+                          }`}>
+                            <div className="whitespace-pre-wrap break-words">{msg.text}</div>
+                            {msg.role === 'assistant' && msg.text === liveStreamText && isGenerating && (
+                              <span className="inline-block w-1 h-3.5 bg-accent/40 animate-pulse ms-1 align-middle" />
+                            )}
+                          </div>
+
+                          {/* Professional, Lightweight User Prompt Actions: Edit, Copy, Resend */}
+                          {msg.role === 'user' && (
+                            <div className="flex items-center gap-0.5 mt-1 px-1.5 py-0.5 rounded-shape-xs bg-[var(--surface-card)]/90 backdrop-blur-xs border border-[var(--border-default)] opacity-80 group-hover/bubble:opacity-100 group-hover/msg:opacity-100 transition-opacity duration-fast shadow-2xs">
+                              {/* Edit Action */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setPromptQuery(msg.text);
+                                  if (promptInputRef.current) {
+                                    promptInputRef.current.focus();
+                                    promptInputRef.current.setSelectionRange(msg.text.length, msg.text.length);
+                                  }
+                                  toast.info(language === 'ar' ? 'تم تجهيز البرومبت للتعديل' : 'Prompt loaded for editing');
+                                }}
+                                className="px-1.5 py-0.5 rounded-shape-2xs text-[10px] text-[var(--text-secondary)] hover:text-accent hover:bg-[var(--surface-subtle)] transition-colors flex items-center gap-1 font-medium cursor-pointer"
+                                title={language === 'ar' ? 'تعديل البرومبت' : 'Edit Prompt'}
+                              >
+                                <Edit2 size={11} />
+                                <span className="hidden sm:inline">{language === 'ar' ? 'تعديل' : 'Edit'}</span>
+                              </button>
+
+                              <span className="w-px h-2.5 bg-[var(--border-default)]" />
+
+                              {/* Copy Action */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(msg.text);
+                                  setCopiedMsgId(msg.id);
+                                  toast.success(language === 'ar' ? 'تم نسخ البرومبت' : 'Prompt copied');
+                                  setTimeout(() => setCopiedMsgId(null), 2000);
+                                }}
+                                className="px-1.5 py-0.5 rounded-shape-2xs text-[10px] text-[var(--text-secondary)] hover:text-accent hover:bg-[var(--surface-subtle)] transition-colors flex items-center gap-1 font-medium cursor-pointer"
+                                title={language === 'ar' ? 'نسخ البرومبت' : 'Copy Prompt'}
+                              >
+                                {copiedMsgId === msg.id ? (
+                                  <>
+                                    <Check size={11} className="text-[var(--fg-success)]" />
+                                    <span className="text-[var(--fg-success)] hidden sm:inline">{language === 'ar' ? 'تم النسخ' : 'Copied'}</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy size={11} />
+                                    <span className="hidden sm:inline">{language === 'ar' ? 'نسخ' : 'Copy'}</span>
+                                  </>
+                                )}
+                              </button>
+
+                              <span className="w-px h-2.5 bg-[var(--border-default)]" />
+
+                              {/* Resend Action */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (isGenerating) {
+                                    toast.warning(language === 'ar' ? 'جاري تنفيذ طلب حالي بالفعالية...' : 'A prompt is currently generating...');
+                                    return;
+                                  }
+                                  handleSendPrompt(msg.text);
+                                }}
+                                disabled={isGenerating}
+                                className={`px-1.5 py-0.5 rounded-shape-2xs text-[10px] transition-colors flex items-center gap-1 font-medium cursor-pointer ${
+                                  isGenerating 
+                                    ? 'text-[var(--text-muted)] opacity-50 cursor-not-allowed' 
+                                    : 'text-[var(--text-secondary)] hover:text-accent hover:bg-[var(--surface-subtle)]'
+                                }`}
+                                title={language === 'ar' ? 'إعادة الإرسال' : 'Resend Prompt'}
+                              >
+                                <RotateCcw size={11} />
+                                <span className="hidden sm:inline">{language === 'ar' ? 'إعادة إرسال' : 'Resend'}</span>
+                              </button>
+                            </div>
                           )}
                         </div>
                         

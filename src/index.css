@@ -3302,6 +3302,16 @@ html[data-theme="dark"] .perplexta-codeblock .token.variable {
   margin-bottom: 0.375rem;
 }
 
+/* Reverse Spin Animation for Inward Circular Motion */
+@keyframes spin-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+.animate-spin-reverse {
+  animation: spin-reverse 1s linear infinite;
+}
+
 /* Infinite Marquee Animation for Brand Partner Carousel */
 @keyframes marquee-ltr {
   0% { transform: translateX(0); }
