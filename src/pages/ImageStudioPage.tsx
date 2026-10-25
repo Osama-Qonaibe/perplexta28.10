@@ -901,11 +901,12 @@ export const ImageStudioPage: React.FC = () => {
               aria-label={isAr ? 'الخروج والعودة للرئيسية' : 'Exit to Home'}
             >
               {/* Normal Logo */}
-              <div className="w-full h-full p-1 flex items-center justify-center transition-all duration-base group-hover/logo-btn:opacity-0 group-hover/logo-btn:scale-75">
+              <div className="w-full h-full p-1 flex items-center justify-center transition-all duration-base group-hover/logo-btn:opacity-0 group-hover/logo-btn:scale-75 overflow-hidden">
                 <img 
                   src={resolveImageUrl(logo, 'general') || '/brand/default-logo.svg'} 
                   alt={isAr ? "رينكس" : "Rinex"} 
-                  className="w-full h-full object-contain"
+                  className="w-full h-full max-w-full max-h-full object-contain block"
+                  style={{ maxWidth: '100%', maxHeight: '100%' }}
                   onError={(e) => {
                     (e.currentTarget as HTMLImageElement).src = '/brand/default-logo.svg';
                   }}

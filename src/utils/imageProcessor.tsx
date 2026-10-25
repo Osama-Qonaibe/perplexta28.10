@@ -255,7 +255,7 @@ export const NotificationIconRenderer: React.FC<NotificationIconProps> = ({
   return (
     <div 
       className={`relative inline-flex items-center justify-center overflow-hidden shrink-0 ${className}`}
-      style={{ width: `${size}px`, height: `${size}px` }}
+      style={{ width: `${size}px`, height: `${size}px`, maxWidth: `${size}px`, maxHeight: `${size}px` }}
     >
       {iconSrc ? (
         <img
@@ -266,7 +266,8 @@ export const NotificationIconRenderer: React.FC<NotificationIconProps> = ({
           loading="eager"
           decoding="async"
           onError={() => setHasError(true)}
-          className={`w-full h-full object-contain transition-opacity duration-fast ${isProcessing ? 'opacity-70' : 'opacity-100'}`}
+          className={`w-full h-full max-w-full max-h-full object-contain transition-opacity duration-fast ${isProcessing ? 'opacity-70' : 'opacity-100'}`}
+          style={{ width: `${size}px`, height: `${size}px`, maxWidth: `${size}px`, maxHeight: `${size}px` }}
         />
       ) : (
         fallbackIcon

@@ -2556,7 +2556,17 @@ export const AppStudioPage: React.FC = () => {
           </button>
 
           {logoSrc && (
-            <img src={logoSrc} alt="Studio" className="h-5 w-auto object-contain hidden sm:block shrink-0" />
+            <div className="h-5 max-h-5 max-w-[100px] shrink-0 hidden sm:flex items-center justify-center overflow-hidden">
+              <img 
+                src={resolveImageUrl(logoSrc, 'general')} 
+                alt="Studio Logo" 
+                className="h-full max-h-5 w-auto max-w-[100px] object-contain block" 
+                style={{ maxHeight: '20px', maxWidth: '100px' }}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            </div>
           )}
 
           <div className="h-4 w-px bg-[var(--border-default)] hidden sm:block shrink-0" />

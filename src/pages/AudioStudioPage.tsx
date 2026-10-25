@@ -225,7 +225,14 @@ export const AudioStudioPage: React.FC = () => {
 
           <div className="flex items-center gap-2">
             {logo ? (
-              <img src={resolveImageUrl(logo, 'general')} alt={siteName} className="w-7 h-7 rounded-[var(--radius-xs)] object-cover" />
+              <div className="w-7 h-7 max-w-7 max-h-7 rounded-[var(--radius-xs)] overflow-hidden flex items-center justify-center shrink-0">
+                <img 
+                  src={resolveImageUrl(logo, 'general')} 
+                  alt={siteName} 
+                  className="w-full h-full max-w-full max-h-full object-cover block" 
+                  style={{ maxWidth: '28px', maxHeight: '28px' }}
+                />
+              </div>
             ) : (
               <div className="w-7 h-7 rounded-[var(--radius-xs)] bg-[var(--surface-subtle)] border border-[var(--border-default)] flex items-center justify-center">
                 <Cpu className="w-3.5 h-3.5 text-[var(--fg-accent)]" />
