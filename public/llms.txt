@@ -1,0 +1,20 @@
+# Perplexta Platform
+
+> Perplexta is a sovereign multimodal AI ecosystem combining live full-stack application generation, 4K design and motion graphics canvas, academic research engine, and creator economy platform.
+
+## Core Capabilities
+- [App Studio](https://perplexta.com/app-studio): Interactive full-stack application generator with real-time preview, instant code editing, and sovereign deployment.
+- [Design Studio](https://perplexta.com/image-studio): Freeform canvas, motion graphics, vector editing, 4K video exports, and certified marketplace templates.
+- [Academic Research](https://perplexta.com/chat): AI-powered academic paper synthesis, verified citations, and research literature analysis.
+- [ViralBook Hub](https://perplexta.com/viralbook): Sovereign creator feed, verified reels, and interactive social community.
+- [Creator Economy](https://perplexta.com/creator): Creator partner program with verified templates, revenue sharing ($0.70/use + 20% recurring), and wallet payouts.
+- [Pricing & Plans](https://perplexta.com/subscription): Transparent daily, monthly, and developer tiers with ledger-backed credits.
+- [Terms of Service](https://perplexta.com/terms): Sovereign IP ownership, privacy guarantees, and usage policies.
+- [Privacy Policy](https://perplexta.com/privacy): Strict data encryption, user data ownership, and zero-retention policies.
+- [Documentation Index](https://perplexta.com/docs/legal): Governance manuals, financial ledger protocols, and technical architecture docs.
+
+## Agent Resources & APIs
+- [WebMCP Endpoint](https://perplexta.com/api/mcp/sse): Server-Sent Events stream implementing Model Context Protocol (MCP) for autonomous AI agents.
+- [System Sitemap](https://perplexta.com/sitemap.xml): Full platform URL structure and index.
+- [Robots Policy](https://perplexta.com/robots.txt): Crawler rules and accessibility boundaries.
+- [Web App Manifest](https://perplexta.com/manifest.json): Progressive Web App configuration and install metadata.

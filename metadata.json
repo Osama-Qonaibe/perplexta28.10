@@ -1,0 +1,11 @@
+{
+  "name": "Remix perplexta-10/10/2026",
+  "description": "Imported from GitHub: Osama-Qonaibe/perplexta",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

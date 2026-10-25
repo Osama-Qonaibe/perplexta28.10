@@ -1,0 +1,68 @@
+# php -- BEGIN cPanel-generated handler, do not edit
+<IfModule mime_module>
+  AddHandler application/x-httpd-ea-php82 .php .php8 .phtml
+</IfModule>
+# php -- END cPanel-generated handler, do not edit
+
+Options -Indexes
+
+# =============================================================================
+# MANDATORY HTTP SECURITY HEADERS
+# =============================================================================
+<IfModule mod_headers.c>
+  # 1. HSTS (Strict-Transport-Security)
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+  # 2. X-Content-Type-Options
+  Header always set X-Content-Type-Options "nosniff"
+
+  # 3. X-Frame-Options
+  Header always set X-Frame-Options "SAMEORIGIN"
+
+  # 4. Referrer-Policy
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+  # 5. Content-Security-Policy (CSP)
+  Header always set Content-Security-Policy "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https: wss: ws: http://localhost:3000; frame-ancestors 'self';"
+
+  # RFC 8288 Link Headers for agent discovery
+  Header always set Link '</.well-known/api-catalog>; rel="api-catalog", </.well-known/oauth-authorization-server>; rel="oauth-authorization-server", </.well-known/oauth-protected-resource>; rel="oauth-protected-resource", </auth.md>; rel="service-doc", </.well-known/mcp/server-card.json>; rel="service-desc", </.well-known/acp.json>; rel="acp"'
+</IfModule>
+
+# Prevent direct access to sensitive configuration, backup, and environment files
+<FilesMatch "^\.env|^\.git|package\.json|tsconfig\.json|vite\.config\.ts|server\.ts|docker-compose\.yml|Dockerfile">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+LimitRequestBody 104857600
+# Markdown for Agents - serve auth.md directly
+RewriteCond %{HTTP:Accept} text/markdown
+RewriteRule ^$ /auth.md [L]
+DirectoryIndex /dist/index.html
+
+AddType application/javascript .js .mjs
+AddType application/json .json
+AddType text/markdown .md
+
+RewriteEngine On
+
+# Static Assets Routing
+RewriteRule ^assets/(.*)$ /dist/assets/$1 [L]
+RewriteRule ^app-assets/(.*)$ /dist/app-assets/$1 [L]
+RewriteRule ^manifest\.json$ /dist/manifest.json [L]
+RewriteRule ^manifest\.webmanifest$ /dist/manifest.webmanifest [L]
+RewriteRule ^sw\.js$ /dist/sw.js [L]
+RewriteRule ^workbox-(.*)$ /dist/workbox-$1 [L]
+RewriteRule ^robots\.txt$ /dist/robots.txt [L]
+RewriteRule ^sitemap\.xml$ /dist/sitemap.xml [L]
+
+# Reverse Proxy to localhost:3000 strictly for /api and /.well-known ONLY
+RewriteCond %{REQUEST_URI} ^/api/ [OR]
+RewriteCond %{REQUEST_URI} ^/\.well-known/
+RewriteRule ^(.*)$ http://localhost:3000/$1 [P,L]
+
+# SPA Fallback
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /dist/index.html [L]

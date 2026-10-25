@@ -1,0 +1,23 @@
+# Perplexta Platform - Full Technical Documentation for AI Agents
+
+> Comprehensive architecture, capabilities, and system specifications for autonomous agents and large language models interacting with the Perplexta platform.
+
+## Platform Identity & Philosophy
+Perplexta operates under a sovereign, dual-database architecture. It isolates operational computing from ledger-verified financial accounts and provides high-speed multimodal AI execution across code generation, 4K motion design, and academic research.
+
+## Core Services & Endpoints
+- [App Studio](https://perplexta.com/app-studio): Interactive full-stack application generator with real-time preview, instant code editing, and sovereign deployment.
+- [Design Studio](https://perplexta.com/image-studio): Freeform canvas, motion graphics, vector editing, 4K video exports, and certified marketplace templates.
+- [Academic Research](https://perplexta.com/chat): AI-powered academic paper synthesis, verified citations, and research literature analysis.
+- [ViralBook Hub](https://perplexta.com/viralbook): Sovereign creator feed, verified reels, and interactive social community.
+- [Creator Economy](https://perplexta.com/creator): Creator partner program with verified templates, revenue sharing ($0.70/use + 20% recurring), and wallet payouts.
+- [Pricing & Plans](https://perplexta.com/subscription): Transparent daily, monthly, and developer tiers with ledger-backed credits.
+- [Terms of Service](https://perplexta.com/terms): Sovereign IP ownership, privacy guarantees, and usage policies.
+- [Privacy Policy](https://perplexta.com/privacy): Strict data encryption, user data ownership, and zero-retention policies.
+- [Documentation Index](https://perplexta.com/docs/legal): Governance manuals, financial ledger protocols, and technical architecture docs.
+
+## Agent Protocol Integration
+- [WebMCP Endpoint](https://perplexta.com/api/mcp/sse): Server-Sent Events stream implementing Model Context Protocol (MCP) for autonomous AI agents.
+- [System Sitemap](https://perplexta.com/sitemap.xml): Full platform URL structure and index.
+- [Robots Policy](https://perplexta.com/robots.txt): Crawler rules and accessibility boundaries.
+- [Web App Manifest](https://perplexta.com/manifest.json): Progressive Web App configuration and install metadata.
