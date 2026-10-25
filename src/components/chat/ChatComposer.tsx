@@ -852,27 +852,20 @@ export const ChatComposer: React.FC<ChatComposerProps> = ({
                         handleSelectSuggestion(item.suggestion);
                       }}
                       onMouseEnter={() => setActiveSuggestionIndex(idx)}
-                      className={`group flex items-center justify-between h-8 w-full px-2.5 rounded-shape-sm text-xs cursor-pointer transition-colors duration-fast border ${
+                      className={`group flex items-center justify-between h-8 w-full px-3 rounded-shape-full text-xs cursor-pointer transition-colors duration-fast border ${
                         isHighlighted 
-                          ? 'bg-[var(--surface-subtle)] text-[var(--text-primary)] font-medium border-[var(--border-default)]' 
+                          ? 'bg-[var(--surface-subtle)] text-[var(--text-primary)] font-bold border-[var(--border-default)]' 
                           : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] border-transparent'
                       }`}
                     >
                       <div className="flex items-center gap-2 min-w-0 truncate">
                         <Search className={`w-3.5 h-3.5 shrink-0 transition-colors duration-fast ${isHighlighted ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)] group-hover:text-[var(--text-primary)]'}`} />
-                        <span className="inline-flex items-center gap-1.5 text-xs truncate">
-                          {item.matchedPrefix ? (
-                            <span className="text-[var(--text-muted)] font-normal shrink-0">
-                              {item.matchedPrefix}
-                            </span>
-                          ) : null}
-                          <span className="truncate text-[var(--text-primary)] transition-colors duration-fast">
-                            {item.remainingText}
-                          </span>
+                        <span className="truncate text-[var(--text-primary)] transition-colors duration-fast font-medium">
+                          {dir === 'rtl' ? item.suggestion.titleAr : item.suggestion.titleEn}
                         </span>
                       </div>
                       {categoryText ? (
-                        <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-shape-xs border shrink-0 transition-colors duration-fast ${
+                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-shape-full border shrink-0 transition-colors duration-fast ${
                           isHighlighted 
                             ? 'text-[var(--text-secondary)] border-[var(--border-default)] bg-[var(--surface-card)]' 
                             : 'text-[var(--text-muted)] border-[var(--border-default)]/60 bg-transparent'

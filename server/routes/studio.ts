@@ -183,7 +183,7 @@ router.get('/workspaces', authenticateTokenOptional, async (req: any, res) => {
       return res.json([]);
     }
     const result = await pool.query(
-      'SELECT id, user_id, title, description, framework_mode, files, chat_history, is_public, created_at, updated_at FROM studio_workspaces WHERE user_id = $1 ORDER BY updated_at DESC', 
+      'SELECT id, user_id, title, description, framework_mode, files, chat_history, is_public, metadata, created_at, updated_at FROM studio_workspaces WHERE user_id = $1 ORDER BY updated_at DESC', 
       [userId]
     );
     res.json(result.rows);
@@ -198,7 +198,7 @@ const inMemoryWorkspaces = new Map<string, any>();
 router.post('/workspaces', authenticateTokenOptional, async (req: any, res) => {
   try {
     const userId = req.user?.id || req.user?.userId;
-    const { id, title, description, frameworkMode, files, chatHistory, isPublic } = req.body;
+    const { id, title, description, frameworkMode, files, chatHistory, isPublic, metadata } = req.body;
     if (!id || !title) {
       return res.status(400).json({ error: 'Workspace id and title are required' });
     }
@@ -225,6 +225,7 @@ router.post('/workspaces', authenticateTokenOptional, async (req: any, res) => {
           files: files || {},
           chat_history: chatHistory || [],
           is_public: isPublic !== undefined ? !!isPublic : false,
+          metadata: metadata || {},
           updated_at: new Date()
         });
         return res.json({ 
@@ -246,13 +247,14 @@ router.post('/workspaces', authenticateTokenOptional, async (req: any, res) => {
       files: files || {},
       chat_history: chatHistory || [],
       is_public: isPublic !== undefined ? !!isPublic : false,
+      metadata: metadata || {},
       updated_at: new Date()
     });
 
     try {
       await pool.query(
-        `INSERT INTO studio_workspaces (id, user_id, title, description, framework_mode, files, chat_history, is_public) 
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `INSERT INTO studio_workspaces (id, user_id, title, description, framework_mode, files, chat_history, is_public, metadata) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
          ON CONFLICT (id) DO UPDATE SET 
            user_id = COALESCE(EXCLUDED.user_id, studio_workspaces.user_id),
            title = EXCLUDED.title,
@@ -261,7 +263,9 @@ router.post('/workspaces', authenticateTokenOptional, async (req: any, res) => {
            files = EXCLUDED.files,
            chat_history = COALESCE(EXCLUDED.chat_history, studio_workspaces.chat_history),
            is_public = COALESCE(EXCLUDED.is_public, studio_workspaces.is_public),
-           updated_at = CURRENT_TIMESTAMP`,
+           metadata = COALESCE(EXCLUDED.metadata, studio_workspaces.metadata),
+           updated_at = CURRENT_TIMESTAMP
+         WHERE studio_workspaces.user_id = EXCLUDED.user_id OR studio_workspaces.user_id IS NULL`,
         [
           id, 
           userId || null, 
@@ -270,7 +274,8 @@ router.post('/workspaces', authenticateTokenOptional, async (req: any, res) => {
           frameworkMode || 'html', 
           JSON.stringify(files || {}), 
           JSON.stringify(chatHistory || []), 
-          isPublic !== undefined ? !!isPublic : false
+          isPublic !== undefined ? !!isPublic : false,
+          JSON.stringify(metadata || {})
         ]
       );
     } catch (dbErr) {
@@ -326,7 +331,7 @@ router.delete('/workspaces/:id', authenticateTokenOptional, async (req: any, res
            SELECT id FROM studio_workspaces WHERE id = $1 AND user_id = $2
          )`,
         [id, userId]
-      ).catch(err => {
+      ).catch((err: any) => {
         console.warn('[Delete Snapshots Notice]:', err);
       });
 
@@ -762,7 +767,8 @@ router.get('/workspaces/:id/preview', authenticateTokenOptional, async (req: any
       <script>
         (function() {
           window.process = window.process || { env: {} };
-          window.process.env = Object.assign(window.process.env, {});
+          window.process.env = Object.assign(window.process.env, ${JSON.stringify((workspace?.metadata && typeof workspace.metadata === 'object' && workspace.metadata.envVars) ? workspace.metadata.envVars : {})});
+          window.__VITE_ENV__ = Object.assign(window.__VITE_ENV__ || {}, window.process.env);
         })();
       </script>
     `;

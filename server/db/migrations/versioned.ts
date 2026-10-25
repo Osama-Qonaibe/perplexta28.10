@@ -171,7 +171,7 @@ export async function runVersionedMigrations(
     await runVersioned('v2_additive_columns', 'Ensuring idempotent columns and constraints', async (tx) => {
       await ensureColumnsBulk(tx, 'users', {
         last_active_at: { type: 'TIMESTAMP' },
-        theme: { type: 'VARCHAR(10)', default: `'dark'` },
+        theme: { type: 'VARCHAR(10)', default: `'light'` },
         updated_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' },
         referred_by: { type: 'INTEGER' },
         kyc_submitted_at: { type: 'TIMESTAMP' },
@@ -181,7 +181,7 @@ export async function runVersionedMigrations(
         password_hash: { type: 'TEXT' },
         status: { type: 'VARCHAR(20)', default: `'active'` },
         avatar: { type: 'TEXT' },
-        referral_code: { type: 'VARCHAR(6)' },
+        referral_code: { type: 'VARCHAR(10)' },
         email_notifications: { type: 'BOOLEAN', default: 'true' }
       });
 
@@ -327,7 +327,7 @@ export async function runVersionedMigrations(
       const ledgerTarget = ledgerTx || tx;
 
       await ensureColumnsBulk(ledgerTarget, 'wallets', {
-        balance: { type: 'DECIMAL(15,4)', default: '0.0000' },
+        balance: { type: 'DECIMAL(20,4)', default: '0.0000' },
         updated_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' },
         referral_activated: { type: 'BOOLEAN', default: 'false' }
       });

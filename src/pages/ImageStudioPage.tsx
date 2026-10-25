@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { ArtifactImageEditor, CanvasElement, EditorFilters, auditAndPreloadTemplateImages, safeSvgDataUrl } from '../components/chat/artifacts/ArtifactImageEditor';
 import { ThemeToggleButton } from '../components/ThemeToggleButton';
-import { resolveImageUrl } from '../utils/imageResolver';
+import { resolveImageUrl, DEFAULT_AVATAR } from '../utils/imageResolver';
 import { toast } from '@/design-system';
 import { 
   StudioProject, 
@@ -877,7 +877,7 @@ export const ImageStudioPage: React.FC = () => {
             setActiveInitialCurrentPageIndex(0);
             setActiveInitialStudioMode('image');
             setProjects(getUserStudioProjects(user?.id));
-            navigate('/', { replace: true });
+            navigate(user ? '/chat' : '/', { replace: true });
           }}
           isFullscreen={true}
         />
@@ -895,7 +895,7 @@ export const ImageStudioPage: React.FC = () => {
             {/* Unified Logo & Morphing Exit Button (Matches Header.tsx w-8 h-8) */}
             <button 
               type="button"
-              onClick={() => navigate('/')} 
+              onClick={() => navigate(user ? '/chat' : '/')} 
               className="group/logo-btn relative w-8 h-8 rounded-shape-sm overflow-hidden border border-[var(--border-main)] hover:border-[var(--border-accent)] bg-transparent hover:bg-[var(--surface-subtle)] transition-all duration-fast flex items-center justify-center flex-shrink-0 cursor-pointer active:scale-95 shadow-2xs before:absolute before:-inset-1.5 before:content-['']"
               title={isAr ? 'الخروج والعودة للرئيسية' : 'Exit to Home'}
               aria-label={isAr ? 'الخروج والعودة للرئيسية' : 'Exit to Home'}
@@ -920,13 +920,10 @@ export const ImageStudioPage: React.FC = () => {
               </div>
             </button>
 
-            {/* Clean Studio Title & Subtitle Badge (Cleansed from redundant header switcher tabs) */}
+            {/* Clean Studio Title & Subtitle Badge */}
             <div className="flex items-center gap-2">
-              <span className="text-xs sm:text-sm font-black text-[var(--text-primary)] whitespace-nowrap tracking-tight leading-none">
-                {isAr ? 'استوديو رينكس' : 'Rinex Studio'}
-              </span>
               <span className="px-2 py-0.5 rounded-shape-xs bg-[color-mix(in_oklab,var(--accent)_12%,transparent)] border border-[color-mix(in_oklab,var(--accent)_25%,transparent)] text-[var(--accent)] text-[10px] font-bold font-mono">
-                {isAr ? 'محرر القوالب والتصاميم السحابي' : 'Cloud Design & Templates Studio'}
+                {isAr ? 'استوديو التصميم السحابي' : 'Cloud Design Studio'}
               </span>
             </div>
           </div>
@@ -936,13 +933,38 @@ export const ImageStudioPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsAuthModalOpen(true)}
-                className="relative h-8 px-3 rounded-shape-sm bg-[var(--comp-button-primary-bg)] hover:opacity-90 text-[var(--comp-button-primary-fg)] font-bold text-xs leading-none inline-flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer active:scale-95 before:absolute before:-inset-1.5 before:content-['']"
-                title={isAr ? 'ابدأ الآن مجاناً' : 'Start Free Now'}
+                className="relative h-7 px-3 rounded-shape-xs bg-[var(--comp-button-primary-bg)] hover:opacity-90 text-[var(--comp-button-primary-fg)] font-bold text-[11px] leading-none inline-flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
               >
-                <Sparkles size={13} className="shrink-0" />
-                <span>{isAr ? 'ابدأ الآن' : 'Start Now'}</span>
+                {isAr ? 'تسجيل الدخول' : 'Sign In'}
               </button>
             )}
+
+            {user && !isUserRegisteredCreator && (
+              <button
+                type="button"
+                onClick={() => setIsRegistrationModalOpen(true)}
+                className="h-7 px-3 rounded-shape-xs bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-[11px] font-black uppercase tracking-tighter flex items-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+              >
+                <Award size={13} className="animate-bounce" />
+                <span>{isAr ? 'احصل على 50$ مكافأة' : '$50 Welcome Bonus'}</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                if (!user) {
+                  setIsAuthModalOpen(true);
+                } else {
+                  setActiveTab('templates');
+                  navigate('/image-studio?mode=video');
+                }
+              }}
+              className="h-7 px-3 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:border-accent/40 text-[var(--text-primary)] text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs"
+            >
+              <Video size={13} className="text-accent" />
+              <span>{isAr ? 'فيديو وريلز' : 'Video & Reels'}</span>
+            </button>
             <button
               type="button"
               onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
@@ -957,6 +979,7 @@ export const ImageStudioPage: React.FC = () => {
               size="sm" 
               className="relative !w-8 !h-8 !rounded-shape-sm !border-[var(--border-main)] hover:!border-[var(--border-accent)] !bg-transparent hover:!bg-[var(--surface-subtle)] !text-[var(--text-secondary)] hover:!text-[var(--text-primary)] transition-all duration-150 before:absolute before:-inset-1.5 before:content-['']" 
             />
+
           </div>
         </div>
       </header>
@@ -976,7 +999,13 @@ export const ImageStudioPage: React.FC = () => {
                 <div className="relative">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-shape-md overflow-hidden bg-[var(--surface-subtle)] border-2 border-[var(--border-accent)] flex items-center justify-center text-[var(--accent)] font-bold text-xl shadow-sm flex-shrink-0">
                     {user?.avatar ? (
-                      <img src={resolveImageUrl(user?.avatar, 'avatar')} alt={user?.name || ''} className="w-full h-full object-cover" />
+                      <img
+                        src={resolveImageUrl(user?.avatar, 'avatar')}
+                        alt={user?.name || ''}
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).src = DEFAULT_AVATAR; }}
+                      />
                     ) : (
                       <UserIcon className="w-7 h-7 text-[var(--accent)]" />
                     )}

@@ -106,22 +106,8 @@ export const AuthCard: React.FC<AuthCardProps> = ({
         } else {
           if (onSuccess) {
             onSuccess();
-          } else {
-            const currentPath = window.location.pathname;
-            const isLanding = currentPath === '/' || currentPath === '/overview' || currentPath === '/welcome';
-            if (isLanding) {
-              let targetRoute = '/chat';
-              try {
-                const savedRedirect = sessionStorage.getItem('perplexta_post_auth_redirect');
-                if (savedRedirect && savedRedirect.startsWith('/')) {
-                  targetRoute = savedRedirect;
-                  sessionStorage.removeItem('perplexta_post_auth_redirect');
-                }
-              } catch {}
-              navigate(targetRoute, { replace: true });
-            } else if (onClose) {
-              onClose();
-            }
+          } else if (onClose) {
+            onClose();
           }
         }
       } else {
@@ -137,22 +123,8 @@ export const AuthCard: React.FC<AuthCardProps> = ({
         } else {
           if (onSuccess) {
             onSuccess();
-          } else {
-            const currentPath = window.location.pathname;
-            const isLanding = currentPath === '/' || currentPath === '/overview' || currentPath === '/welcome';
-            if (isLanding) {
-              let targetRoute = '/chat';
-              try {
-                const savedRedirect = sessionStorage.getItem('perplexta_post_auth_redirect');
-                if (savedRedirect && savedRedirect.startsWith('/')) {
-                  targetRoute = savedRedirect;
-                  sessionStorage.removeItem('perplexta_post_auth_redirect');
-                }
-              } catch {}
-              navigate(targetRoute, { replace: true });
-            } else if (onClose) {
-              onClose();
-            }
+          } else if (onClose) {
+            onClose();
           }
         }
       }

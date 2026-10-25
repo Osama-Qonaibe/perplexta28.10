@@ -142,11 +142,14 @@ async function initDatabaseAndMigrations(): Promise<boolean> {
       return true;
     } catch (err) {
       const msg = err instanceof Error ? err.stack || err.message : String(err);
+      const isConnectionError = msg.includes('ECONNREFUSED') || msg.includes('timeout') || msg.includes('connection');
+      const logType = isConnectionError ? 'CONNECTION_FAILURE' : 'SCHEMA_VALIDATION_ERROR';
+      
       if (attempt < MAX_DB_ATTEMPTS) {
-        console.warn(`[Server] DB connection attempt ${attempt}/${MAX_DB_ATTEMPTS}: ${msg}. Retrying in ${DB_RETRY_DELAY_MS / 1000}s...`);
+        console.warn(`[Server] DB Init Attempt ${attempt}/${MAX_DB_ATTEMPTS} failed [${logType}]: ${msg}. Retrying in ${DB_RETRY_DELAY_MS / 1000}s...`);
         await new Promise(resolve => setTimeout(resolve, DB_RETRY_DELAY_MS));
       } else {
-        console.warn(`[Server] All DB init attempts exhausted (${msg}). Operating in resilient Degraded Mode.`);
+        console.warn(`[Server] CRITICAL: All DB init attempts exhausted [${logType}] (${msg}). Operating in resilient Degraded Mode.`);
       }
     }
   }
@@ -215,8 +218,8 @@ async function startServer() {
         if (dbReady) {
           console.log('[Server] Database initialization & migrations completed successfully.');
 
-          // Cooldown delay (15s) to eliminate startup CPU/DB saturation
-          const COOLDOWN_DELAY_MS = 15_000;
+          // Cooldown delay (5s) to eliminate startup CPU/DB saturation
+          const COOLDOWN_DELAY_MS = 5_000;
           setTimeout(async () => {
             console.log('[Server] Cooldown period ended. Activating background cron jobs, health checks, and guardians...');
             initCronJobs();

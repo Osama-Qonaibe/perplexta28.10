@@ -94,8 +94,8 @@ export const themeConfig = {
 
   // Auth Card & Modal Styles (Modern Developer IDE Style - Single Source of Truth)
   auth: {
-    overlay: 'fixed inset-0 z-[200] overflow-y-auto flex items-center justify-center p-4 py-8 md:py-12 bg-black/75 backdrop-blur-md',
-    card: 'relative w-full max-w-[360px] md:max-w-[390px] p-6 md:p-7 rounded-shape-lg shadow-2xl border bg-[var(--surface-card)] border-[var(--border-default)] mx-auto flex flex-col justify-between backdrop-blur-md',
+    overlay: 'fixed inset-0 z-[200] overflow-y-auto flex items-center justify-center p-4 py-8 md:py-12 bg-black/60 backdrop-blur-sm',
+    card: 'relative w-full max-w-[360px] md:max-w-[390px] p-6 md:p-7 rounded-shape-lg shadow-2xl border bg-[var(--surface-card)] border-[var(--border-default)] mx-auto flex flex-col justify-between',
     title: 'text-base md:text-lg font-black text-[var(--text-primary)] font-sans',
     input: 'w-full py-2.5 px-3 rounded-shape-sm border outline-none transition-theme bg-[var(--surface-subtle)] border-[var(--border-default)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--border-accent)]/60 text-xs font-sans',
     submitButton: 'w-full h-11 min-h-[44px] px-4 bg-[var(--accent)] hover:opacity-95 text-[var(--surface-page)] font-bold rounded-shape-md transition-theme shadow-md flex items-center justify-center gap-2 text-xs active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed',

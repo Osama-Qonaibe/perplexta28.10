@@ -992,7 +992,14 @@ import { getSystemSettings, resolvePersistentSystemAssetUrl } from './services/s
 import { filePermissionCache, fileVersionCache, missingFileCache, FILE_CACHE_TTL_MS, MISSING_FILE_TTL_MS, invalidateFilePermissionCache, invalidateFileVersionCache, setBoundedCache } from './services/filePermissionCache.js';
 export { filePermissionCache, fileVersionCache, missingFileCache, invalidateFilePermissionCache, invalidateFileVersionCache };
 
-if (!fs.existsSync(uploadsPath)) {
+const brandUploadsPath = path.join(uploadsPath, 'brand');
+if (!fs.existsSync(brandUploadsPath)) {
+  try {
+    fs.mkdirSync(brandUploadsPath, { recursive: true });
+  } catch (dirErr) {
+    console.error('[Upload Directory] Failed to create uploads/brand directory:', dirErr);
+  }
+} else if (!fs.existsSync(uploadsPath)) {
   try {
     fs.mkdirSync(uploadsPath, { recursive: true });
   } catch (dirErr) {
@@ -1282,6 +1289,10 @@ app.use('/uploads', async (req: express.Request, res: express.Response, next: ex
             if (dbRes.rows.length > 0 && dbRes.rows[0].file_data) {
               const fileData = dbRes.rows[0].file_data;
               try {
+                const targetDir = path.dirname(resolvedPath);
+                if (!fs.existsSync(targetDir)) {
+                  fs.mkdirSync(targetDir, { recursive: true });
+                }
                 fs.writeFileSync(resolvedPath, fileData);
                 foundFile = true;
               } catch (writeErr) {
@@ -1305,6 +1316,10 @@ app.use('/uploads', async (req: express.Request, res: express.Response, next: ex
               if (mediaRes.rows.length > 0 && mediaRes.rows[0].file_data) {
                 const fileData = mediaRes.rows[0].file_data;
                 try {
+                  const targetDir = path.dirname(resolvedPath);
+                  if (!fs.existsSync(targetDir)) {
+                    fs.mkdirSync(targetDir, { recursive: true });
+                  }
                   fs.writeFileSync(resolvedPath, fileData);
                   foundFile = true;
                 } catch (writeErr) {

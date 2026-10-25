@@ -390,59 +390,6 @@ async function ensureRinexSeeded() {
   }
   isRinexSeeding = true;
   try {
-    // Dynamic table existence safety barrier
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS rinex_creators (
-        id VARCHAR(100) PRIMARY KEY,
-        username VARCHAR(100) UNIQUE NOT NULL,
-        name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) UNIQUE,
-        role_ar VARCHAR(255),
-        role_en VARCHAR(255),
-        avatar VARCHAR(500),
-        bio_ar TEXT,
-        bio_en TEXT,
-        verified BOOLEAN DEFAULT TRUE,
-        total_views INTEGER DEFAULT 0,
-        total_uses INTEGER DEFAULT 0,
-        rating DECIMAL(3,2) DEFAULT 5.0,
-        earnings_balance DECIMAL(20,4) DEFAULT 0.00,
-        followers_count INTEGER DEFAULT 0,
-        likes_count INTEGER DEFAULT 0,
-        profile_visits_count INTEGER DEFAULT 0,
-        social_links JSONB DEFAULT '{}',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS rinex_templates (
-        id VARCHAR(100) PRIMARY KEY,
-        creator_id VARCHAR(100) NOT NULL REFERENCES rinex_creators(id) ON DELETE CASCADE,
-        creator_name VARCHAR(255) NOT NULL,
-        creator_username VARCHAR(100) NOT NULL,
-        creator_avatar VARCHAR(500),
-        title_ar VARCHAR(255) NOT NULL,
-        title_en VARCHAR(255) NOT NULL,
-        description_ar TEXT,
-        description_en TEXT,
-        thumbnail TEXT,
-        canvas_background TEXT,
-        category VARCHAR(50) NOT NULL,
-        category_label_ar VARCHAR(100),
-        dimensions VARCHAR(50),
-        price_type VARCHAR(20) DEFAULT 'free',
-        price DECIMAL(10,2) DEFAULT 0.00,
-        views_count INTEGER DEFAULT 0,
-        uses_count INTEGER DEFAULT 0,
-        rating DECIMAL(3,2) DEFAULT 5.0,
-        elements JSONB DEFAULT '[]',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
     const creatorCheck = await pool.query('SELECT count(*) AS count FROM rinex_creators');
     if (creatorCheck.rows && creatorCheck.rows[0] && parseInt(creatorCheck.rows[0].count, 10) === 0) {
       console.log('[Rinex API] Seeding default creators into database...');
@@ -1157,8 +1104,35 @@ router.post('/templates/:id/use', authenticateTokenOptional, async (req: any, re
 });
 
 // 11. Toggle favorite template
-router.post('/templates/:id/favorite', authenticateToken, async (req, res) => {
-  res.json({ success: true });
+router.post('/templates/:id/favorite', authenticateToken, async (req: any, res) => {
+  try {
+    const userId = req.user?.id || req.user?.userId;
+    const templateId = req.params.id;
+    if (!userId || !templateId) {
+      return res.status(400).json({ error: 'User ID and Template ID are required' });
+    }
+    const existing = await pool.query(
+      'SELECT id FROM rinex_favorite_templates WHERE user_id = $1 AND template_id = $2',
+      [userId, templateId]
+    );
+    let isFavorite = false;
+    if (existing.rows.length > 0) {
+      await pool.query(
+        'DELETE FROM rinex_favorite_templates WHERE user_id = $1 AND template_id = $2',
+        [userId, templateId]
+      );
+      isFavorite = false;
+    } else {
+      await pool.query(
+        'INSERT INTO rinex_favorite_templates (user_id, template_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+        [userId, templateId]
+      );
+      isFavorite = true;
+    }
+    res.json({ success: true, isFavorite });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to toggle favorite template: ' + err.message });
+  }
 });
 
 // 12. Get payout requests
@@ -1216,20 +1190,39 @@ router.post('/payouts', authenticateToken, async (req: any, res) => {
 
     const newBalance = Math.max(0, currentBalance - payoutAmount);
     const id = `payout-${Date.now()}`;
+    const authUser = (req as any).user;
+    const isWalletTransfer = method === 'wallet' && Boolean(authUser?.id);
+    const initialStatus = isWalletTransfer ? 'completed' : 'pending';
+
     const insertRes = await ledgerPool.query(
-      `INSERT INTO rinex_payout_requests (id, creator_id, amount, method, details, status)
-       VALUES ($1, $2, $3, $4, $5, 'pending') RETURNING *`,
-      [id, creatorId, payoutAmount, method, details || '']
+      `INSERT INTO rinex_payout_requests (id, creator_id, amount, method, details, status, processed_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+      [id, creatorId, payoutAmount, method, details || '', initialStatus, isWalletTransfer ? new Date() : null]
     );
 
-    // Record pending transaction in ledger log
-    const authUser = (req as any).user;
     if (authUser?.id) {
-      await ledgerPool.query(
-        `INSERT INTO ledger_transactions (user_id, amount, points, transaction_type, status, description, reference_id)
-         VALUES ($1, $2, 0, 'rinex_creator_payout_request', 'pending', $3, $4)`,
-        [authUser.id, -payoutAmount, `طلب سحب أرباح مبدع رينكس (${creator.name || creatorId}) - ${method}`, id]
-      ).catch((tErr: any) => console.warn('[Rinex Payout Ledger Transaction] Notice:', tErr?.message || tErr));
+      if (isWalletTransfer) {
+        await ledgerPool.query(
+          `INSERT INTO wallets (user_id, balance, usd_balance)
+           VALUES ($1, $2, $2)
+           ON CONFLICT (user_id) DO UPDATE SET
+             balance = wallets.balance + EXCLUDED.balance,
+             usd_balance = COALESCE(wallets.usd_balance, 0) + EXCLUDED.usd_balance,
+             updated_at = CURRENT_TIMESTAMP`,
+          [authUser.id, payoutAmount]
+        );
+        await ledgerPool.query(
+          `INSERT INTO ledger_transactions (user_id, amount, points, transaction_type, status, description, reference_id)
+           VALUES ($1, $2, 0, 'rinex_creator_payout_wallet', 'completed', $3, $4)`,
+          [authUser.id, payoutAmount, `تحويل فوري لأرباح مبدع رينكس (${creator.name || creatorId}) إلى محفظة المنصة`, id]
+        ).catch((tErr: any) => console.warn('[Rinex Payout Ledger Transaction] Notice:', tErr?.message || tErr));
+      } else {
+        await ledgerPool.query(
+          `INSERT INTO ledger_transactions (user_id, amount, points, transaction_type, status, description, reference_id)
+           VALUES ($1, $2, 0, 'rinex_creator_payout_request', 'pending', $3, $4)`,
+          [authUser.id, -payoutAmount, `طلب سحب أرباح مبدع رينكس (${creator.name || creatorId}) - ${method}`, id]
+        ).catch((tErr: any) => console.warn('[Rinex Payout Ledger Transaction] Notice:', tErr?.message || tErr));
+      }
     }
 
     await pool.query('UPDATE rinex_creators SET earnings_balance = $1 WHERE id = $2', [newBalance, creatorId]);

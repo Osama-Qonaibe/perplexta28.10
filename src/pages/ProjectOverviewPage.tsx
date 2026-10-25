@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, memo, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { useNavigate, Link, useLocation, Navigate } from 'react-router-dom';
 import {
   Code2,
   Image as ImageIcon,
@@ -83,7 +83,6 @@ import { Logo } from '../components/common/Logo';
 import { AnimatedCounterNumber } from '../components/common/AnimatedCounterNumber';
 import { CognitiveOrbitRing } from '../components/chat/common/CognitiveOrbitRing';
 import { ThemeToggleButton } from '../components/ThemeToggleButton';
-import { AuthModal } from '../components/AuthModal';
 import { ALL_TOOLS } from '../constants';
 import { extractYouTubeId, getYouTubeEmbedUrl } from '../utils/videoUtils';
 import { 
@@ -333,9 +332,14 @@ export const ProjectOverviewPage: React.FC = () => {
   } = useAppContext();
 
   // Sovereign Visitor Landing Page Gate: If user is authenticated, route immediately to chosen target or /chat
+  const isLandingRoute =
+    location.pathname === '/' ||
+    location.pathname === '/overview' ||
+    location.pathname === '/welcome' ||
+    location.pathname === '/docs/overview';
+
   useEffect(() => {
-    const isLanding = location.pathname === '/' || location.pathname === '/overview' || location.pathname === '/welcome';
-    if ((user || token) && isLanding) {
+    if ((user || token) && isLandingRoute) {
       let targetRoute = '/chat';
       try {
         const savedRedirect = sessionStorage.getItem('perplexta_post_auth_redirect');
@@ -346,7 +350,7 @@ export const ProjectOverviewPage: React.FC = () => {
       } catch {}
       navigate(targetRoute, { replace: true });
     }
-  }, [user, token, navigate, location.pathname]);
+  }, [user, token, navigate, isLandingRoute]);
   const isRtl = language === 'ar';
   const brandName = (isRtl ? siteSettings?.siteNameAr : siteSettings?.siteName) || (isRtl ? 'بيربليكستا' : 'Perplexta');
 
@@ -1253,6 +1257,18 @@ export const ProjectOverviewPage: React.FC = () => {
     [isRtl]
   );
 
+  // Synchronous render gate: never paint the guest landing page or portal navbar if user is authenticated
+  if ((user || token) && isLandingRoute) {
+    let targetRoute = '/chat';
+    try {
+      const savedRedirect = sessionStorage.getItem('perplexta_post_auth_redirect');
+      if (savedRedirect && savedRedirect.startsWith('/')) {
+        targetRoute = savedRedirect;
+      }
+    } catch {}
+    return <Navigate to={targetRoute} replace />;
+  }
+
   return (
     <div className="min-h-screen bg-[var(--surface-page)] text-[var(--text-primary)] font-sans antialiased selection:bg-[var(--fg-accent)] selection:text-white">
       {/* =========================================================================
@@ -1261,10 +1277,10 @@ export const ProjectOverviewPage: React.FC = () => {
       {createPortal(
         <nav
           data-state={menuState && 'active'}
-          className={`fixed top-0 left-0 right-0 z-[99999] w-full bg-[var(--surface-card)]/95 backdrop-blur-xl border-b border-[var(--border-main)] shadow-md transition-all duration-300 ease-in-out ${
-            isAuthModalOpen
-              ? 'opacity-0 pointer-events-none -translate-y-4 scale-98'
-              : 'opacity-100 pointer-events-auto translate-y-0 scale-100'
+          className={`fixed top-0 left-0 right-0 z-[99999] w-full bg-[var(--surface-card)]/95 backdrop-blur-xl border-b border-[var(--border-main)] shadow-md transition-all duration-200 ease-out ${
+            isAuthModalOpen || Boolean(user || token)
+              ? 'opacity-0 pointer-events-none -translate-y-3'
+              : 'opacity-100 pointer-events-auto translate-y-0'
           }`}
         >
           <div className="mx-auto max-w-7xl px-6 lg:px-12 py-3">
@@ -4085,9 +4101,6 @@ export const ProjectOverviewPage: React.FC = () => {
         </div>,
         document.body
       )}
-
-      {/* Native Project Auth Modal */}
-      <AuthModal />
     </div>
   );
 };

@@ -288,7 +288,7 @@ router.post("/signup", authLimiter, async (req, res, next) => {
 
     res.json({ token: accessToken, refreshToken, user: userPayload });
 
-    await logSystemActivity(user.id, 'signup', 'User signed up', { visitor_id: user.visitor_id }, req);
+    logSystemActivity(user.id, 'signup', 'User signed up', { visitor_id: user.visitor_id }, req).catch(() => {});
     
     const baseUrl = getBaseUrl(req);
     const verificationLink = `${baseUrl}/verify-email?token=${verificationToken}`;
@@ -430,12 +430,13 @@ router.post("/login", authLimiter, async (req, res, next) => {
     }
 
     const { accessToken, refreshToken, rememberMe } = issueTokenPair(user, parseRemember(req.body.remember), jwtSecret);
-    await createUserSession(user.id, refreshToken, req, rememberMe ? 30 : 1);
-
-    const userPayload = await getUserProfile(user.id);
+    const [, userPayload] = await Promise.all([
+      createUserSession(user.id, refreshToken, req, rememberMe ? 30 : 1),
+      getUserProfile(user.id)
+    ]);
 
     res.json({ token: accessToken, refreshToken, user: userPayload });
-    await logSystemActivity(user.id, 'login', 'User logged in', {}, req);
+    logSystemActivity(user.id, 'login', 'User logged in', {}, req).catch(() => {});
   } catch (error) {
     next(error);
   }

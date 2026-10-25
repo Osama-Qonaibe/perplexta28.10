@@ -17,7 +17,7 @@ import {
   Share2, SlidersHorizontal, AlignJustify, AlignLeft, AlignCenter, AlignRight, RotateCw,
   Link2, MessageCircle, Folder, Save, FileDown, Strikethrough, Crown, ChevronLeft, ChevronRight,
   FolderOpen, Settings, Info, CloudCheck, Cloud, FileText, Printer, CheckCheck, Globe, Languages,
-  UploadCloud, File as FileIcon, Play, Camera, Pipette, Eraser, Bold, Italic, Underline, Award, Search, User, LogIn, Heart, Smartphone,
+  UploadCloud, File as FileIcon, Play, Camera, Pipette, Eraser, Bold, Italic, Underline, Award, Search, User, LogIn, LogOut, Activity, Wallet, BrainCircuit, Heart, Smartphone,
   Monitor, Compass, Tv, PlusCircle, Pause, Clock, Music, CreditCard, Volume2, VolumeX
 } from 'lucide-react';
 import { useAppContext } from '@/context/AppContext';
@@ -48,7 +48,7 @@ import {
   StudioEffectPreset,
   StudioAnimationPreset
 } from '../../../data/rataqStudioCatalog';
-import { resolveImageUrl } from '../../../utils/imageResolver';
+import { resolveImageUrl, DEFAULT_AVATAR } from '../../../utils/imageResolver';
 import { normalizeTemplateImageSrc } from '../../../utils/rataqTemplateLoader';
 import { 
   StudioUploadItem, 
@@ -1352,7 +1352,7 @@ export const ArtifactImageEditor: React.FC<ArtifactImageEditorProps> = ({
   isInChat = false,
   initialStudioMode
 }) => {
-  const { language, setLanguage, dir, theme, siteSettings, user, setIsAuthModalOpen } = useAppContext();
+  const { language, setLanguage, dir, theme, siteSettings, user, logout, setIsAuthModalOpen, t } = useAppContext();
   const navigate = useNavigate();
   const isAr = language === 'ar' || dir === 'rtl';
 
@@ -1360,6 +1360,7 @@ export const ArtifactImageEditor: React.FC<ArtifactImageEditorProps> = ({
   const [currentProjId, setCurrentProjId] = useState<string | undefined>(projectId);
   const [isUserRegisteredCreator, setIsUserRegisteredCreator] = useState<boolean>(false);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState<boolean>(false);
+  const [isStudioUserMenuOpen, setIsStudioUserMenuOpen] = useState<boolean>(false);
   const [userProjects, setUserProjects] = useState<StudioProject[]>([]);
   const [projectSearchQuery, setProjectSearchQuery] = useState<string>('');
 
@@ -6846,7 +6847,7 @@ export const ArtifactImageEditor: React.FC<ArtifactImageEditorProps> = ({
       <div className="flex-1 flex flex-row h-full min-h-0 overflow-hidden relative">
         
         {/* Main Icon Sidebar - Refined Compact Low-Noise Navigation */}
-        <aside className="w-[64px] bg-[var(--surface-card)] border-e border-[var(--border-main)] flex flex-col items-center py-2 justify-between shrink-0 z-20 select-none">
+        <aside className="w-[64px] bg-[var(--surface-card)] border-e border-[var(--border-main)] flex flex-col items-center py-2 justify-between shrink-0 z-30 select-none">
           <div className="flex flex-col items-center gap-1 w-full px-1 overflow-y-auto custom-scrollbar flex-1 pb-1 pt-0.5">
             {(
               studioMode === 'video' ? [
@@ -6914,44 +6915,155 @@ export const ArtifactImageEditor: React.FC<ArtifactImageEditorProps> = ({
           </div>
 
           <div className="w-full px-1 pt-2.5 border-t border-[var(--border-main)] flex flex-col items-center justify-center">
-            {user ? (
+            <div className="relative group/avatar flex items-center justify-center">
               <button
                 type="button"
-                onClick={() => toast.success(isAr ? `مسجل الدخول باسم: ${user.name}` : `Logged in as: ${user.name}`)}
-                className="group relative flex items-center justify-center w-11 h-11 rounded-shape-sm hover:bg-[var(--surface-subtle)] transition-all cursor-pointer border border-transparent touch-target-44"
-                title={isAr ? `الملف الشخصي: ${user.name}` : `Profile: ${user.name}`}
+                onClick={() => {
+                  if (!user) {
+                    setIsAuthModalOpen(true);
+                  } else {
+                    setIsStudioUserMenuOpen(prev => !prev);
+                  }
+                }}
+                style={{
+                  borderColor: user?.subscription?.plan_color || 'var(--border-default)'
+                }}
+                className="w-8 h-8 rounded-shape-sm flex items-center justify-center transition-colors duration-fast cursor-pointer relative border bg-[var(--surface-subtle)] overflow-hidden shrink-0 shadow-2xs before:absolute before:-inset-1.5"
+                title={user ? (user.name || user.email || (isAr ? 'الملف الشخصي' : 'Profile')) : (isAr ? 'تسجيل الدخول' : 'Sign In')}
               >
-                <div 
-                  className="w-8 h-8 rounded-shape-sm overflow-hidden border flex items-center justify-center bg-[var(--surface-subtle)] shadow-2xs transition-colors duration-fast"
-                  style={{ 
-                    borderColor: user.subscription?.plan_color || 'var(--border-accent)'
-                  }}
-                >
-                  {user.avatar ? (
-                    <img 
-                      src={resolveImageUrl(user.avatar, 'avatar')} 
-                      alt={user.name} 
-                      className="w-full h-full object-cover" 
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <User size={16} className="text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors duration-fast" />
-                  )}
-                </div>
+                {user?.avatar ? (
+                  <img
+                    src={resolveImageUrl(user.avatar, 'avatar')}
+                    alt={user.name || 'User Avatar'}
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = DEFAULT_AVATAR;
+                    }}
+                  />
+                ) : (
+                  <User size={15} className="text-[var(--text-muted)] group-hover/avatar:text-[var(--text-primary)] transition-colors duration-fast" />
+                )}
               </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setIsAuthModalOpen(true)}
-                className="group relative flex flex-col items-center justify-center gap-0.5 w-11 h-11 rounded-shape-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] transition-all cursor-pointer border border-transparent touch-target-44"
-                title={isAr ? 'تسجيل الدخول' : 'Sign In'}
-              >
-                <LogIn size={16} className="text-[var(--accent)]" />
-                <span className="text-[8.5px] leading-none font-bold">
-                  {isAr ? 'دخول' : 'Sign In'}
-                </span>
-              </button>
-            )}
+
+              {user && (() => {
+                const rawProfileLinks = [
+                  {
+                    id: 'account',
+                    label: t('accountSettings') || (dir === 'rtl' ? 'إعدادات الحساب' : 'Account Settings'),
+                    icon: User,
+                    path: '/settings/account'
+                  },
+                  {
+                    id: 'usage',
+                    label: t('consumption') || (dir === 'rtl' ? 'الاستهلاك والحدود' : 'Usage & Limits'),
+                    icon: Activity,
+                    path: '/settings/usage'
+                  },
+                  {
+                    id: 'wallet',
+                    label: t('wallet') || (dir === 'rtl' ? 'المحفظة والرصيد' : 'Wallet'),
+                    icon: Wallet,
+                    path: '/settings/wallet'
+                  },
+                  {
+                    id: 'memory',
+                    label: t('memoryCenter') || (dir === 'rtl' ? 'ذاكرة المساعد' : 'Memory Center'),
+                    icon: BrainCircuit,
+                    path: '/settings/memory'
+                  }
+                ];
+
+                const sortedProfileLinks = [...rawProfileLinks].sort((a, b) => {
+                  const lenA = a.label.trim().length;
+                  const lenB = b.label.trim().length;
+                  return lenA !== lenB ? lenA - lenB : a.label.localeCompare(b.label);
+                });
+
+                return (
+                  <div
+                    dir={dir}
+                    className={`absolute bottom-0 start-11 w-60 p-1.5 rounded-shape-md border shadow-2xl z-50 bg-[var(--surface-card)] border-[var(--border-default)] flex flex-col gap-0.5 font-sans transition-all duration-200 before:content-[''] before:absolute before:-inset-3 before:-z-10 ${
+                      isStudioUserMenuOpen
+                        ? 'opacity-100 pointer-events-auto scale-100'
+                        : 'opacity-0 pointer-events-none group-hover/avatar:opacity-100 group-hover/avatar:pointer-events-auto scale-95 group-hover/avatar:scale-100'
+                    }`}
+                  >
+                    {/* User profile header summary */}
+                    <div className="flex items-center gap-2.5 px-2.5 py-2 border-b border-[var(--border-default)] mb-1 overflow-hidden">
+                      <div
+                        className="w-7 h-7 rounded-shape-sm flex items-center justify-center flex-shrink-0 overflow-hidden border transition-colors duration-fast"
+                        style={{ borderColor: user.subscription?.plan_color || 'var(--border-default)' }}
+                      >
+                        {user.avatar ? (
+                          <img
+                            src={resolveImageUrl(user.avatar, 'avatar')}
+                            alt={user.name}
+                            className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
+                            onError={(e) => { (e.currentTarget as HTMLImageElement).src = DEFAULT_AVATAR; }}
+                          />
+                        ) : (
+                          <User size={14} className="text-[var(--text-muted)]" />
+                        )}
+                      </div>
+                      <div className="flex flex-col min-w-0 flex-1 text-start overflow-hidden">
+                        <span className="font-bold text-xs truncate leading-tight text-[var(--text-primary)]">{user.name}</span>
+                        <span className="text-[9.5px] text-[var(--text-muted)] truncate leading-tight mt-0.5 font-medium">
+                          {t(`role_${(user.role || 'user').toLowerCase()}`) || user.role || 'Member'}
+                        </span>
+                      </div>
+                      {user.subscription?.plan_name_en && (
+                        <span
+                          className="text-[8px] font-black uppercase px-1.5 py-0.5 rounded-shape-xs border border-current leading-none shrink-0"
+                          style={{ color: user.subscription?.plan_color || 'var(--text-primary)' }}
+                        >
+                          {user.subscription?.plan_name_en}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Menu options sorted hierarchically */}
+                    {sortedProfileLinks.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            setIsStudioUserMenuOpen(false);
+                            navigate(item.path);
+                          }}
+                          className="group w-full h-[36px] min-h-[36px] flex items-center gap-2.5 px-3 py-2 rounded-shape-sm border border-transparent bg-transparent hover:bg-[var(--surface-subtle)]/25 transition-all duration-fast cursor-pointer select-none text-start text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] active:scale-98"
+                        >
+                          <Icon size={14} className="text-[var(--text-muted)] group-hover:text-[var(--fg-accent)] shrink-0 transition-colors duration-fast" />
+                          <span className="truncate min-w-0 flex-1 text-xs font-medium text-[var(--text-primary)] group-hover:text-[var(--text-primary)] transition-colors duration-fast">
+                            {item.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+
+                    <div className="h-px bg-[var(--border-default)] my-1 mx-1" />
+
+                    {/* Logout */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsStudioUserMenuOpen(false);
+                        logout();
+                      }}
+                      className="group w-full h-[36px] min-h-[36px] flex items-center gap-2.5 px-3 py-2 rounded-shape-sm border border-transparent bg-transparent hover:bg-[var(--status-error-surface)] transition-all duration-fast cursor-pointer select-none text-start text-xs font-semibold text-[var(--fg-danger)] active:scale-98"
+                    >
+                      <LogOut size={14} className="text-[var(--fg-danger)] shrink-0 transition-colors duration-fast" />
+                      <span className="truncate min-w-0 flex-1 text-xs font-semibold text-[var(--fg-danger)]">
+                        {t('logout') || (dir === 'rtl' ? 'تسجيل الخروج' : 'Sign Out')}
+                      </span>
+                    </button>
+                  </div>
+                );
+              })()}
+            </div>
           </div>
         </aside>
 

@@ -263,24 +263,11 @@ export async function verifySchemaIntegrity(force = false) {
     errors: []
   };
 
-  const queryColumns = async (p: any, schemaName = 'public'): Promise<Record<string, Set<string>>> => {
+  const safeQueryColumns = async (p: any): Promise<Record<string, Set<string>>> => {
     if (!p) return {};
     try {
-      const res = await p.query(`
-        SELECT table_name, column_name 
-        FROM information_schema.columns 
-        WHERE table_schema = $1
-      `, [schemaName]);
-
-      const tables: Record<string, Set<string>> = {};
-      for (const row of res.rows) {
-        if (!tables[row.table_name]) {
-          tables[row.table_name] = new Set();
-        }
-        tables[row.table_name].add(row.column_name);
-      }
-      return tables;
-    } catch (error) {
+      return await queryColumns(p, 'public');
+    } catch {
       console.warn(`[Schema Integrity] Failed to query information_schema for a secondary pool, skipping that pool.`);
       return {};
     }
@@ -288,20 +275,12 @@ export async function verifySchemaIntegrity(force = false) {
 
   // Parallelize pool queries
   const [coreTables, ledgerTables, externalTables, securityTables, mediaTables] = await Promise.all([
-    queryColumns(pool),
-    queryColumns(ledgerPool),
-    queryColumns(externalPool),
-    queryColumns(securityPool),
-    queryColumns(mediaPool)
+    safeQueryColumns(pool),
+    safeQueryColumns(ledgerPool),
+    safeQueryColumns(externalPool),
+    safeQueryColumns(securityPool),
+    safeQueryColumns(mediaPool)
   ]);
-
-  const dbTables: Record<string, Record<string, Set<string>>> = {
-    core: coreTables,
-    ledger: ledgerTables,
-    external: externalTables,
-    security: securityTables,
-    media: mediaTables
-  };
 
   const expectedSchema: Record<string, Record<string, { columns: string[]; repairCols?: Record<string, string | { type: string; default?: any }> }>> = {
     core: {
@@ -629,25 +608,114 @@ export async function verifySchemaIntegrity(force = false) {
         columns: ['id', 'place_id', 'title', 'city', 'state', 'country', 'country_code', 'lat', 'lon', 'full_address', 'category_label', 'raw_type', 'flag', 'source', 'hits', 'created_at', 'updated_at']
       },
       studio_workspaces: {
-        columns: ['id', 'user_id', 'title', 'framework_mode', 'files', 'created_at', 'updated_at']
+        columns: ['id', 'user_id', 'title', 'description', 'framework_mode', 'files', 'chat_history', 'is_public', 'metadata', 'created_at', 'updated_at'],
+        repairCols: {
+          description: { type: 'TEXT' },
+          framework_mode: { type: 'VARCHAR(50)', default: "'html'" },
+          files: { type: 'JSONB', default: "'{}'" },
+          chat_history: { type: 'JSONB', default: "'[]'" },
+          is_public: { type: 'BOOLEAN', default: false },
+          metadata: { type: 'JSONB', default: "'{}'" }
+        }
       },
       studio_snapshots: {
-        columns: ['id', 'workspace_id', 'version_name', 'files', 'created_at']
+        columns: ['id', 'workspace_id', 'version_name', 'files', 'created_at'],
+        repairCols: {
+          version_name: { type: 'VARCHAR(255)' },
+          files: { type: 'JSONB', default: "'{}'" }
+        }
       },
       og_preview_cache: {
         columns: ['id', 'route_path', 'title', 'description', 'image_url', 'meta_data', 'created_at', 'updated_at']
+      },
+      banned_email_domains: {
+        columns: ['domain', 'reason', 'created_at']
+      },
+      rinex_creators: {
+        columns: ['id', 'user_id', 'username', 'name', 'email', 'role_ar', 'role_en', 'avatar', 'bio_ar', 'bio_en', 'verified', 'total_views', 'total_uses', 'rating', 'earnings_balance', 'followers_count', 'likes_count', 'profile_visits_count', 'social_links', 'pending_bonus_usd', 'bonus_claimed', 'bonus_claimed_at', 'created_at', 'updated_at'],
+        repairCols: {
+          user_id: { type: 'INTEGER' },
+          username: { type: 'VARCHAR(100)' },
+          name: { type: 'VARCHAR(255)' },
+          email: { type: 'VARCHAR(255)' },
+          role_ar: { type: 'VARCHAR(255)' },
+          role_en: { type: 'VARCHAR(255)' },
+          avatar: { type: 'TEXT' },
+          bio_ar: { type: 'TEXT' },
+          bio_en: { type: 'TEXT' },
+          verified: { type: 'BOOLEAN', default: true },
+          total_views: { type: 'INTEGER', default: 0 },
+          total_uses: { type: 'INTEGER', default: 0 },
+          rating: { type: 'DECIMAL(3,2)', default: 5.0 },
+          earnings_balance: { type: 'DECIMAL(12,2)', default: 0 },
+          followers_count: { type: 'INTEGER', default: 0 },
+          likes_count: { type: 'INTEGER', default: 0 },
+          profile_visits_count: { type: 'INTEGER', default: 0 },
+          social_links: { type: 'JSONB', default: "'{}'" },
+          pending_bonus_usd: { type: 'DECIMAL(10,2)', default: 50.00 },
+          bonus_claimed: { type: 'BOOLEAN', default: false },
+          bonus_claimed_at: { type: 'TIMESTAMP' },
+          created_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' },
+          updated_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' }
+        }
+      },
+      rinex_templates: {
+        columns: ['id', 'creator_id', 'creator_name', 'creator_username', 'creator_avatar', 'title_ar', 'title_en', 'description_ar', 'description_en', 'thumbnail', 'canvas_background', 'category', 'category_label_ar', 'dimensions', 'price_type', 'price', 'views_count', 'uses_count', 'rating', 'elements', 'created_at', 'updated_at'],
+        repairCols: {
+          creator_id: { type: 'VARCHAR(100)' },
+          creator_name: { type: 'VARCHAR(255)' },
+          creator_username: { type: 'VARCHAR(100)' },
+          creator_avatar: { type: 'TEXT' },
+          title_ar: { type: 'VARCHAR(255)' },
+          title_en: { type: 'VARCHAR(255)' },
+          description_ar: { type: 'TEXT' },
+          description_en: { type: 'TEXT' },
+          thumbnail: { type: 'TEXT' },
+          canvas_background: { type: 'VARCHAR(100)', default: "'#0f172a'" },
+          category: { type: 'VARCHAR(100)', default: "'social'" },
+          category_label_ar: { type: 'VARCHAR(100)' },
+          dimensions: { type: 'VARCHAR(50)', default: "'1080 × 1080'" },
+          price_type: { type: 'VARCHAR(20)', default: "'free'" },
+          price: { type: 'DECIMAL(10,2)' },
+          views_count: { type: 'INTEGER', default: 0 },
+          uses_count: { type: 'INTEGER', default: 0 },
+          rating: { type: 'DECIMAL(3,2)', default: 5.0 },
+          elements: { type: 'JSONB', default: "'[]'" },
+          created_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' },
+          updated_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' }
+        }
+      },
+      rinex_template_usages: {
+        columns: ['id', 'template_id', 'creator_id', 'user_id', 'ip_address', 'royalty_paid', 'price_type', 'created_at'],
+        repairCols: {
+          template_id: { type: 'VARCHAR(100)' },
+          creator_id: { type: 'VARCHAR(100)' },
+          user_id: { type: 'INTEGER' },
+          ip_address: { type: 'VARCHAR(100)' },
+          royalty_paid: { type: 'DECIMAL(10,4)', default: 0 },
+          price_type: { type: 'VARCHAR(20)', default: "'free'" },
+          created_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' }
+        }
+      },
+      rinex_favorite_templates: {
+        columns: ['id', 'user_id', 'template_id', 'created_at'],
+        repairCols: {
+          user_id: { type: 'INTEGER' },
+          template_id: { type: 'VARCHAR(100)' },
+          created_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' }
+        }
       }
     },
     ledger: {
       wallets: {
         columns: ['id', 'user_id', 'balance', 'usd_balance', 'points', 'total_deposited', 'total_withdrawn', 'total_earned_referral', 'is_frozen', 'currency', 'referral_activated', 'created_at', 'updated_at'],
         repairCols: {
-          balance: { type: 'DECIMAL(10,2)', default: 0.00 },
-          usd_balance: { type: 'DECIMAL(10,2)', default: 0.00 },
+          balance: { type: 'DECIMAL(20,4)', default: 0.00 },
+          usd_balance: { type: 'DECIMAL(20,4)', default: 0.00 },
           points: { type: 'INTEGER', default: 0 },
-          total_deposited: { type: 'DECIMAL(10,2)', default: 0.00 },
-          total_withdrawn: { type: 'DECIMAL(10,2)', default: 0.00 },
-          total_earned_referral: { type: 'DECIMAL(10,2)', default: 0.00 },
+          total_deposited: { type: 'DECIMAL(20,4)', default: 0.00 },
+          total_withdrawn: { type: 'DECIMAL(20,4)', default: 0.00 },
+          total_earned_referral: { type: 'DECIMAL(20,4)', default: 0.00 },
           is_frozen: { type: 'BOOLEAN', default: false },
           currency: { type: 'VARCHAR(10)', default: "'USD'" },
           referral_activated: { type: 'BOOLEAN', default: false },
@@ -661,14 +729,14 @@ export async function verifySchemaIntegrity(force = false) {
           transaction_type: { type: 'VARCHAR(50)' },
           user_id: { type: 'INTEGER' },
           wallet_id: { type: 'INTEGER' },
-          amount: { type: 'DECIMAL(10,2)', default: 0.00 },
+          amount: { type: 'DECIMAL(20,4)', default: 0.00 },
           points: { type: 'INTEGER', default: 0 },
           status: { type: 'VARCHAR(50)', default: "'completed'" },
           reference_id: { type: 'VARCHAR(255)' },
           metadata: { type: 'JSONB', default: "'{}'" },
           ip_address: { type: 'VARCHAR(45)' },
           description: { type: 'TEXT' },
-          balance_after: { type: 'DECIMAL(10,2)', default: 0.00 },
+          balance_after: { type: 'DECIMAL(20,4)', default: 0.00 },
           is_hidden: { type: 'BOOLEAN', default: false },
           created_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' },
           updated_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' }
@@ -679,8 +747,8 @@ export async function verifySchemaIntegrity(force = false) {
         repairCols: {
           referrer_id: { type: 'INTEGER' },
           referred_id: { type: 'INTEGER' },
-          bonus_points: { type: 'DECIMAL(10,2)', default: 0.00 },
-          reward_amount: { type: 'DECIMAL(10,2)', default: 0.00 },
+          bonus_points: { type: 'DECIMAL(20,4)', default: 0.00 },
+          reward_amount: { type: 'DECIMAL(20,4)', default: 0.00 },
           commission_earned: { type: 'DECIMAL(10,2)', default: 0.00 },
           status: { type: 'VARCHAR(50)', default: "'pending'" },
           created_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' }
@@ -721,7 +789,7 @@ export async function verifySchemaIntegrity(force = false) {
         columns: ['id', 'user_id', 'amount', 'payout_method', 'payout_details', 'status', 'rejection_reason', 'processed_by', 'processed_at', 'transaction_hash', 'created_at'],
         repairCols: {
           user_id: { type: 'INTEGER' },
-          amount: { type: 'DECIMAL(10,2)', default: 0.00 },
+          amount: { type: 'DECIMAL(20,4)', default: 0.00 },
           payout_method: { type: 'VARCHAR(50)' },
           payout_details: { type: 'JSONB', default: "'{}'" },
           status: { type: 'VARCHAR(50)', default: "'pending'" },
@@ -775,7 +843,7 @@ export async function verifySchemaIntegrity(force = false) {
         repairCols: {
           code: { type: 'VARCHAR(50)' },
           discount_percent: { type: 'DECIMAL(5,2)', default: 0 },
-          discount_amount: { type: 'DECIMAL(10,2)', default: 0 },
+          discount_amount: { type: 'DECIMAL(20,4)', default: 0 },
           max_uses: { type: 'INTEGER', default: 0 },
           used_count: { type: 'INTEGER', default: 0 },
           expires_at: { type: 'TIMESTAMP' },
@@ -806,7 +874,7 @@ export async function verifySchemaIntegrity(force = false) {
         columns: ['id', 'user_id', 'amount', 'currency', 'method', 'proof_url', 'status', 'rejection_reason', 'admin_id', 'created_at', 'updated_at'],
         repairCols: {
           user_id: { type: 'INTEGER' },
-          amount: { type: 'DECIMAL(10,2)', default: 0 },
+          amount: { type: 'DECIMAL(20,4)', default: 0 },
           currency: { type: 'VARCHAR(10)', default: "'USD'" },
           method: { type: 'VARCHAR(50)' },
           proof_url: { type: 'TEXT' },
@@ -814,6 +882,18 @@ export async function verifySchemaIntegrity(force = false) {
           rejection_reason: { type: 'TEXT' },
           admin_id: { type: 'INTEGER' },
           created_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' },
+          updated_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' }
+        }
+      },
+      rinex_payout_requests: {
+        columns: ['id', 'creator_id', 'amount', 'method', 'details', 'status', 'requested_at', 'updated_at'],
+        repairCols: {
+          creator_id: { type: 'VARCHAR(100)' },
+          amount: { type: 'DECIMAL(20,4)', default: 0.00 },
+          method: { type: 'VARCHAR(50)' },
+          details: { type: 'TEXT' },
+          status: { type: 'VARCHAR(20)', default: "'pending'" },
+          requested_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' },
           updated_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' }
         }
       }

@@ -16,10 +16,10 @@ export const DesktopLayout: React.FC = () => {
   const { isFullscreen } = useArtifact();
   const location = useLocation();
 
-  const isViralbookRoute = location.pathname.startsWith('/viralbook') || location.pathname.startsWith('/bulletin') || location.pathname.startsWith('/reels');
+  const isViralbookRoute = location.pathname.startsWith('/viralbook') || location.pathname.startsWith('/bulletin') || location.pathname.startsWith('/reels') || location.pathname.startsWith('/p/') || location.pathname.startsWith('/post/');
   const isStudioRoute = location.pathname.startsWith('/app') || location.pathname.startsWith('/image-studio') || location.pathname.startsWith('/audio-studio');
-  const isCreatorRoute = location.pathname.startsWith('/creator');
-  const isLandingRoute = location.pathname === '/' || location.pathname === '/overview' || location.pathname === '/welcome';
+  const isCreatorRoute = location.pathname.startsWith('/creator/');
+  const isLandingRoute = location.pathname === '/' || location.pathname === '/overview' || location.pathname === '/welcome' || location.pathname === '/docs/overview';
   const isFullSovereignView = isViralbookRoute || isStudioRoute || isCreatorRoute || isLandingRoute || isFullscreen;
   // Stable base sidebar offset to eliminate any horizontal layout shifts
   const baseSidebarOffset = (isMobile || isFullSovereignView) ? 0 : 50;

@@ -9,6 +9,8 @@
 export interface ContextualSuggestion {
   id: string;
   text: string;
+  titleAr: string;
+  titleEn: string;
   toolId: string;
   categoryAr: string;
   categoryEn: string;
@@ -19,6 +21,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_search_1',
     text: 'تاريخ الخليل بن أحمد الفراهيدي وتأسيس علم العروض والمعاجم العربية',
+    titleAr: 'تاريخ الفراهيدي',
+    titleEn: 'Al-Farahidi History',
     toolId: 'perplexta_analysis',
     categoryAr: 'توثيق تاريخي',
     categoryEn: 'Historical Research',
@@ -26,6 +30,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_search_2',
     text: 'تطور الحوسبة الكمومية وتطبيقاتها في خوارزميات التشفير الحديثة',
+    titleAr: 'الحوسبة الكمومية',
+    titleEn: 'Quantum Computing',
     toolId: 'perplexta_analysis',
     categoryAr: 'بحث علمي',
     categoryEn: 'Scientific Research',
@@ -33,6 +39,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_search_3',
     text: 'مقارنة منهجية شاملة بين معماريات الذكاء الاصطناعي Transformer و Mamba',
+    titleAr: 'معماريات الذكاء',
+    titleEn: 'AI Architectures',
     toolId: 'perplexta_analysis',
     categoryAr: 'تحليل تقني',
     categoryEn: 'Technical Analysis',
@@ -40,6 +48,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_search_4',
     text: 'استراتيجيات إدارة السيولة والمخاطر المالية للشركات التقنية الناشئة',
+    titleAr: 'إدارة المخاطر',
+    titleEn: 'Risk Management',
     toolId: 'perplexta_analysis',
     categoryAr: 'تحليل مالي',
     categoryEn: 'Financial Analysis',
@@ -47,6 +57,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_search_5',
     text: 'كفاءة خلايا الهيدروجين الأخضر كبديل مستدام في قطاع الطاقة النظيفة',
+    titleAr: 'الهيدروجين الأخضر',
+    titleEn: 'Green Hydrogen',
     toolId: 'perplexta_analysis',
     categoryAr: 'طاقات متجددة',
     categoryEn: 'Clean Energy',
@@ -54,6 +66,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_search_6',
     text: 'معايير الأمان السيبراني Zero Trust وتطبيقاتها في البنية السحابية',
+    titleAr: 'الأمان السيبراني',
+    titleEn: 'Cyber Security',
     toolId: 'perplexta_analysis',
     categoryAr: 'أمن سيبراني',
     categoryEn: 'Cybersecurity',
@@ -61,6 +75,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_search_7',
     text: 'دراسة الجدوى المالية وتقييم وحدة الاقتصاد لنموذج الاشتراكات B2B SaaS',
+    titleAr: 'دراسة جدوى',
+    titleEn: 'Feasibility Study',
     toolId: 'perplexta_analysis',
     categoryAr: 'جدوى استثمارية',
     categoryEn: 'Investment Feasibility',
@@ -68,6 +84,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_search_8',
     text: 'تاريخ الخليل وأبرز معالمها الحضارية والتاريخية عبر العصور',
+    titleAr: 'تاريخ الخليل',
+    titleEn: 'Hebron History',
     toolId: 'perplexta_analysis',
     categoryAr: 'توثيق تاريخي',
     categoryEn: 'Historical Research',
@@ -77,6 +95,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_en_search_1',
     text: 'Post-quantum cryptography standards and NIST migration roadmap',
+    titleAr: 'تشفير ما بعد الكم',
+    titleEn: 'Post-Quantum Crypto',
     toolId: 'perplexta_analysis',
     categoryAr: 'بحث وتوثيق',
     categoryEn: 'Search & Verification',
@@ -84,6 +104,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_en_search_2',
     text: 'Deep comparative analysis of Transformer vs Mamba AI model architectures',
+    titleAr: 'مقارنة النماذج',
+    titleEn: 'Model Comparison',
     toolId: 'perplexta_analysis',
     categoryAr: 'تحليل استقصائي',
     categoryEn: 'Deep Analysis',
@@ -91,6 +113,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_en_search_3',
     text: 'Unit economics and financial risk evaluation for enterprise SaaS platforms',
+    titleAr: 'اقتصاديات الوحدة',
+    titleEn: 'Unit Economics',
     toolId: 'perplexta_analysis',
     categoryAr: 'تحليل مالي',
     categoryEn: 'Financial Analysis',
@@ -100,6 +124,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_code_1',
     text: 'بناء خادم REST API احترافي بـ Express مع توثيق JWT ونظام الحد من المعدل',
+    titleAr: 'بناء API',
+    titleEn: 'Build API',
     toolId: 'code',
     categoryAr: 'برمجة وتطوير',
     categoryEn: 'Code & Engineering',
@@ -107,6 +133,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_code_2',
     text: 'تصميم واجهة مستخدم متجاوبة فائقة الأداء بـ React و Tailwind CSS',
+    titleAr: 'تصميم واجهة',
+    titleEn: 'UI Design',
     toolId: 'code',
     categoryAr: 'واجهات مستخدم',
     categoryEn: 'UI Engineering',
@@ -114,6 +142,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_code_3',
     text: 'تطوير خوارزمية تخزين مؤقت LRU Cache بلغة TypeScript بكفاءة O(1)',
+    titleAr: 'تطوير خوارزمية',
+    titleEn: 'Algorithm Development',
     toolId: 'code',
     categoryAr: 'خوارزميات',
     categoryEn: 'Algorithms',
@@ -121,6 +151,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_code_4',
     text: 'كتابة استعلامات PostgreSQL متقدمة مع تحليل خطط التنفيذ والفهارس المركبة',
+    titleAr: 'استعلامات SQL',
+    titleEn: 'SQL Queries',
     toolId: 'code',
     categoryAr: 'قواعد بيانات',
     categoryEn: 'Databases',
@@ -128,6 +160,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_code_5',
     text: 'ربط بوابة الدفع Stripe ومعالجة الأحداث المباشرة Webhooks بـ Node.js',
+    titleAr: 'ربط الدفع',
+    titleEn: 'Payment Integration',
     toolId: 'code',
     categoryAr: 'تكامل برمجي',
     categoryEn: 'API Integration',
@@ -135,6 +169,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_code_6',
     text: 'تطبيق معايير الأمان وإمكانية الوصول الشاملة WCAG AA في مكونات React',
+    titleAr: 'معايير الأمان',
+    titleEn: 'Security Standards',
     toolId: 'code',
     categoryAr: 'هندسة البرمجيات',
     categoryEn: 'Software Engineering',
@@ -142,6 +178,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_en_code_1',
     text: 'Build a production-ready Express API with JWT authentication and rate limiting',
+    titleAr: 'خادم Express',
+    titleEn: 'Express API',
     toolId: 'code',
     categoryAr: 'برمجة وتطوير',
     categoryEn: 'Code & Engineering',
@@ -149,6 +187,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_en_code_2',
     text: 'Design a responsive high-performance UI layout with React and Tailwind CSS',
+    titleAr: 'تجاوب الواجهات',
+    titleEn: 'Responsive UI',
     toolId: 'code',
     categoryAr: 'واجهات مستخدم',
     categoryEn: 'UI Engineering',
@@ -156,6 +196,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_en_code_3',
     text: 'Optimize PostgreSQL query execution plans and composite index structures',
+    titleAr: 'تحسين قواعد البيانات',
+    titleEn: 'DB Optimization',
     toolId: 'code',
     categoryAr: 'قواعد بيانات',
     categoryEn: 'Databases',
@@ -165,6 +207,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_media_1',
     text: 'تصميم واجهة مستخدم للوحة تحكم مالية فاخرة بنظام ألوان داكن أنيق',
+    titleAr: 'تصميم لوحة',
+    titleEn: 'Dashboard Design',
     toolId: 'image',
     categoryAr: 'تصميم واجهات',
     categoryEn: 'UI/UX Design',
@@ -172,6 +216,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_media_2',
     text: 'توليد صورة سينمائية فائقة الدقة لمشهد معماري مستقبلي بإضاءة دافئة',
+    titleAr: 'توليد معماري',
+    titleEn: 'Architectural Gen',
     toolId: 'image',
     categoryAr: 'توليد بصري',
     categoryEn: 'Visual Synthesis',
@@ -179,6 +225,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_media_3',
     text: 'إنتاج مقطع فيديو تسلسلي يوضح انسياب البيانات عبر الخوادم السحابية',
+    titleAr: 'فيديو البيانات',
+    titleEn: 'Data Video',
     toolId: 'video',
     categoryAr: 'إنتاج فيديو',
     categoryEn: 'Video Production',
@@ -186,6 +234,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_media_4',
     text: 'توليد مشهد تصويري سينمائي بآفاق 4K لحركة السحب فوق قمم جبلية',
+    titleAr: 'مشهد سينمائي',
+    titleEn: 'Cinematic Scene',
     toolId: 'video',
     categoryAr: 'إنتاج فيديو',
     categoryEn: 'Video Production',
@@ -193,6 +243,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_en_media_1',
     text: 'Generate a photorealistic 8K architectural render of a minimalist concrete pavilion at golden hour',
+    titleAr: 'رندر معماري',
+    titleEn: 'Arch Render',
     toolId: 'image',
     categoryAr: 'توليد بصري',
     categoryEn: 'Visual Synthesis',
@@ -202,6 +254,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_pro_1',
     text: 'تقييم المخاطر التشغيلية والمالية قبل التوسع في أسواق إقليمية جديدة',
+    titleAr: 'تقييم المخاطر',
+    titleEn: 'Risk Evaluation',
     toolId: 'chat_pro',
     categoryAr: 'استشارات تنفيذية',
     categoryEn: 'Executive Advisory',
@@ -209,6 +263,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_pro_2',
     text: 'صياغة مؤشرات الأداء الرئيسية (KPIs) لقياس كفاءة الفرق البرمجية والإنتاجية',
+    titleAr: 'مؤشرات الأداء',
+    titleEn: 'KPI Metrics',
     toolId: 'chat_pro',
     categoryAr: 'إدارة أداء',
     categoryEn: 'Performance Management',
@@ -216,6 +272,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_pro_3',
     text: 'استراتيجيات هيكلة جولات التمويل المستهدفة للشركات الناشئة في مرحلة Seed',
+    titleAr: 'جولات التمويل',
+    titleEn: 'Funding Rounds',
     toolId: 'chat_pro',
     categoryAr: 'تمويل واستثمار',
     categoryEn: 'Venture Capital',
@@ -225,6 +283,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_learn_1',
     text: 'تركيب دراسة مرجعية ومراجعة منهجة حول خوارزميات التعلم المعزز بمكافآت بشرية (RLHF)',
+    titleAr: 'دراسة RLHF',
+    titleEn: 'RLHF Study',
     toolId: 'sovereign_search',
     categoryAr: 'بحوث ودراسات',
     categoryEn: 'Academic Research',
@@ -232,6 +292,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_learn_2',
     text: 'تفكيك الأطر النظرية والمصفوفة الأدبية لمبادئ نظرية النسبية العامة وانحناء نسيج الزمكان',
+    titleAr: 'النسبية العامة',
+    titleEn: 'General Relativity',
     toolId: 'sovereign_search',
     categoryAr: 'دراسات فيزيائية',
     categoryEn: 'Physics & Science',
@@ -239,6 +301,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_learn_3',
     text: 'صياغة إطار عمل بحثي وفرضية علمية لإتقان هندسة النظم الموزعة والحوسبة السحابية',
+    titleAr: 'النظم الموزعة',
+    titleEn: 'Distributed Systems',
     toolId: 'sovereign_search',
     categoryAr: 'إطار بحثي',
     categoryEn: 'Research Framework',
@@ -248,6 +312,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_ads_1',
     text: 'صياغة استراتيجية إعلانية متكاملة ونصوص إعلانية ممولة لإطلاق منتجي عبر منصة فيرال بوك',
+    titleAr: 'استراتيجية إعلانية',
+    titleEn: 'Ad Strategy',
     toolId: 'ads_copilot',
     categoryAr: 'حملات فيرال بوك',
     categoryEn: 'ViralBook Campaigns',
@@ -255,6 +321,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_ads_2',
     text: 'كتابة نصوص إعلانية بأسلوب Hook & PAS مخصصة لحملات Meta Ads وتيك توك',
+    titleAr: 'نصوص إعلانية',
+    titleEn: 'Ad Copy',
     toolId: 'ads_copilot',
     categoryAr: 'نصوص إعلانية',
     categoryEn: 'Ad Copywriting',
@@ -262,6 +330,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_ads_3',
     text: 'تنسيق استهداف الجماهير وتوزيع ميزانية الحملات الإعلانية بين الاختبار والتوسع',
+    titleAr: 'استهداف الجماهير',
+    titleEn: 'Audience Targeting',
     toolId: 'ads_copilot',
     categoryAr: 'ميزانية واستهداف',
     categoryEn: 'Targeting & Budget',
@@ -271,6 +341,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_audio_1',
     text: 'تأليف مقطوعة موسيقية هادئة بالبيانو والتشيلو لتعزيز التركيز الذهني العميق',
+    titleAr: 'تأليف موسيقي',
+    titleEn: 'Music Composition',
     toolId: 'audio_studio',
     categoryAr: 'تأليف صوتي',
     categoryEn: 'Acoustic Composition',
@@ -278,6 +350,8 @@ export const SUGGESTIONS_CATALOG: ContextualSuggestion[] = [
   {
     id: 's_audio_2',
     text: 'تصميم حزمة مؤثرات صوتية احترافية لتفاعلات واجهات المستخدم الحديثة',
+    titleAr: 'تأثيرات صوتية',
+    titleEn: 'Sound FX',
     toolId: 'audio_studio',
     categoryAr: 'تصميم صوتي',
     categoryEn: 'Sound Design',

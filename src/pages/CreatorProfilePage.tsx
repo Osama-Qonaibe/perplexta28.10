@@ -227,7 +227,11 @@ export const CreatorProfilePage: React.FC = () => {
   };
 
   const handleBackNavigation = () => {
-    navigate('/');
+    if (window.history.length > 1) {
+      navigate(-1);
+    } else {
+      navigate('/image-studio');
+    }
   };
 
   return (
@@ -304,7 +308,7 @@ export const CreatorProfilePage: React.FC = () => {
                         key={star}
                         type="button"
                         onClick={() => handleRateCreator(star)}
-                        className="p-0.5 text-amber-400 hover:scale-125 transition-transform cursor-pointer"
+                        className="p-0.5 min-w-[44px] min-h-[44px] flex items-center justify-center text-amber-400 hover:scale-125 transition-transform cursor-pointer"
                         title={isAr ? `تقييم ${star} من 5` : `Rate ${star} of 5`}
                       >
                         <Star 
@@ -413,7 +417,7 @@ export const CreatorProfilePage: React.FC = () => {
                       href={creator.socialLinks.twitter}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-8.5 h-8.5 rounded-shape-sm bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-secondary)] hover:text-sky-500 transition-colors cursor-pointer shadow-2xs"
+                      className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-shape-sm bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-secondary)] hover:text-sky-500 transition-colors cursor-pointer shadow-2xs"
                       title="Twitter / X"
                     >
                       <Twitter size={14} />
@@ -424,7 +428,7 @@ export const CreatorProfilePage: React.FC = () => {
                       href={creator.socialLinks.instagram}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-8.5 h-8.5 rounded-shape-sm bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-secondary)] hover:text-pink-500 transition-colors cursor-pointer shadow-2xs"
+                      className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-shape-sm bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-secondary)] hover:text-pink-500 transition-colors cursor-pointer shadow-2xs"
                       title="Instagram"
                     >
                       <Instagram size={14} />
@@ -435,7 +439,7 @@ export const CreatorProfilePage: React.FC = () => {
                       href={creator.socialLinks.behance}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-8.5 h-8.5 rounded-shape-sm bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-secondary)] hover:text-blue-500 transition-colors cursor-pointer shadow-2xs"
+                      className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-shape-sm bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-secondary)] hover:text-blue-500 transition-colors cursor-pointer shadow-2xs"
                       title="Behance"
                     >
                       <Palette size={14} />
@@ -446,7 +450,7 @@ export const CreatorProfilePage: React.FC = () => {
                       href={creator.socialLinks.website}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-8.5 h-8.5 rounded-shape-sm bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors cursor-pointer shadow-2xs"
+                      className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-shape-sm bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] border border-[var(--border-main)] flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--accent)] transition-colors cursor-pointer shadow-2xs"
                       title="Portfolio"
                     >
                       <Globe size={14} />

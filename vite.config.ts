@@ -27,6 +27,7 @@ function collectUsedLucideIcons(dir: string, out = new Set<string>()): Set<strin
       if (entry.isDirectory()) {
         collectUsedLucideIcons(fullPath, out);
       } else if (entry.isFile() && /\.(tsx?|jsx?)$/.test(entry.name)) {
+        if (entry.name === 'importedTemplates.ts') continue;
         const content = fs.readFileSync(fullPath, 'utf8');
         if (!content.includes('lucide-react')) continue;
         const importRegex = /import\s+(?:type\s+)?\{([^{}]*)\}\s+from\s+['"]lucide-react['"]/g;
@@ -152,10 +153,9 @@ export default defineConfig(({ mode }) => {
       cssCodeSplit: true,
       target: 'esnext',
       reportCompressedSize: false,
-      chunkSizeWarningLimit: 2000,
+      chunkSizeWarningLimit: 3000,
       rollupOptions: {
         input: 'index.html',
-        maxParallelFileOps: 4,
         treeshake: {
           moduleSideEffects: 'no-external',
           propertyReadSideEffects: false,
@@ -164,21 +164,86 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
-              if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/scheduler/')) {
+              // React Core & Base UI
+              if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/scheduler/') || id.includes('@base-ui')) {
                 return 'vendor-react';
               }
+              // Router
               if (id.includes('/react-router/') || id.includes('/react-router-dom/')) {
                 return 'vendor-router';
               }
+              // Motion & Animations
               if (id.includes('framer-motion') || id.includes('/motion/')) {
                 return 'vendor-motion';
               }
+              // Icons
               if (id.includes('lucide-react')) {
                 return 'vendor-icons';
               }
-              if (id.includes('recharts') || id.includes('d3-')) {
+              // Data Visualization & Charts
+              if (id.includes('recharts') || id.includes('d3-') || id.includes('/d3/')) {
                 return 'vendor-charts';
               }
+              // State & Network Queries
+              if (id.includes('@tanstack/react-query')) {
+                return 'vendor-query';
+              }
+              // Heavy Document & Export Tools (PDF, Excel, Word, Image Export)
+              if (
+                id.includes('jspdf') ||
+                id.includes('exceljs') ||
+                id.includes('mammoth') ||
+                id.includes('pdf-parse') ||
+                id.includes('jszip') ||
+                id.includes('file-saver') ||
+                id.includes('html-to-image') ||
+                id.includes('html-to-text')
+              ) {
+                return 'vendor-docs';
+              }
+              // Heavy Media & Video / Audio / Cropping Tools
+              if (
+                id.includes('@ffmpeg') ||
+                id.includes('react-player') ||
+                id.includes('react-easy-crop') ||
+                id.includes('browser-image-compression') ||
+                id.includes('canvas-confetti')
+              ) {
+                return 'vendor-media';
+              }
+              // Code Highlight, Markdown & SQL Tools
+              if (
+                id.includes('prismjs') ||
+                id.includes('sql.js') ||
+                id.includes('react-markdown') ||
+                id.includes('remark-gfm') ||
+                id.includes('rehype-raw')
+              ) {
+                return 'vendor-editor';
+              }
+              // Utilities & Networking
+              if (
+                id.includes('axios') ||
+                id.includes('socket.io-client') ||
+                id.includes('dompurify')
+              ) {
+                return 'vendor-network';
+              }
+            }
+
+            // High-precision data segregation: keep massive design catalogs isolated in their own cacheable chunks
+            if (id.includes('importedTemplates')) {
+              return 'data-imported-templates';
+            }
+            if (
+              id.includes('/data/templates') ||
+              id.includes('/data/rataqTemplates') ||
+              id.includes('/data/rataqStudioCatalog')
+            ) {
+              return 'data-studio-templates';
+            }
+            if (id.includes('/data/publicTemplatesData')) {
+              return 'data-public-templates';
             }
           },
         },

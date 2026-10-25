@@ -33,25 +33,12 @@ export async function ensureBulletinSeedData() {
   try {
     isBulletinTablesEnsured = true;
 
-    // Ensure bulletin_hashtags table exists
-    await pool.query(`
-      CREATE TABLE IF NOT EXISTS bulletin_hashtags (
-        id SERIAL PRIMARY KEY,
-        tag VARCHAR(100) UNIQUE NOT NULL,
-        use_count INTEGER DEFAULT 1,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
     console.log('[Bulletin] Schema integrity verified successfully (Clean state without default mock items).');
 
     // Run one-off cleanup queries in background without delaying server startup
     setImmediate(async () => {
       try {
         const cleanupQueries = [
-          "ALTER TABLE bulletin_ad_likes ADD COLUMN IF NOT EXISTS reaction VARCHAR(20) DEFAULT 'like'",
-          "ALTER TABLE bulletin_comment_likes ADD COLUMN IF NOT EXISTS reaction VARCHAR(20) DEFAULT 'like'",
           "UPDATE bulletin_ads SET image_url = REPLACE(image_url, '/uploads/uploads/', '/uploads/') WHERE image_url LIKE '%/uploads/uploads/%'",
           "UPDATE bulletin_ads SET video_url = REPLACE(video_url, '/uploads/uploads/', '/uploads/') WHERE video_url LIKE '%/uploads/uploads/%'",
           "UPDATE users SET avatar = REPLACE(avatar, '/uploads/uploads/', '/uploads/') WHERE avatar LIKE '%/uploads/uploads/%'",
@@ -1708,7 +1695,7 @@ router.get('/ads', async (req, res) => {
         page_avatar: row.page_avatar || null,
         page_cover: row.page_cover || null,
         page_is_verified: Boolean(row.page_is_verified),
-        location_city: row.location_city || 'فلسطين',
+        location_city: row.location_city || 'عام',
         author_name: row.page_name || row.u_name || row.author_name || 'مستخدم بيربليكستا',
         author_avatar: row.page_avatar || row.u_avatar || row.author_avatar || null,
         author_username: row.page_slug || row.author_username || (row.u_email ? row.u_email.split('@')[0] : null) || 'user',
@@ -1942,7 +1929,7 @@ router.get('/ads/:id', async (req: any, res: any, next: any) => {
       page_avatar: row.page_avatar || null,
       page_cover: row.page_cover || null,
       page_is_verified: Boolean(row.page_is_verified),
-      location_city: row.location_city || 'فلسطين',
+      location_city: row.location_city || 'عام',
       author_name: row.page_name || row.u_name || row.author_name || 'مستخدم بيربليكستا',
       author_avatar: row.page_avatar || row.u_avatar || row.author_avatar || null,
       title: row.title,
@@ -2208,7 +2195,7 @@ router.post('/ads', authenticateToken, async (req: any, res) => {
     `, [
       userId,
       validPageId,
-      location_city || 'فلسطين',
+      location_city || 'عام',
       authorName,
       authorAvatar,
       finalTitle,
@@ -2494,7 +2481,7 @@ router.post('/stories', authenticateToken, async (req: any, res) => {
         user_id, page_id, author_name, author_avatar, title, description,
         image_url, video_url, category, status, ad_format, expires_at, created_at, location_city, metadata,
         audio_url, audio_track_id, media_urls
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'عام / General', 'approved', 'story', $9, NOW(), 'فلسطين', $10, $11, $12, $13)
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'عام / General', 'approved', 'story', $9, NOW(), 'عام', $10, $11, $12, $13)
       RETURNING *
     `, [
       userId,
@@ -2866,7 +2853,10 @@ router.post('/ads/:id/comments', authenticateToken, async (req: any, res) => {
 router.post('/ads/:id/impression', async (req, res) => {
   try {
     const adId = parseInt(req.params.id);
-    const updateRes = await pool.query('UPDATE bulletin_ads SET impressions_count = impressions_count + 1 WHERE id = $1 RETURNING impressions_count', [adId]);
+    const updateRes = await pool.query(
+      'UPDATE bulletin_ads SET impressions_count = impressions_count + 1, view_count = COALESCE(view_count, 0) + 1 WHERE id = $1 RETURNING impressions_count',
+      [adId]
+    );
     const newCount = Number(updateRes.rows[0]?.impressions_count || 0);
 
     if (io) {
@@ -4658,7 +4648,10 @@ router.get('/inquiries/my', authenticateToken, async (req: any, res) => {
 router.post('/ads/:id/click', async (req, res) => {
   try {
     const adId = parseInt(req.params.id);
-    await pool.query('UPDATE bulletin_ads SET clicks_count = clicks_count + 1 WHERE id = $1', [adId]);
+    await pool.query(
+      'UPDATE bulletin_ads SET clicks_count = clicks_count + 1, click_count = COALESCE(click_count, 0) + 1 WHERE id = $1',
+      [adId]
+    );
     
     try {
       const ip = req.ip || req.headers['x-forwarded-for'] || '';
@@ -5378,7 +5371,7 @@ router.put('/ads/:id', authenticateToken, async (req: any, res) => {
       normEditVid,
       target_url ? target_url.trim() : null,
       parsedHashtags,
-      location_city || 'فلسطين',
+      location_city || 'عام',
       audience || 'public',
       ad_format || 'post',
       JSON.stringify((quick_questions || []).filter(Boolean)),

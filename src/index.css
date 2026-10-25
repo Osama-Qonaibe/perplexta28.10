@@ -60,12 +60,6 @@ input[type="range"] {
   --github-orange: #bc4c00;
   --github-pink: #bf3989;
   
-  /* Applying Ink Blue to Brand System */
-  --accent-primary: var(--github-blue);
-  --bg-accent-emphasis: var(--github-blue);
-  --bg-btn-primary: var(--github-blue);
-  --bg-btn-success: var(--github-blue);
-  
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -88,10 +82,10 @@ input[type="range"] {
   --doc-pre-bg: #161b22;
   --doc-pre-text: #e6edf3;
 
-  /* Typography Families (Single Unified Stack: Inter for Latin + Tajawal for Arabic) */
+  /* Typography Families (Single Unified Stack: Inter for Latin + Tajawal for Arabic, JetBrains Mono for Code) */
   --font-display: "Inter", "Tajawal", system-ui, -apple-system, sans-serif;
   --font-sans: "Inter", "Tajawal", system-ui, -apple-system, sans-serif;
-  --font-mono: "Inter", "Tajawal", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
 
   /* ==========================================================================
      LAYER 1 & 2: REFERENCE & SYSTEM TOKENS (Light Mode)
@@ -208,7 +202,7 @@ input[type="range"] {
   --fg-on-emphasis: #ffffff;
 
   --fg-accent: var(--github-blue);
-  --bg-accent-emphasis: var(--github-green);
+  --bg-accent-emphasis: var(--github-blue);
   --bg-accent-muted: rgba(9, 105, 218, 0.12);
   --border-accent-emphasis: var(--github-blue);
   --focus-outline: var(--github-blue);
@@ -262,12 +256,12 @@ input[type="range"] {
   --text-muted: var(--sys-color-text-muted);
   --border-accent: var(--github-blue);
   --accent-accent: var(--github-blue);
-  --accent-primary: var(--github-green);
+  --accent-primary: var(--github-blue);
   --accent-glow: transparent;
   --danger: var(--destructive);
   --warning: var(--github-orange);
 
-  --bg-btn-primary: var(--github-green);
+  --bg-btn-primary: var(--github-blue);
   --fg-btn-primary: #ffffff;
   --bg-btn-secondary: var(--sys-color-surface-variant);
   --fg-btn-secondary: var(--sys-color-text-primary);

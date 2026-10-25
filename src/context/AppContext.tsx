@@ -2066,6 +2066,53 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     // SILENCED FOR STORE COMPLIANCE AND CLEAN UNINTERRUPTED USER EXPERIENCE
   };
 
+  const performPostAuthRedirect = (fallbackRef?: string | null) => {
+    let pendingRedirect: string | null = null;
+    try {
+      pendingRedirect = sessionStorage.getItem('perplexta_post_auth_redirect');
+      sessionStorage.removeItem('perplexta_post_auth_redirect');
+    } catch {}
+
+    const targetRefRaw = pendingRedirect || fallbackRef || secureStorage.getSync('app_ref');
+    secureStorage.remove('app_ref');
+
+    const targetRef = targetRefRaw && targetRefRaw.startsWith('/') && !targetRefRaw.startsWith('//') ? targetRefRaw : null;
+    const currentPath = window.location.pathname;
+    const isLandingOrAuthRoute =
+      currentPath === '/' ||
+      currentPath === '/overview' ||
+      currentPath === '/welcome' ||
+      currentPath === '/docs/overview' ||
+      currentPath === '/login' ||
+      currentPath === '/register' ||
+      currentPath === '/auth';
+
+    // When a user logs in while already inside an active section (!isLandingOrAuthRoute, e.g. /app-studio, /image-studio, /audio-studio, etc.),
+    // keep them in that exact section without redirecting away to /chat.
+    if (!isLandingOrAuthRoute) {
+      if (pendingRedirect && pendingRedirect.startsWith('/') && pendingRedirect !== currentPath) {
+        navigate(pendingRedirect, { replace: true });
+      }
+      return;
+    }
+
+    const destination =
+      targetRef &&
+      targetRef !== '/' &&
+      targetRef !== '/overview' &&
+      targetRef !== '/welcome' &&
+      targetRef !== '/docs/overview' &&
+      targetRef !== '/login' &&
+      targetRef !== '/register' &&
+      targetRef !== '/auth'
+        ? targetRef
+        : '/chat';
+
+    if (destination && destination !== currentPath) {
+      navigate(destination, { replace: true });
+    }
+  };
+
   const handleAuthSuccess = (userData: any) => {
     if (isSyncingAuth.current) return;
     isSyncingAuth.current = true;
@@ -2093,26 +2140,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       secureStorage.set('language', authLang);
     }
 
-    const targetRefRaw = userData.ref || secureStorage.getSync('app_ref');
-
-    const targetRef = targetRefRaw && targetRefRaw.startsWith('/') && !targetRefRaw.startsWith('//') ? targetRefRaw : null;
-    secureStorage.remove('app_ref');
-
-    const currentPath = window.location.pathname;
-    const isLanding = currentPath === '/' || currentPath === '/overview' || currentPath === '/welcome';
-    
-    // When a user logs in while already on a functional app page (!isLanding, e.g. /app, /app/canvas),
-    // they MUST remain on that exact page without being redirected to /chat or anywhere else.
-    const destination = isLanding
-      ? ((targetRef && targetRef !== '/' && targetRef !== '/overview' && targetRef !== '/welcome') ? targetRef : '/chat')
-      : currentPath;
-
     isSyncingAuth.current = false;
-    if (isLanding && destination && destination !== currentPath) {
-      navigate(destination, { replace: true });
-    } else {
-      triggerAuthSuccessToast('login');
-    }
+    performPostAuthRedirect(userData.ref);
+    triggerAuthSuccessToast('login');
   };
 
   useEffect(() => {
@@ -2639,7 +2669,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           secureStorage.set('app_token', data.token);
           secureStorage.set('last_active_tool', 'chat_fast');
           setIsAuthModalOpen(false);
-          navigate('/chat', { replace: true });
+          performPostAuthRedirect();
           triggerAuthSuccessToast('login');
           logUserActivity('LOGIN_SUCCESS', { email });
 
@@ -2689,7 +2719,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           secureStorage.set('app_token', data.token);
           secureStorage.set('last_active_tool', 'chat_fast');
           setIsAuthModalOpen(false);
-          navigate('/chat', { replace: true });
+          performPostAuthRedirect(ref);
           triggerAuthSuccessToast('signup');
           logUserActivity('SIGNUP_SUCCESS', { email });
 

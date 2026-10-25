@@ -234,14 +234,16 @@ export async function applyLedgerColumnEnforcements(targetLedgerPool: QueryClien
   // === 3. Ledger DB Column Enforcement ===
   await ensureColumnsBulk(targetLedgerPool, 'wallets', {
     user_id: { type: 'INTEGER' },
-    balance: { type: 'DECIMAL(10,2)', default: 0 },
-    pending_balance: { type: 'DECIMAL(10,2)', default: 0 },
+    balance: { type: 'DECIMAL(20,4)', default: 0 },
+    usd_balance: { type: 'DECIMAL(20,4)', default: 0 },
+    pending_balance: { type: 'DECIMAL(20,4)', default: 0 },
     points: { type: 'INTEGER', default: 0 },
-    total_deposited: { type: 'DECIMAL(10,2)', default: 0 },
-    total_withdrawn: { type: 'DECIMAL(10,2)', default: 0 },
-    total_earned_referral: { type: 'DECIMAL(10,2)', default: 0 },
+    total_deposited: { type: 'DECIMAL(20,4)', default: 0 },
+    total_withdrawn: { type: 'DECIMAL(20,4)', default: 0 },
+    total_earned_referral: { type: 'DECIMAL(20,4)', default: 0 },
     is_frozen: { type: 'BOOLEAN', default: false },
     currency: { type: 'VARCHAR(10)', default: "'USD'" },
+    referral_activated: { type: 'BOOLEAN', default: false },
     created_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' },
     updated_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' }
   });
@@ -250,14 +252,14 @@ export async function applyLedgerColumnEnforcements(targetLedgerPool: QueryClien
     transaction_type: { type: 'VARCHAR(50)' },
     user_id: { type: 'INTEGER' },
     wallet_id: { type: 'INTEGER' },
-    amount: { type: 'DECIMAL(10,2)', default: 0 },
+    amount: { type: 'DECIMAL(20,4)', default: 0 },
     points: { type: 'INTEGER', default: 0 },
     status: { type: 'VARCHAR(50)', default: "'completed'" },
     reference_id: { type: 'VARCHAR(255)' },
     metadata: { type: 'JSONB', default: "'{}'" },
     ip_address: { type: 'VARCHAR(45)' },
     description: { type: 'TEXT' },
-    balance_after: { type: 'DECIMAL(10,2)', default: 0 },
+    balance_after: { type: 'DECIMAL(20,4)', default: 0 },
     is_hidden: { type: 'BOOLEAN', default: false },
     created_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' },
     updated_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' }
@@ -267,8 +269,8 @@ export async function applyLedgerColumnEnforcements(targetLedgerPool: QueryClien
     referrer_id: { type: 'INTEGER' },
     referred_id: { type: 'INTEGER' },
     status: { type: 'VARCHAR(50)', default: "'pending'" },
-    bonus_points: { type: 'DECIMAL(10,2)', default: 0 },
-    reward_amount: { type: 'DECIMAL(10,2)', default: 0 },
+    bonus_points: { type: 'DECIMAL(20,4)', default: 0 },
+    reward_amount: { type: 'DECIMAL(20,4)', default: 0 },
     commission_earned: { type: 'DECIMAL(10,2)', default: 0 },
     created_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' },
     updated_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' }
@@ -303,7 +305,7 @@ export async function applyLedgerColumnEnforcements(targetLedgerPool: QueryClien
 
   await ensureColumnsBulk(targetLedgerPool, 'withdrawal_requests', {
     user_id: { type: 'INTEGER' },
-    amount: { type: 'DECIMAL(10,2)', default: 0 },
+    amount: { type: 'DECIMAL(20,4)', default: 0 },
     amount_cents: { type: 'INTEGER', default: 0 },
     method: { type: 'VARCHAR(50)' },
     payout_method: { type: 'VARCHAR(50)' },
@@ -372,7 +374,7 @@ export async function applyLedgerColumnEnforcements(targetLedgerPool: QueryClien
   await ensureColumnsBulk(targetLedgerPool, 'coupons', {
     code: { type: 'VARCHAR(50)' },
     discount_percent: { type: 'DECIMAL(5,2)', default: 0 },
-    discount_amount: { type: 'DECIMAL(10,2)', default: 0 },
+    discount_amount: { type: 'DECIMAL(20,4)', default: 0 },
     max_uses: { type: 'INTEGER', default: 0 },
     used_count: { type: 'INTEGER', default: 0 },
     expires_at: { type: 'TIMESTAMP' },
@@ -388,7 +390,7 @@ export async function applyLedgerColumnEnforcements(targetLedgerPool: QueryClien
 
   await ensureColumnsBulk(targetLedgerPool, 'deposit_requests', {
     user_id: { type: 'INTEGER' },
-    amount: { type: 'DECIMAL(10,2)', default: 0 },
+    amount: { type: 'DECIMAL(20,4)', default: 0 },
     currency: { type: 'VARCHAR(10)', default: "'USD'" },
     method: { type: 'VARCHAR(50)' },
     proof_url: { type: 'TEXT' },

@@ -205,10 +205,10 @@ export const AudioStudioPage: React.FC = () => {
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button 
-              onClick={() => navigate('/')} 
-              className="h-9 px-3 flex items-center gap-1.5 rounded-[var(--radius-md)] bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--text-primary)] hover:text-accent transition-theme active:scale-95 cursor-pointer text-xs font-bold"
+              onClick={() => navigate(user || token ? '/chat' : '/')} 
+              className="h-7 px-3 flex items-center gap-1.5 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--text-primary)] hover:text-accent transition-theme active:scale-95 cursor-pointer text-[11px] font-bold shadow-2xs"
             >
-              {isAr ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+              {isAr ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
               <span>{isAr ? 'الرئيسية' : 'Home'}</span>
             </button>
             <div className="flex items-center gap-2.5">
@@ -231,6 +231,7 @@ export const AudioStudioPage: React.FC = () => {
                 <Cpu className="w-3.5 h-3.5 text-[var(--fg-accent)]" />
               </div>
             )}
+
           </div>
         </div>
       </header>

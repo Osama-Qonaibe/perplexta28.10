@@ -607,7 +607,7 @@ export const CORE_SCHEMA_TABLES: { name: string; query: string }[] = [
         starts_at TIMESTAMP,
         expires_at TIMESTAMP,
         page_id INTEGER,
-        location_city VARCHAR(100) DEFAULT 'فلسطين',
+        location_city VARCHAR(100) DEFAULT 'عام',
         phone_number VARCHAR(50),
         video_url TEXT,
         is_boosted BOOLEAN DEFAULT FALSE,
@@ -703,7 +703,7 @@ export const CORE_SCHEMA_TABLES: { name: string; query: string }[] = [
         name VARCHAR(255) NOT NULL,
         slug VARCHAR(255),
         category VARCHAR(100) DEFAULT 'تجارة إلكترونية / E-Commerce',
-        city VARCHAR(100) DEFAULT 'غزة',
+        city VARCHAR(100) DEFAULT 'عام',
         address TEXT,
         description TEXT NOT NULL,
         avatar_url TEXT NOT NULL,
@@ -793,6 +793,16 @@ export const CORE_SCHEMA_TABLES: { name: string; query: string }[] = [
         encryption_hash VARCHAR(255),
         status VARCHAR(50) DEFAULT 'sent',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )`
+  },
+  {
+    name: 'bulletin_hashtags',
+    query: `CREATE TABLE IF NOT EXISTS bulletin_hashtags (
+        id SERIAL PRIMARY KEY,
+        tag VARCHAR(100) UNIQUE NOT NULL,
+        use_count INTEGER DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )`
   },
   {
@@ -1066,6 +1076,7 @@ export const CORE_SCHEMA_TABLES: { name: string; query: string }[] = [
         context_window INTEGER DEFAULT 32768,
         max_output_tokens INTEGER DEFAULT 8192,
         is_active BOOLEAN DEFAULT true,
+        metadata JSONB DEFAULT '{}',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )`
   },
@@ -1224,6 +1235,7 @@ export const CORE_SCHEMA_TABLES: { name: string; query: string }[] = [
     name: 'rinex_creators',
     query: `CREATE TABLE IF NOT EXISTS rinex_creators (
         id VARCHAR(100) PRIMARY KEY,
+        user_id INTEGER,
         username VARCHAR(100) UNIQUE NOT NULL,
         name VARCHAR(255) NOT NULL,
         email VARCHAR(255),
@@ -1287,15 +1299,26 @@ export const CORE_SCHEMA_TABLES: { name: string; query: string }[] = [
         price_type VARCHAR(20) DEFAULT 'free',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )`
+  },
+  {
+    name: 'rinex_favorite_templates',
+    query: `CREATE TABLE IF NOT EXISTS rinex_favorite_templates (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        template_id VARCHAR(100) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, template_id)
+      )`
   }
 ];
 
 export async function applyCoreColumnEnforcements(targetPool: QueryClient) {
   // === 1. Core DB Column Enforcement (Before Indexes/FKs) ===
   await ensureColumnsBulk(targetPool, 'users', {
+    theme: { type: 'VARCHAR(10)', default: "'light'" },
     email_notifications: { type: 'BOOLEAN', default: 'true' },
     avatar: { type: 'TEXT' },
-    referral_code: { type: 'VARCHAR(6)' },
+    referral_code: { type: 'VARCHAR(10)' },
     provider: { type: 'VARCHAR(50)', default: 'local' },
     kyc_status: { type: 'VARCHAR(50)', default: 'none' },
     kyc_required: { type: 'BOOLEAN', default: false },
@@ -1454,7 +1477,7 @@ export async function applyCoreColumnEnforcements(targetPool: QueryClient) {
     boost_goal: { type: 'VARCHAR(100)', default: "'whatsapp_leads'" },
     boost_daily_budget: { type: 'NUMERIC(10,2)', default: 2.00 },
     boost_settings: { type: 'JSONB', default: "'{}'" },
-    location_city: { type: 'VARCHAR(100)', default: "'فلسطين'" },
+    location_city: { type: 'VARCHAR(100)', default: "'عام'" },
     phone_number: { type: 'VARCHAR(50)' },
     video_url: { type: 'TEXT' },
     is_boosted: { type: 'BOOLEAN', default: false },
@@ -1788,6 +1811,7 @@ export async function applyCoreColumnEnforcements(targetPool: QueryClient) {
     context_window: { type: 'INTEGER', default: 32768 },
     max_output_tokens: { type: 'INTEGER', default: 4096 },
     is_active: { type: 'BOOLEAN', default: true },
+    metadata: { type: 'JSONB', default: "'{}'" },
     created_at: { type: 'TIMESTAMP', default: 'CURRENT_TIMESTAMP' }
   });
 
@@ -1838,7 +1862,8 @@ export async function applyCoreColumnEnforcements(targetPool: QueryClient) {
     framework_mode: { type: 'VARCHAR(50)', default: "'html'" },
     files: { type: 'JSONB', default: "'{}'" },
     chat_history: { type: 'JSONB', default: "'[]'" },
-    is_public: { type: 'BOOLEAN', default: false }
+    is_public: { type: 'BOOLEAN', default: false },
+    metadata: { type: 'JSONB', default: "'{}'" }
   });
 
   await ensureColumnsBulk(targetPool, 'studio_snapshots', {
@@ -1906,8 +1931,17 @@ export async function applyCoreColumnEnforcements(targetPool: QueryClient) {
           tool = COALESCE(tool, tool_id, 'chat_fast')
       WHERE tool_id IS NULL OR tool IS NULL OR tool_id != tool;
     `);
+    await targetPool.query(`
+      UPDATE bulletin_ads
+      SET impressions_count = GREATEST(COALESCE(impressions_count, 0), COALESCE(view_count, 0)),
+          view_count = GREATEST(COALESCE(impressions_count, 0), COALESCE(view_count, 0)),
+          clicks_count = GREATEST(COALESCE(clicks_count, 0), COALESCE(click_count, 0)),
+          click_count = GREATEST(COALESCE(clicks_count, 0), COALESCE(click_count, 0))
+      WHERE COALESCE(impressions_count, 0) != COALESCE(view_count, 0)
+         OR COALESCE(clicks_count, 0) != COALESCE(click_count, 0);
+    `);
   } catch (syncErr: any) {
-    console.warn('[Migrations] Warning synchronizing tool/tool_id columns:', syncErr?.message || syncErr);
+    console.warn('[Migrations] Warning synchronizing tool/tool_id or bulletin metric columns:', syncErr?.message || syncErr);
   }
 }
 
@@ -2042,7 +2076,9 @@ export const CORE_INDEXES: string[] = [
   `CREATE UNIQUE INDEX IF NOT EXISTS rinex_template_usages_pkey ON rinex_template_usages(id)`,
   `CREATE INDEX IF NOT EXISTS idx_template_usages_creator_date ON rinex_template_usages (creator_id, created_at DESC)`,
   `CREATE INDEX IF NOT EXISTS idx_template_usages_user_template ON rinex_template_usages (template_id, user_id, created_at DESC)`,
-  `CREATE INDEX IF NOT EXISTS idx_template_usages_ip_template ON rinex_template_usages (template_id, ip_address, created_at DESC)`
+  `CREATE INDEX IF NOT EXISTS idx_template_usages_ip_template ON rinex_template_usages (template_id, ip_address, created_at DESC)`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS rinex_favorite_templates_pkey ON rinex_favorite_templates(id)`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS idx_rinex_fav_templates_user_tpl ON rinex_favorite_templates(user_id, template_id)`
 ];
 
 export const CORE_RELATIONS: ForeignKeyRelation[] = [

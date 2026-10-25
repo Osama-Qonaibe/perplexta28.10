@@ -14,13 +14,15 @@ export interface PreloaderConfig {
   maxIdleTimeout?: number;
 }
 
-// Registry of non-essential chunk loaders that should be deferred to idle state
+// Registry of core and secondary chunk loaders prefetched during browser idle state
 const DEFERRED_CHUNKS = [
-  { name: 'AdminDashboard', loader: () => import('../pages/AdminDashboard') },
+  { name: 'ChatPage', loader: () => import('../pages/ChatPage') },
+  { name: 'ProjectOverviewPage', loader: () => import('../pages/ProjectOverviewPage') },
   { name: 'RewardsPage', loader: () => import('../pages/RewardsPage') },
   { name: 'SubscriptionPage', loader: () => import('../pages/SubscriptionPage') },
   { name: 'SettingsPage', loader: () => import('../pages/SettingsPage') },
-  { name: 'GoogleHubPage', loader: () => import('../pages/GoogleHubPage') }
+  { name: 'GoogleHubPage', loader: () => import('../pages/GoogleHubPage') },
+  { name: 'AdminDashboard', loader: () => import('../pages/AdminDashboard') }
 ];
 
 /**
@@ -98,8 +100,8 @@ export function scheduleIdleChunkPrefetch(config: PreloaderConfig = {}): () => v
     }
   };
 
-  // Initial delay (default 3.5s) to ensure Initial Paint, FCP, and LCP are completely finished
-  const initialDelay = config.idleDelayMs ?? 3500;
+  // Initial delay (default 1.2s) to ensure Initial Paint, FCP, and LCP are finished before warming core route chunks
+  const initialDelay = config.idleDelayMs ?? 1200;
   timerHandle = setTimeout(executePrefetch, initialDelay);
 
   return () => {

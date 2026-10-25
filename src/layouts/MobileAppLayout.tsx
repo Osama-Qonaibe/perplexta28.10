@@ -18,9 +18,9 @@ export const MobileAppLayout: React.FC = () => {
 
   const isRestrictedRoute = isDesktopOnlyRoute(location.pathname);
   const isChatRoute = location.pathname.startsWith('/chat') || location.pathname === '/';
-  const isViralbookRoute = location.pathname.startsWith('/viralbook') || location.pathname.startsWith('/bulletin') || location.pathname.startsWith('/reels');
-  const isStudioRoute = location.pathname.startsWith('/image-studio') || location.pathname.startsWith('/app') || location.pathname.startsWith('/audio-studio') || location.pathname.startsWith('/creator');
-  const isLandingRoute = location.pathname === '/' || location.pathname === '/overview' || location.pathname === '/welcome';
+  const isViralbookRoute = location.pathname.startsWith('/viralbook') || location.pathname.startsWith('/bulletin') || location.pathname.startsWith('/reels') || location.pathname.startsWith('/p/') || location.pathname.startsWith('/post/');
+  const isStudioRoute = location.pathname.startsWith('/image-studio') || location.pathname.startsWith('/app') || location.pathname.startsWith('/audio-studio') || location.pathname.startsWith('/creator/');
+  const isLandingRoute = location.pathname === '/' || location.pathname === '/overview' || location.pathname === '/welcome' || location.pathname === '/docs/overview';
   const isIsolatedMobileView = isViralbookRoute || isStudioRoute || isLandingRoute;
 
   // Capture native touch swipe gestures across PWA shell components

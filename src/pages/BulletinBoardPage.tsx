@@ -227,16 +227,14 @@ export const BulletinBoardPage: React.FC = () => {
           (activeTab === 'reels' && (currentPath.startsWith('/viralbook/reels') || currentPath.startsWith('/reels')));
 
         if (!isExactOrSubMatch) {
-          window.history.replaceState(null, '', targetPath);
-        }
-
-        if (window.location.search) {
+          navigate(targetPath, { replace: true });
+        } else if (window.location.search) {
           const url = new URL(window.location.href);
           if (url.searchParams.has('tab')) {
             url.searchParams.delete('tab');
             const cleanSearch = url.searchParams.toString();
             const newCleanUrl = url.pathname + (cleanSearch ? `?${cleanSearch}` : '') + url.hash;
-            window.history.replaceState(null, '', newCleanUrl);
+            navigate(newCleanUrl, { replace: true });
           }
         }
       }

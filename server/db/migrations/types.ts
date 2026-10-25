@@ -123,8 +123,11 @@ export const TABLE_POOL_REGISTRY: Record<string, DatabasePoolKey> = {
   migration_security_audit: 'core',
 
   seed_executions: 'core',
+  banned_email_domains: 'core',
   rinex_creators: 'core',
   rinex_templates: 'core',
+  rinex_template_usages: 'core',
+  rinex_favorite_templates: 'core',
 
   // Ledger DB Tables
   wallets: 'ledger',

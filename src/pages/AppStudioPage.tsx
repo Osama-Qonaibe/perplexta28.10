@@ -7,14 +7,14 @@ import {
   Paperclip, Mic, Send, Sparkles, CheckCircle2, AlertTriangle, RefreshCw, X, Code, Globe, Layers,
   Monitor, Smartphone, Tablet, Wand2, Sliders, ArrowLeft, ArrowRight, Square,
   Clock, Loader2, Key, MousePointer, History, RotateCcw, RotateCw, Cloud, HardDrive, Check, Zap,
-  Copy, ChevronDown, ShieldCheck, Lock, User
+  Copy, ChevronDown, ShieldCheck, Lock, User, LogOut, Activity, Wallet, BrainCircuit
 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 import { toast, PopCard, Button, ActionItem, Badge, AssistantIcon } from '@/design-system';
 import initSqlJs from 'sql.js';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { resolveImageUrl } from '../utils/imageResolver';
+import { resolveImageUrl, DEFAULT_AVATAR } from '../utils/imageResolver';
 
 interface ProjectFile {
   name: string;
@@ -35,7 +35,7 @@ interface StudioChatMessage {
 }
 
 export const AppStudioPage: React.FC = () => {
-  const { theme, language, siteSettings, dir, token, user, setIsAuthModalOpen } = useAppContext();
+  const { theme, language, siteSettings, dir, token, user, setIsAuthModalOpen, logout, t } = useAppContext();
   const navigate = useNavigate();
 
   const getAuthToken = useCallback(() => {
@@ -123,20 +123,22 @@ export const AppStudioPage: React.FC = () => {
 
   const openFile = (path: string) => {
     setActiveFilePath(path);
-    if (!openTabs.includes(path)) {
-      setOpenTabs(prev => [...prev, path]);
-    }
+    setOpenTabs(prev => (prev.includes(path) ? prev : [...prev, path]));
     if (activeTab !== 'code') {
       setActiveTab('code');
       setSideNavActiveTab('files');
     }
+    setMobileActiveTab('preview');
   };
   const [pipelinePhase, setPipelinePhase] = useState<1 | 2 | 3 | null>(null);
   const [fileStatuses, setFileStatuses] = useState<Record<string, 'pending' | 'writing' | 'completed' | 'error'>>({});
   const [activeBlueprint, setActiveBlueprint] = useState<any>(null);
+  const [isUploadMenuOpen, setIsUploadMenuOpen] = useState(false);
 
-  // Progressive contextual suggestions state mapping (Bilingual AR + EN)
+  // Progressive contextual suggestions state mapping & Short-Title -> Full-Prompt Catalog (Bilingual AR + EN)
   const [clickedSuggestions, setClickedSuggestions] = useState<string[]>([]);
+  const promptInputRef = useRef<HTMLTextAreaElement>(null);
+
   const PROGRESSIVE_SUGGESTIONS_MAP: Record<string, string> = {
     'صمم متجر إلكتروني احترافي للمنتجات الرقمية يضم واجهة هبوط عصرية مع سكرول أنيميشن، شبكة منتجات قابلة للتصفية، وسلة مشتريات منبثقة تفاعلية تحسب المجموع تلقائياً.': 'أضف نظام إدارة مخزون ذكي مع لوحة تحكم تظهر تنبيهات عند قرب نفاذ الكمية ونظام كوبونات خصم.',
     'أنشئ صفحة هبوط (SaaS) تفاعلية للشركات التقنية مع قسم مميزات متحرك، جدول خطط أسعار مقارن، ونموذج تواصل ذكي مع التحقق من البيانات.': 'أضف نظام اشتراكات شهري وسنوي مع بوابة دفع تجريبية وتوليد فواتير تلقائي بصيغة PDF.',
@@ -147,6 +149,128 @@ export const AppStudioPage: React.FC = () => {
     'Develop a comprehensive Admin Dashboard featuring interactive sales data charts, sortable data tables, and a user management system with various UI states.': 'Connect the dashboard to a SQLite database to live-store and edit sales and user data securely.',
     'Build a creative Portfolio website for designers with a grid-based work gallery, seamless dark/light mode switching, and smooth section transition effects.': 'Add a detailed page for each project with an advanced image slider and an interactive project rating system.'
   };
+
+  const STUDIO_SUGGESTIONS_CATALOG: Array<{ labelAr: string; labelEn: string; fullAr: string; fullEn: string; aliases?: string[] }> = [
+    {
+      labelAr: 'متجر منتجات رقمية',
+      labelEn: 'Digital Products Store',
+      fullAr: 'صمم متجر إلكتروني احترافي للمنتجات الرقمية يضم واجهة هبوط عصرية مع سكرول أنيميشن، شبكة منتجات قابلة للتصفية، وسلة مشتريات منبثقة تفاعلية تحسب المجموع تلقائياً.',
+      fullEn: 'Design a professional digital products store featuring a modern landing interface with scroll animations, a filterable product grid, and an interactive popup shopping cart that auto-calculates totals.'
+    },
+    {
+      labelAr: 'منصة SaaS تقنية',
+      labelEn: 'SaaS Landing Page',
+      fullAr: 'أنشئ صفحة هبوط (SaaS) تفاعلية للشركات التقنية مع قسم مميزات متحرك، جدول خطط أسعار مقارن، ونموذج تواصل ذكي مع التحقق من البيانات.',
+      fullEn: 'Create an interactive SaaS landing page for tech startups with animated feature sections, a comparative pricing table, and a smart contact form with validation logic.'
+    },
+    {
+      labelAr: 'لوحة تحكم وإحصائيات',
+      labelEn: 'Admin Dashboard',
+      fullAr: 'طور لوحة تحكم وإحصائيات متكاملة (Admin Dashboard) تضم رسوم بيانية تفاعلية لبيانات المبيعات، جداول قابلة للفرز، ونظام إدارة مستخدمين مع حالات ظهور مختلفة.',
+      fullEn: 'Develop a comprehensive Admin Dashboard featuring interactive sales data charts, sortable data tables, and a user management system with various UI states.'
+    },
+    {
+      labelAr: 'معرض أعمال إبداعي',
+      labelEn: 'Creative Portfolio',
+      fullAr: 'ابنِ موقع محفظة أعمال (Portfolio) إبداعي للمصممين مع معرض أعمال شبكي، نظام تبديل الوضع الليلي والنهاري، وتأثيرات انتقال سلسة بين الأقسام.',
+      fullEn: 'Build a creative Portfolio website for designers with a grid-based work gallery, seamless dark/light mode switching, and smooth section transition effects.'
+    },
+    {
+      labelAr: 'إدارة مخزون وكوبونات',
+      labelEn: 'Inventory & Coupons',
+      fullAr: 'أضف نظام إدارة مخزون ذكي مع لوحة تحكم تظهر تنبيهات عند قرب نفاذ الكمية ونظام كوبونات خصم.',
+      fullEn: 'Add a smart inventory management system with a dashboard that shows alerts when stock is low and a discount coupon system.',
+      aliases: ['إضافة نظام كوبونات خصم وتخفيضات تفاعلي', 'Add discount coupons system', 'إضافة نظام كوبونات خصم وحساب الضريبة تلقائياً']
+    },
+    {
+      labelAr: 'اشتراكات وفواتير PDF',
+      labelEn: 'Subscriptions & PDF Invoices',
+      fullAr: 'أضف نظام اشتراكات شهري وسنوي مع بوابة دفع تجريبية وتوليد فواتير تلقائي بصيغة PDF.',
+      fullEn: 'Add a monthly/annual subscription system with a demo payment gateway and automatic PDF invoice generation.',
+      aliases: ['ربط سلة المشتريات ببوابات دفع ذكية وفواتير مفصلة', 'Connect dynamic checkout & checkout forms', 'إنشاء لوحة إحصائيات المبيعات وتصدير الفواتير']
+    },
+    {
+      labelAr: 'ربط قاعدة بيانات SQLite',
+      labelEn: 'Connect SQLite DB',
+      fullAr: 'اربط لوحة التحكم بقاعدة بيانات SQLite لتخزين وتعديل بيانات المبيعات والمستخدمين بشكل حي ومؤمن.',
+      fullEn: 'Connect the dashboard to a SQLite database to live-store and edit sales and user data securely.'
+    },
+    {
+      labelAr: 'معرض منزلق وتقييمات',
+      labelEn: 'Image Slider & Ratings',
+      fullAr: 'أضف صفحة تفصيلية لكل مشروع مع معرض صور منزلق متقدم (Slider) ونظام تقييم تفاعلي للأعمال.',
+      fullEn: 'Add a detailed page for each project with an advanced image slider and an interactive project rating system.'
+    },
+    {
+      labelAr: 'تسجيل دخول وحسابات',
+      labelEn: 'User Login & Accounts',
+      fullAr: 'طور نظام مصادقة وحسابات عملاء متكامل يضم نافذة تسجيل دخول وإنشاء حساب مع التحقق من الحقول، وإدارة الملف الشخصي وقاعدة بيانات المستخدمين.',
+      fullEn: 'Build a complete user authentication and accounts module with sign-in/register modals, form validation, user profile state, and SQLite persistence.',
+      aliases: ['تطوير بطاقة تسجيل دخول وقاعدة بيانات للمستخدمين', 'Build user login card & SQLite DB', 'تطوير نافذة تسجيل دخول وحسابات العملاء']
+    },
+    {
+      labelAr: 'مراجعات وآراء العملاء',
+      labelEn: 'Customer Testimonials',
+      fullAr: 'صمم قسم مراجعات وآراء العملاء بشكل تفاعلي متحرك مع إمكانية إضافة تقييم جديد بالنجوم والفرز حسب التقييم.',
+      fullEn: 'Design an interactive animated customer testimonials section with live star rating submission and sorting.',
+      aliases: ['تصميم قسم مراجعات وآراء العملاء بشكل تفاعلي متحرك', 'Design dynamic animated testimonials section']
+    },
+    {
+      labelAr: 'تحسين التجاوب للجوال',
+      labelEn: 'Mobile Responsive UI',
+      fullAr: 'حسّن التجاوب البصري الكامل مع شاشات الهواتف والأجهزة اللوحية، مع إضافة قائمة تنقل متجاوبة للجوال وتأثيرات حركية سلسة.',
+      fullEn: 'Optimize full mobile and tablet responsive layouts with a collapsible mobile navigation drawer and smooth micro-interactions.',
+      aliases: ['تحسين التجاوب البصري الكامل مع شاشات الجوال والتابلت', 'Perfect full mobile and tablet responsive layouts']
+    },
+    {
+      labelAr: 'لوحة إدارة المشروع',
+      labelEn: 'Admin Control Panel',
+      fullAr: 'برمج لوحة إحصائيات وإدارة متكاملة للمشروع تتيح إضافة وتعديل وحذف العناصر مع رسوم بيانية حية للأداء.',
+      fullEn: 'Build an interactive admin control panel allowing full CRUD operations on items with live performance charts.',
+      aliases: ['برمجة لوحة إحصائيات وإدارة للمشروع', 'Build interactive admin dashboard panel']
+    }
+  ];
+
+  const resolveSuggestionChip = useCallback((rawSuggestion: string): { label: string; fullPrompt: string } => {
+    const trimmed = (rawSuggestion || '').trim();
+    const isAr = language === 'ar';
+
+    // 1. Check catalog match (matches label, full prompt, or aliases)
+    const matched = STUDIO_SUGGESTIONS_CATALOG.find(item =>
+      item.labelAr === trimmed ||
+      item.labelEn === trimmed ||
+      item.fullAr === trimmed ||
+      item.fullEn === trimmed ||
+      (item.aliases && item.aliases.includes(trimmed))
+    );
+
+    if (matched) {
+      return {
+        label: isAr ? matched.labelAr : matched.labelEn,
+        fullPrompt: isAr ? matched.fullAr : matched.fullEn
+      };
+    }
+
+    // 2. Dynamic AI suggestion: extract concise 2-4 word title for chip and ensure rich fullPrompt in background
+    const strippedPrefix = trimmed
+      .replace(/^(صمم|أنشئ|طور|ابنِ|أضف|إضافة|تطوير|برمجة|تصميم|تحسين|اربط|ربط|إنشاء|بناء)\s+/i, '')
+      .replace(/^(design|create|develop|build|add|connect|implement|optimize|improve)\s+(a\s+|an\s+|the\s+)?/i, '')
+      .trim();
+
+    const words = (strippedPrefix || trimmed).split(/\s+/);
+    const shortLabel = words.slice(0, 2).join(' ').replace(/[.,،؛:]$/g, '');
+
+    const fullPrompt = trimmed.length > 45
+      ? trimmed
+      : (isAr
+          ? `قم بتطوير وإضافة الميزة التالية إلى المشروع بشكل احترافي ومتكامل مع ربطها بالواجهة التفاعلية والبيانات: ${trimmed}، مع الحفاظ الكامل على هوية وتصميم المشروع.`
+          : `Develop and integrate the following interactive feature into the project with full UI state and data binding while preserving the existing design: ${trimmed}.`);
+
+    return {
+      label: shortLabel || trimmed.slice(0, 22),
+      fullPrompt
+    };
+  }, [language]);
 
   // Sync initial splash screen when language changes (if project is still empty/default)
   useEffect(() => {
@@ -213,6 +337,7 @@ export const AppStudioPage: React.FC = () => {
   const [isInspectMode, setIsInspectMode] = useState(false);
   const [isEnvModalOpen, setIsEnvModalOpen] = useState(false);
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [envVars, setEnvVars] = useState<Record<string, string>>({
     VITE_APP_TITLE: 'Perplexta App',
     VITE_API_URL: '/api'
@@ -506,8 +631,14 @@ export const AppStudioPage: React.FC = () => {
           }
           setFiles(parsed.files);
           setSavedFiles(parsed.files);
-          if (parsed.activeFilePath && parsed.files[parsed.activeFilePath]) {
-            setActiveFilePath(parsed.activeFilePath);
+          const restoredKeys = Object.keys(parsed.files);
+          const targetActive = (parsed.activeFilePath && parsed.files[parsed.activeFilePath])
+            ? parsed.activeFilePath
+            : (restoredKeys.includes('index.html') ? 'index.html' : (restoredKeys[0] || 'index.html'));
+          setActiveFilePath(targetActive);
+          setOpenTabs(restoredKeys.slice(0, 5));
+          if (parsed.envVars && typeof parsed.envVars === 'object') {
+            setEnvVars(prev => ({ ...prev, ...parsed.envVars }));
           }
           if (Array.isArray(parsed.chatMessages) && parsed.chatMessages.length > 0) {
             const sanitizedMsgs = parsed.chatMessages.map((m: StudioChatMessage) => {
@@ -585,6 +716,7 @@ export const AppStudioPage: React.FC = () => {
             projectName,
             files,
             activeFilePath,
+            envVars,
             chatMessages,
             terminalLogs: terminalLogs.slice(-30)
           }));
@@ -619,7 +751,7 @@ export const AppStudioPage: React.FC = () => {
     }, 2000);
 
     return () => clearTimeout(timer);
-  }, [files, activeFilePath, chatMessages, terminalLogs, projectId, projectName, dir, language]);
+  }, [files, activeFilePath, envVars, chatMessages, terminalLogs, projectId, projectName, dir, language]);
 
   const hasUnsavedChanges = files[activeFilePath]?.content !== savedFiles[activeFilePath]?.content;
 
@@ -733,6 +865,18 @@ export const AppStudioPage: React.FC = () => {
     };
   }, []);
 
+  // Re-sync SQLite database whenever db/schema.sql content changes
+  useEffect(() => {
+    const schemaContent = files['db/schema.sql']?.content;
+    if (!sqlDb || !schemaContent) return;
+    try {
+      sqlDb.run(schemaContent);
+      refreshTables(sqlDb);
+    } catch (err: any) {
+      // Ignore duplicate table creation notices during incremental typing
+    }
+  }, [files['db/schema.sql']?.content, sqlDb]);
+
   const refreshTables = (db: any) => {
     try {
       const res = db.exec("SELECT name FROM sqlite_master WHERE type='table';");
@@ -803,7 +947,7 @@ export const AppStudioPage: React.FC = () => {
     return () => window.removeEventListener('message', handleMessage);
   }, []);
 
-  const saveProjectToDb = async (overrideId?: string, overrideTitle?: string, overrideFiles?: Record<string, ProjectFile>) => {
+  const saveProjectToDb = async (overrideId?: string, overrideTitle?: string, overrideFiles?: Record<string, ProjectFile>, overrideEnvVars?: Record<string, string>) => {
     const token = getAuthToken();
     if (!user || !token) {
       setSyncStatus('local');
@@ -816,6 +960,7 @@ export const AppStudioPage: React.FC = () => {
     }
     const targetTitle = overrideTitle || projectName || (language === 'ar' ? 'مشروع جديد' : 'My Project');
     const targetFiles = overrideFiles || files;
+    const targetEnvVars = overrideEnvVars || envVars;
 
     setSyncStatus('saving');
     try {
@@ -832,12 +977,23 @@ export const AppStudioPage: React.FC = () => {
           frameworkMode: 'html',
           files: targetFiles,
           chatHistory: chatMessages.slice(-50),
-          isPublic: false
+          isPublic: false,
+          metadata: { envVars: targetEnvVars }
         })
       });
       if (res.ok) {
-        setSyncStatus('synced');
-        addLog('success', `تم حفظ (${targetTitle}) سحابياً في قاعدة البيانات بنجاح.`);
+        const data = await res.json().catch(() => ({}));
+        if (data.localOnly || data.limitReached) {
+          setSyncStatus('local');
+          if (data.limitReached && data.message) {
+            toast.warning(data.message);
+            addLog('log', data.message);
+          }
+        } else {
+          setSyncStatus('synced');
+          addLog('success', `تم حفظ (${targetTitle}) سحابياً في قاعدة البيانات بنجاح.`);
+          fetchStudioUsage();
+        }
       } else {
         const errData = await res.json().catch(() => ({}));
         if (res.status === 403 && (errData.error === 'STUDIO_PROJECTS_LIMIT_REACHED' || errData.error === 'STUDIO_STORAGE_LIMIT_EXCEEDED')) {
@@ -871,6 +1027,16 @@ export const AppStudioPage: React.FC = () => {
       // ignore
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      fetchStudioUsage();
+      fetchUserWorkspaces();
+    } else {
+      setStudioUsage(null);
+      setUserWorkspaces([]);
+    }
+  }, [user]);
 
   const fetchUserWorkspaces = async () => {
     if (!user) {
@@ -965,6 +1131,10 @@ export const AppStudioPage: React.FC = () => {
         if (data.files) {
           setFiles(data.files);
           setSavedFiles(data.files);
+          const restoredKeys = Object.keys(data.files);
+          const nextActive = restoredKeys.includes('index.html') ? 'index.html' : (restoredKeys[0] || '');
+          setActiveFilePath(nextActive);
+          setOpenTabs(restoredKeys.slice(0, 5));
           setIframeKey(prev => prev + 1);
           toast.success(language === 'ar' ? `تم استعادة الإصدار (${snapshotToRestore.name}) بنجاح!` : `Restored ${snapshotToRestore.name}!`);
           addLog('success', `تم استعادة الإصدار: ${snapshotToRestore.name}`);
@@ -986,11 +1156,17 @@ export const AppStudioPage: React.FC = () => {
     await saveProjectToDb();
 
     const loadedFiles = typeof ws.files === 'string' ? JSON.parse(ws.files) : (ws.files || {});
+    const loadedKeys = Object.keys(loadedFiles);
+    const entryFile = loadedKeys.includes('index.html') ? 'index.html' : (loadedKeys[0] || 'index.html');
     setProjectId(ws.id);
     setProjectName(ws.title);
     setFiles(loadedFiles);
     setSavedFiles(loadedFiles);
-    setActiveFilePath('index.html');
+    setActiveFilePath(entryFile);
+    setOpenTabs(loadedKeys.length > 0 ? loadedKeys.slice(0, 5) : ['index.html']);
+    if (ws.metadata && typeof ws.metadata === 'object' && ws.metadata.envVars) {
+      setEnvVars(ws.metadata.envVars);
+    }
     if (Array.isArray(ws.chat_history) && ws.chat_history.length > 0) {
       setChatMessages(ws.chat_history);
     }
@@ -1049,6 +1225,7 @@ export const AppStudioPage: React.FC = () => {
         addLog('success', `تم حذف المشروع السحابي ومشتقاته من قاعدة البيانات: ${projectToDelete.title}`);
         
         const fetchedList = await fetchUserWorkspaces();
+        fetchStudioUsage();
         const remainingList = Array.isArray(fetchedList) && fetchedList.length > 0
           ? fetchedList
           : userWorkspaces.filter(w => w.id !== projectToDelete.id);
@@ -1060,16 +1237,21 @@ export const AppStudioPage: React.FC = () => {
             setProjectId(nextTarget.id);
             setProjectName(nextTarget.title);
             const loadedFiles = typeof nextTarget.files === 'string' ? JSON.parse(nextTarget.files) : (nextTarget.files || {});
+            const loadedKeys = Object.keys(loadedFiles);
             setFiles(loadedFiles);
             setSavedFiles(loadedFiles);
-            setActiveFilePath('index.html');
+            setActiveFilePath(loadedKeys.includes('index.html') ? 'index.html' : (loadedKeys[0] || 'index.html'));
+            setOpenTabs(loadedKeys.length > 0 ? loadedKeys.slice(0, 5) : ['index.html']);
+            if (nextTarget.metadata && typeof nextTarget.metadata === 'object' && nextTarget.metadata.envVars) {
+              setEnvVars(nextTarget.metadata.envVars);
+            }
             if (Array.isArray(nextTarget.chat_history) && nextTarget.chat_history.length > 0) {
               setChatMessages(nextTarget.chat_history);
             }
             setIframeKey(prev => prev + 1);
             localStorage.setItem('perplexta_active_project_id', nextTarget.id);
             localStorage.setItem('perplexta_active_project_name', nextTarget.title);
-            toast.info(language === 'ar' ? `اللانتقال إلى مشروع: ${nextTarget.title}` : `Switched to project: ${nextTarget.title}`);
+            toast.info(language === 'ar' ? `الانتقال إلى مشروع: ${nextTarget.title}` : `Switched to project: ${nextTarget.title}`);
           } else {
             // Enter Standby Mode without creating a new database record
             setProjectId('');
@@ -1128,6 +1310,7 @@ export const AppStudioPage: React.FC = () => {
             setFiles(standbyFiles);
             setSavedFiles(standbyFiles);
             setActiveFilePath('index.html');
+            setOpenTabs(['index.html']);
             setIframeKey(prev => prev + 1);
 
             setChatMessages([
@@ -1197,15 +1380,23 @@ export const AppStudioPage: React.FC = () => {
   const executeDeleteFile = () => {
     if (!fileToDelete) return;
     const path = fileToDelete;
-    setFiles(prev => {
+    const updatedFiles = { ...files };
+    delete updatedFiles[path];
+    setFiles(updatedFiles);
+    setSavedFiles(prev => {
       const next = { ...prev };
       delete next[path];
       return next;
     });
+    const remainingTabs = openTabs.filter(t => t !== path);
+    setOpenTabs(remainingTabs);
     if (activeFilePath === path) {
-      setActiveFilePath('index.html');
+      const fallbackPath = remainingTabs[remainingTabs.length - 1] || Object.keys(updatedFiles)[0] || '';
+      setActiveFilePath(fallbackPath);
     }
     setFileToDelete(null);
+    setIframeKey(prev => prev + 1);
+    saveProjectToDb(projectId, projectName, updatedFiles);
     toast.success(language === 'ar' ? 'تم حذف الملف بنجاح' : 'File deleted successfully');
   };
 
@@ -1233,8 +1424,14 @@ export const AppStudioPage: React.FC = () => {
       });
 
       await Promise.all(promises);
+      const extractedKeys = Object.keys(newFiles);
+      const nextActive = extractedKeys.includes('index.html') ? 'index.html' : (extractedKeys[0] || activeFilePath);
       setFiles(newFiles);
+      setSavedFiles(newFiles);
+      setActiveFilePath(nextActive);
+      setOpenTabs(extractedKeys.slice(0, 5));
       setIframeKey(prev => prev + 1);
+      saveProjectToDb(projectId, projectName, newFiles);
       toast.success(language === 'ar' ? 'تم رفع الملفات من الأرشيف بنجاح!' : 'Files extracted and uploaded successfully!');
       addLog('success', `تم رفع أرشيف ZIP: ${file.name}`);
     } catch (err: any) {
@@ -1250,6 +1447,7 @@ export const AppStudioPage: React.FC = () => {
 
     const newFiles: Record<string, ProjectFile> = { ...files };
     let count = 0;
+    const uploadedPaths: string[] = [];
 
     Array.from(uploadedFiles).forEach(file => {
       const reader = new FileReader();
@@ -1262,10 +1460,17 @@ export const AppStudioPage: React.FC = () => {
           content: content,
           type: ext
         };
+        uploadedPaths.push(file.name);
         count++;
         if (count === uploadedFiles.length) {
           setFiles({ ...newFiles });
+          setSavedFiles({ ...newFiles });
+          setOpenTabs(prev => Array.from(new Set([...prev, ...uploadedPaths])));
+          if (uploadedPaths.length > 0) {
+            setActiveFilePath(uploadedPaths[0]);
+          }
           setIframeKey(prev => prev + 1);
+          saveProjectToDb(projectId, projectName, newFiles);
           toast.success(language === 'ar' ? `تم رفع ${uploadedFiles.length} ملفات!` : `Uploaded ${uploadedFiles.length} files!`);
           addLog('success', `تم رفع ${uploadedFiles.length} ملفات يدوياً.`);
         }
@@ -1731,6 +1936,12 @@ export const AppStudioPage: React.FC = () => {
     if (typeof customPrompt === 'string') {
       setClickedSuggestions(prev => [...prev, customPrompt]);
     }
+
+    const activeProjId = projectId || ('proj_' + Date.now());
+    if (!projectId) {
+      setProjectId(activeProjId);
+      localStorage.setItem('perplexta_active_project_id', activeProjId);
+    }
     
     setPromptQuery('');
     setIsGenerating(true);
@@ -1841,7 +2052,7 @@ export const AppStudioPage: React.FC = () => {
                       : [];
 
                     if (ev.blueprint.project_name && typeof ev.blueprint.project_name === 'string') {
-                      if (projectName === 'مشروع جديد' || projectName === 'My Project') {
+                      if (projectName === 'مشروع جديد' || projectName === 'My Project' || projectName === 'New Project' || projectName.startsWith('مشروع جديد #') || projectName.startsWith('New Project #')) {
                         setProjectName(ev.blueprint.project_name);
                         localStorage.setItem('perplexta_active_project_name', ev.blueprint.project_name);
                       }
@@ -1996,12 +2207,17 @@ export const AppStudioPage: React.FC = () => {
           } else if (updatedKeys.length > 0) {
             setActiveFilePath(updatedKeys[0]);
           }
+          setOpenTabs(prev => {
+            const validExisting = prev.filter(p => Boolean(resolvedFiles[p]));
+            const merged = Array.from(new Set([...validExisting, ...updatedKeys.slice(0, 4)]));
+            return merged.length > 0 ? merged : allResolvedKeys.slice(0, 4);
+          });
 
           let updatedProjectTitle = projectName;
           const bp = data.blueprint || latestBlueprint;
           if (bp) {
             setActiveBlueprint(bp);
-            if (bp.project_name && typeof bp.project_name === 'string' && (projectName === 'مشروع جديد' || projectName === 'My Project')) {
+            if (bp.project_name && typeof bp.project_name === 'string' && (projectName === 'مشروع جديد' || projectName === 'My Project' || projectName === 'New Project' || projectName.startsWith('مشروع جديد #') || projectName.startsWith('New Project #'))) {
               updatedProjectTitle = bp.project_name;
               setProjectName(bp.project_name);
               localStorage.setItem('perplexta_active_project_name', bp.project_name);
@@ -2073,13 +2289,11 @@ export const AppStudioPage: React.FC = () => {
             return cleaned;
           };
 
-          const assistantMsg: StudioChatMessage = {
-            id: `assistant_${Date.now()}`,
-            role: 'assistant',
-            text: cleanReplyText(data.reply || data.summary),
-            logs: Array.isArray(data.logs) ? data.logs : [],
-            filesUpdated: updatedKeys,
-            suggestions: Array.isArray(data.suggestions) && data.suggestions.length > 0 ? data.suggestions : (
+          const nextClicked = [...clickedSuggestions, promptToSend];
+          setClickedSuggestions(nextClicked);
+          const rawSuggestions: string[] = Array.isArray(data.suggestions) && data.suggestions.length > 0
+            ? data.suggestions
+            : (
               Object.keys(resolvedFiles).some(f => f.toLowerCase().includes('products') || f.toLowerCase().includes('cart') || f.toLowerCase().includes('store'))
                 ? [
                     language === 'ar' ? 'تطوير بطاقة تسجيل دخول وقاعدة بيانات للمستخدمين' : 'Build user login card & SQLite DB',
@@ -2091,7 +2305,21 @@ export const AppStudioPage: React.FC = () => {
                     language === 'ar' ? 'تحسين التجاوب البصري الكامل مع شاشات الجوال والتابلت' : 'Perfect full mobile and tablet responsive layouts',
                     language === 'ar' ? 'برمجة لوحة إحصائيات وإدارة للمشروع' : 'Build interactive admin dashboard panel'
                   ]
-            ),
+            );
+          const evolvedFromPrompt = PROGRESSIVE_SUGGESTIONS_MAP[promptToSend];
+          const uniqueMapped = Array.from(new Set(
+            [...(evolvedFromPrompt ? [evolvedFromPrompt] : []), ...rawSuggestions]
+              .map(s => PROGRESSIVE_SUGGESTIONS_MAP[s] && nextClicked.includes(s) ? PROGRESSIVE_SUGGESTIONS_MAP[s] : s)
+              .filter(s => !nextClicked.includes(s))
+          )).slice(0, 3);
+
+          const assistantMsg: StudioChatMessage = {
+            id: `assistant_${Date.now()}`,
+            role: 'assistant',
+            text: cleanReplyText(data.reply || data.summary),
+            logs: Array.isArray(data.logs) ? data.logs : [],
+            filesUpdated: updatedKeys,
+            suggestions: uniqueMapped.length > 0 ? uniqueMapped : rawSuggestions.slice(0, 3),
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
           };
 
@@ -2103,28 +2331,13 @@ export const AppStudioPage: React.FC = () => {
           }
           toast.success(language === 'ar' ? (data.summary || `تم بناء ${updatedKeys.length} ملفات بنجاح!`) : 'Project files built successfully!');
           
-          // Create an automatic professional rollback point (Snapshot) on successful generation
-          setTimeout(() => {
+          await saveProjectToDb(activeProjId, updatedProjectTitle, resolvedFiles);
+          if (user && token && activeProjId) {
             const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const snapName = language === 'ar' 
-              ? `إصدار تلقائي - ${timeStr} (${promptToSend.slice(0, 25)}...)` 
-              : `Auto Version - ${timeStr} (${promptToSend.slice(0, 25)}...)`;
+            const snapName = language === 'ar'
+              ? `إصدار تلقائي - ${timeStr} (${promptToSend.slice(0, 24)})`
+              : `Auto Snapshot - ${timeStr} (${promptToSend.slice(0, 24)})`;
             handleCreateSnapshot(snapName, resolvedFiles);
-          }, 1500);
-          saveProjectToDb(projectId, updatedProjectTitle, resolvedFiles);
-          if (user && token && projectId) {
-            try {
-              const snapName = `${language === 'ar' ? 'إصدار تلقائي' : 'Auto Snapshot'}: ${promptToSend.slice(0, 24)} (${new Date().toLocaleTimeString()})`;
-              await fetch(`/api/studio/workspaces/${projectId}/snapshots`, {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ versionName: snapName, files: resolvedFiles })
-              });
-              fetchSnapshots(projectId);
-            } catch (_) {}
           }
         } else if (data) {
           const fallbackMsg: StudioChatMessage = {
@@ -2236,6 +2449,7 @@ export const AppStudioPage: React.FC = () => {
     setFiles(blankFiles);
     setSavedFiles(blankFiles);
     setActiveFilePath('index.html');
+    setOpenTabs(['index.html']);
     setIframeKey(prev => prev + 1);
 
     // Reset Chat Messages for this clean new project
@@ -2316,45 +2530,114 @@ export const AppStudioPage: React.FC = () => {
   const activeFile = files[activeFilePath] || files['index.html'];
   const logoSrc = (theme === 'light' && siteSettings?.logoLightBase64) ? siteSettings.logoLightBase64 : siteSettings?.logoBase64;
 
+  // Pre-warm primary destination chunks (ChatPage & ProjectOverviewPage) so Back button navigation has 0ms Suspense delay
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      import('./ChatPage').catch(() => {});
+      import('./ProjectOverviewPage').catch(() => {});
+    }, 350);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="h-[100dvh] max-h-[100dvh] w-full bg-[var(--surface-page)] text-[var(--text-primary)] font-sans flex flex-col overflow-hidden">
       {/* Top Header Bar - Slim & Clean */}
-      <header className="h-12 bg-[var(--surface-card)] border-b border-[var(--border-default)] px-3 sm:px-4 flex items-center justify-between shrink-0 select-none z-30">
-        <div className="flex items-center gap-3">
+      <header className="h-11 bg-[var(--surface-card)] border-b border-[var(--border-default)] px-3 sm:px-4 flex items-center justify-between shrink-0 select-none z-30">
+        <div className="flex items-center gap-2 min-w-0">
           <button
             onClick={() => {
               saveProjectToDb();
-              navigate('/');
+              navigate(user || token ? '/chat' : '/');
             }}
-            className="flex items-center justify-center w-8 h-8 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-[var(--surface-card)] hover:border-accent text-[var(--text-primary)] transition-all cursor-pointer shadow-xs shrink-0"
+            className="inline-flex items-center justify-center w-7 h-7 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-[var(--surface-card)] hover:border-accent text-[var(--text-primary)] transition-all cursor-pointer shrink-0 relative before:absolute before:-inset-1.5"
             title={language === 'ar' ? 'الرجوع للبداية' : 'Back to start'}
           >
-            <ArrowLeft size={16} className={language === 'ar' ? 'rotate-180' : ''} />
+            <ArrowLeft size={13} className={language === 'ar' ? 'rotate-180' : ''} />
           </button>
+
+          {logoSrc && (
+            <img src={logoSrc} alt="Studio" className="h-5 w-auto object-contain hidden sm:block shrink-0" />
+          )}
+
+          <div className="h-4 w-px bg-[var(--border-default)] hidden sm:block shrink-0" />
+
+          {/* Project Title & Cloud Sync Radar */}
+          <div className="flex items-center gap-2 min-w-0">
+
+            <span
+              onClick={() => saveProjectToDb()}
+              className={`hidden sm:inline-flex items-center justify-center gap-1.5 h-7 px-2.5 rounded-shape-xs text-[10px] font-bold leading-none border transition-all cursor-pointer shrink-0 ${
+                syncStatus === 'saving'
+                  ? 'bg-amber-500/10 text-amber-500 border-amber-500/25'
+                  : syncStatus === 'synced'
+                  ? 'bg-[var(--bg-success-muted)] text-[var(--fg-success)] border-[color-mix(in_srgb,var(--fg-success)_25%,transparent)]'
+                  : syncStatus === 'error'
+                  ? 'bg-rose-500/10 text-rose-500 border-rose-500/25'
+                  : 'bg-[var(--surface-subtle)] text-[var(--text-muted)] border-[var(--border-default)]'
+              }`}
+              title={language === 'ar' ? 'حالة المزامنة السحابية (اضغط للحفظ الآن)' : 'Cloud Sync Status (Click to save now)'}
+            >
+              <span className={`w-1.5 h-1.5 rounded-shape-full ${
+                syncStatus === 'saving'
+                  ? 'bg-amber-500 animate-ping'
+                  : syncStatus === 'synced'
+                  ? 'bg-[var(--fg-success)]'
+                  : syncStatus === 'error'
+                  ? 'bg-rose-500'
+                  : 'bg-slate-400'
+              }`} />
+              <span>
+                {syncStatus === 'saving'
+                  ? (language === 'ar' ? 'جاري الحفظ...' : 'Saving...')
+                  : syncStatus === 'synced'
+                  ? (language === 'ar' ? 'محفوظ سحابياً' : 'Cloud Synced')
+                  : syncStatus === 'error'
+                  ? (language === 'ar' ? 'تعذر الحفظ' : 'Sync Error')
+                  : (language === 'ar' ? 'مسودة محلية' : 'Local Draft')}
+              </span>
+            </span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 shrink-0">
+          {studioUsage && typeof (studioUsage.projectCount ?? studioUsage.usedProjects) === 'number' && (
+            <span className="hidden lg:inline-flex items-center justify-center gap-1.5 h-7 px-2.5 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[11px] font-mono font-bold leading-none text-[var(--text-muted)] shrink-0" title={language === 'ar' ? 'عدد المشاريع السحابية المستخدمة' : 'Cloud Projects Quota'}>
+              <Layers size={12} className="text-accent shrink-0" />
+              <span>{studioUsage.projectCount ?? studioUsage.usedProjects}/{(studioUsage.maxProjects === 'unlimited' || !studioUsage.maxProjects) ? '∞' : studioUsage.maxProjects}</span>
+            </span>
+          )}
+
           <button
-            onClick={handleDownloadZip}
-            className="w-8 h-8 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-[var(--surface-card)] hover:border-accent text-[var(--text-primary)] flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0"
-            title={language === 'ar' ? 'تنزيل المشروع ZIP' : 'Download ZIP'}
+            onClick={handleAiFix}
+            disabled={isGenerating}
+            className="h-7 px-2.5 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:border-accent/50 hover:text-accent text-[var(--text-secondary)] text-[11px] font-bold leading-none inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 disabled:opacity-40 relative before:absolute before:-inset-1.5"
+            title={language === 'ar' ? 'فحص وإصلاح الأخطاء ذكياً' : 'AI Diagnose & Fix'}
           >
-            <Download size={16} />
+            <Wand2 size={12} className="text-accent shrink-0" />
+            <span className="hidden md:inline">{language === 'ar' ? 'إصلاح ذكي' : 'AI Fix'}</span>
           </button>
 
-          <div className="relative">
+          <button
+            onClick={handleDownloadZip}
+            className="w-7 h-7 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-[var(--surface-card)] hover:border-accent text-[var(--text-muted)] hover:text-[var(--text-primary)] inline-flex items-center justify-center transition-all cursor-pointer shrink-0 relative before:absolute before:-inset-1.5"
+            title={language === 'ar' ? 'تنزيل المشروع ZIP' : 'Download ZIP'}
+          >
+            <Download size={13} />
+          </button>
+
+          <div className="relative flex items-center">
             <button
               onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-              className={`w-8 h-8 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-[var(--surface-card)] hover:border-accent text-[var(--text-primary)] flex items-center justify-center transition-all cursor-pointer shadow-xs shrink-0 ${isMoreMenuOpen ? 'bg-[var(--surface-subtle)] text-accent border-accent/60' : ''}`}
+              className={`w-7 h-7 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-[var(--surface-card)] hover:border-accent text-[var(--text-muted)] hover:text-[var(--text-primary)] inline-flex items-center justify-center transition-all cursor-pointer shrink-0 relative before:absolute before:-inset-1.5 ${isMoreMenuOpen ? 'bg-[var(--surface-subtle)] text-accent border-accent/60' : ''}`}
               title={language === 'ar' ? 'خيارات إضافية' : 'More Options'}
             >
-              <Sliders size={16} />
+              <Sliders size={13} />
             </button>
 
             <AnimatePresence>
               {isMoreMenuOpen && (
                 <PopCard 
-                  className="absolute top-10 end-0 w-56 z-50 p-2 space-y-1"
+                  className="absolute top-9 end-0 w-56 z-50 p-2 space-y-1"
                   onClose={() => setIsMoreMenuOpen(false)}
                 >
                   <button
@@ -2391,13 +2674,18 @@ export const AppStudioPage: React.FC = () => {
               )}
             </AnimatePresence>
           </div>
+
+
         </div>
       </header>
 
       {/* Mobile Viewport Navigation Switcher (< md) */}
       <div className="md:hidden flex items-center bg-[var(--surface-card)] border-b border-[var(--border-default)] px-2 py-1.5 shrink-0 justify-around select-none">
         <button
-          onClick={() => setMobileActiveTab('chat')}
+          onClick={() => {
+            setMobileActiveTab('chat');
+            setSideNavActiveTab('chat');
+          }}
           className={`flex-1 h-8 px-2 rounded-shape-sm text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             mobileActiveTab === 'chat'
               ? 'bg-accent text-white shadow-2xs'
@@ -2408,7 +2696,10 @@ export const AppStudioPage: React.FC = () => {
           <span>{language === 'ar' ? 'المساعد' : 'Assistant'}</span>
         </button>
         <button
-          onClick={() => setMobileActiveTab('files')}
+          onClick={() => {
+            setMobileActiveTab('files');
+            setSideNavActiveTab('files');
+          }}
           className={`flex-1 h-8 px-2 rounded-shape-sm text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
             mobileActiveTab === 'files'
               ? 'bg-accent text-white shadow-2xs'
@@ -2434,27 +2725,33 @@ export const AppStudioPage: React.FC = () => {
         {/* Primary Sidebar - Icon Only Navigation */}
         <aside className="w-13 sm:w-14 bg-[var(--surface-card)] border-e border-[var(--border-default)] flex flex-col items-center py-3.5 gap-3 shrink-0 z-20 select-none">
           <button
-            onClick={() => setSideNavActiveTab('chat')}
-            className={`w-8 h-8 rounded-shape-sm flex items-center justify-center transition-all cursor-pointer relative group shrink-0 ${
+            onClick={() => {
+              setSideNavActiveTab('chat');
+              setMobileActiveTab('chat');
+            }}
+            className={`w-8 h-8 rounded-shape-sm flex items-center justify-center transition-all cursor-pointer relative group shrink-0 before:absolute before:-inset-1.5 ${
               sideNavActiveTab === 'chat' ? 'bg-accent text-white shadow-md shadow-accent/20' : 'text-[var(--text-muted)] hover:bg-[var(--surface-subtle)] hover:text-[var(--text-primary)]'
             }`}
             title={language === 'ar' ? 'المساعد الذكي' : 'AI Assistant'}
           >
             <AssistantIcon size={16} isSpinning={isGenerating} fallbackType="sparkles" />
-            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
               {language === 'ar' ? 'المساعد الذكي' : 'AI Assistant'}
             </span>
           </button>
 
           <button
-            onClick={() => setSideNavActiveTab('files')}
-            className={`w-8 h-8 rounded-shape-sm flex items-center justify-center transition-all cursor-pointer relative group shrink-0 ${
+            onClick={() => {
+              setSideNavActiveTab('files');
+              setMobileActiveTab('files');
+            }}
+            className={`w-8 h-8 rounded-shape-sm flex items-center justify-center transition-all cursor-pointer relative group shrink-0 before:absolute before:-inset-1.5 ${
               sideNavActiveTab === 'files' ? 'bg-accent text-white shadow-md shadow-accent/20' : 'text-[var(--text-muted)] hover:bg-[var(--surface-subtle)] hover:text-[var(--text-primary)]'
             }`}
             title={language === 'ar' ? 'ملفات المشروع' : 'Project Files'}
           >
             <Folder size={16} />
-            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
               {language === 'ar' ? 'ملفات المشروع' : 'Project Files'}
             </span>
           </button>
@@ -2464,14 +2761,15 @@ export const AppStudioPage: React.FC = () => {
               if (!user) { setIsAuthModalOpen(true); return; }
               fetchUserWorkspaces();
               setSideNavActiveTab('projects');
+              if (mobileActiveTab === 'preview') setMobileActiveTab('files');
             }}
-            className={`w-8 h-8 rounded-shape-sm flex items-center justify-center transition-all cursor-pointer relative group shrink-0 ${
+            className={`w-8 h-8 rounded-shape-sm flex items-center justify-center transition-all cursor-pointer relative group shrink-0 before:absolute before:-inset-1.5 ${
               sideNavActiveTab === 'projects' ? 'bg-accent text-white shadow-md shadow-accent/20' : 'text-[var(--text-muted)] hover:bg-[var(--surface-subtle)] hover:text-[var(--text-primary)]'
             }`}
             title={language === 'ar' ? 'كل المشاريع' : 'All Projects'}
           >
             <Layers size={16} />
-            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
               {language === 'ar' ? 'كل المشاريع' : 'All Projects'}
             </span>
           </button>
@@ -2481,35 +2779,42 @@ export const AppStudioPage: React.FC = () => {
               if (!user) { setIsAuthModalOpen(true); return; }
               fetchSnapshots(projectId);
               setSideNavActiveTab('versions');
+              if (mobileActiveTab === 'preview') setMobileActiveTab('files');
             }}
-            className={`w-8 h-8 rounded-shape-sm flex items-center justify-center transition-all cursor-pointer relative group shrink-0 ${
+            className={`w-8 h-8 rounded-shape-sm flex items-center justify-center transition-all cursor-pointer relative group shrink-0 before:absolute before:-inset-1.5 ${
               sideNavActiveTab === 'versions' ? 'bg-accent text-white shadow-md shadow-accent/20' : 'text-[var(--text-muted)] hover:bg-[var(--surface-subtle)] hover:text-[var(--text-primary)]'
             }`}
             title={language === 'ar' ? 'إصدارات التطوير' : 'History'}
           >
             <History size={16} />
-            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
               {language === 'ar' ? 'إصدارات التطوير' : 'History'}
             </span>
           </button>
 
           <button
-            onClick={() => setSideNavActiveTab('db')}
-            className={`w-8 h-8 rounded-shape-sm flex items-center justify-center transition-all cursor-pointer relative group shrink-0 ${
+            onClick={() => {
+              setSideNavActiveTab('db');
+              if (mobileActiveTab === 'preview') setMobileActiveTab('files');
+            }}
+            className={`w-8 h-8 rounded-shape-sm flex items-center justify-center transition-all cursor-pointer relative group shrink-0 before:absolute before:-inset-1.5 ${
               sideNavActiveTab === 'db' ? 'bg-accent text-white shadow-md shadow-accent/20' : 'text-[var(--text-muted)] hover:bg-[var(--surface-subtle)] hover:text-[var(--text-primary)]'
             }`}
             title={language === 'ar' ? 'قاعدة البيانات' : 'Database'}
           >
             <Database size={16} />
-            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
               {language === 'ar' ? 'قاعدة البيانات' : 'Database'}
             </span>
           </button>
 
           <div className="mt-auto pb-3 flex flex-col gap-3 items-center">
             <button
-              onClick={() => setIsTerminalOpen(!isTerminalOpen)}
-              className={`w-8 h-8 rounded-shape-sm flex items-center justify-center transition-all cursor-pointer relative group shrink-0 ${
+              onClick={() => {
+                setIsTerminalOpen(!isTerminalOpen);
+                if (!isTerminalOpen) setMobileActiveTab('preview');
+              }}
+              className={`w-8 h-8 rounded-shape-sm flex items-center justify-center transition-all cursor-pointer relative group shrink-0 before:absolute before:-inset-1.5 ${
                 isTerminalOpen ? 'bg-amber-500/10 text-amber-500' : 'text-[var(--text-muted)] hover:bg-[var(--surface-subtle)] hover:text-amber-500'
               }`}
               title={language === 'ar' ? 'منفذ الأوامر والتعلم' : 'Terminal & Logs'}
@@ -2518,38 +2823,163 @@ export const AppStudioPage: React.FC = () => {
               {terminalLogs.some(l => l.type === 'error') && (
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
               )}
-              <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+              <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
                 {language === 'ar' ? 'منفذ الأوامر' : 'Terminal'}
               </span>
             </button>
 
             <div className="h-px w-6 bg-[var(--border-default)]" />
 
-            {/* User Avatar Button replacing the bottom back button */}
-            <button
-              onClick={() => {
-                setIsAuthModalOpen(true);
-              }}
-              className="w-8 h-8 rounded-shape-sm flex items-center justify-center transition-all cursor-pointer relative group border border-[var(--border-default)] hover:border-accent/60 bg-[var(--surface-subtle)] overflow-hidden shrink-0 shadow-xs"
-              title={user ? (user.name || user.email || (language === 'ar' ? 'الملف الشخصي' : 'Profile')) : (language === 'ar' ? 'تسجيل الدخول' : 'Sign In')}
-            >
-              {user?.avatar ? (
-                <img
-                  src={resolveImageUrl(user.avatar, 'avatar')}
-                  alt={user.name || 'User Avatar'}
-                  className="w-full h-full object-cover rounded-shape-sm"
-                />
-              ) : user?.name || user?.email ? (
-                <div className="w-full h-full bg-gradient-to-tr from-rose-600 via-red-500 to-rose-500 flex items-center justify-center text-white font-black text-[10px] uppercase tracking-tighter select-none rounded-shape-sm">
-                  {(user.name || user.email || 'U').substring(0, 2).toUpperCase()}
-                </div>
-              ) : (
-                <User size={16} className="text-[var(--text-muted)] group-hover:text-accent transition-colors" />
-              )}
-              <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
-                {user ? (user.name || user.email || (language === 'ar' ? 'الملف الشخصي' : 'Profile')) : (language === 'ar' ? 'تسجيل الدخول' : 'Sign In')}
-              </span>
-            </button>
+            {/* User Avatar Button with Hover & Click Popover User Menu & Logout (Exact Replica of Main Sidebar) */}
+            <div className="relative group/avatar">
+              <button
+                type="button"
+                onClick={() => {
+                  if (!user) {
+                    setIsAuthModalOpen(true);
+                  } else {
+                    setIsUserMenuOpen(prev => !prev);
+                  }
+                }}
+                style={{
+                  borderColor: user?.subscription?.plan_color || 'var(--border-default)'
+                }}
+                className="w-8 h-8 rounded-shape-sm flex items-center justify-center transition-colors duration-fast cursor-pointer relative border bg-[var(--surface-subtle)] overflow-hidden shrink-0 shadow-2xs before:absolute before:-inset-1.5"
+                title={user ? (user.name || user.email || (language === 'ar' ? 'الملف الشخصي' : 'Profile')) : (language === 'ar' ? 'تسجيل الدخول' : 'Sign In')}
+              >
+                {user?.avatar ? (
+                  <img
+                    src={resolveImageUrl(user.avatar, 'avatar')}
+                    alt={user.name || 'User Avatar'}
+                    className="w-full h-full object-cover"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = DEFAULT_AVATAR;
+                    }}
+                  />
+                ) : (
+                  <User size={15} className="text-[var(--text-muted)] group-hover/avatar:text-[var(--text-primary)] transition-colors duration-fast" />
+                )}
+              </button>
+
+              {user && (() => {
+                const rawProfileLinks = [
+                  {
+                    id: 'account',
+                    label: t('accountSettings') || (dir === 'rtl' ? 'إعدادات الحساب' : 'Account Settings'),
+                    icon: User,
+                    path: '/settings/account'
+                  },
+                  {
+                    id: 'usage',
+                    label: t('consumption') || (dir === 'rtl' ? 'الاستهلاك والحدود' : 'Usage & Limits'),
+                    icon: Activity,
+                    path: '/settings/usage'
+                  },
+                  {
+                    id: 'wallet',
+                    label: t('wallet') || (dir === 'rtl' ? 'المحفظة والرصيد' : 'Wallet'),
+                    icon: Wallet,
+                    path: '/settings/wallet'
+                  },
+                  {
+                    id: 'memory',
+                    label: t('memoryCenter') || (dir === 'rtl' ? 'ذاكرة المساعد' : 'Memory Center'),
+                    icon: BrainCircuit,
+                    path: '/settings/memory'
+                  }
+                ];
+
+                const sortedProfileLinks = [...rawProfileLinks].sort((a, b) => {
+                  const lenA = a.label.trim().length;
+                  const lenB = b.label.trim().length;
+                  return lenA !== lenB ? lenA - lenB : a.label.localeCompare(b.label);
+                });
+
+                return (
+                  <div
+                    dir={dir}
+                    className={`absolute bottom-0 start-11 w-60 p-1.5 rounded-shape-md border shadow-2xl z-50 bg-[var(--surface-card)] border-[var(--border-default)] flex flex-col gap-0.5 font-sans transition-all duration-200 before:content-[''] before:absolute before:-inset-3 before:-z-10 ${
+                      isUserMenuOpen
+                        ? 'opacity-100 pointer-events-auto scale-100'
+                        : 'opacity-0 pointer-events-none group-hover/avatar:opacity-100 group-hover/avatar:pointer-events-auto scale-95 group-hover/avatar:scale-100'
+                    }`}
+                  >
+                    {/* User profile header summary */}
+                    <div className="flex items-center gap-2.5 px-2.5 py-2 border-b border-[var(--border-default)] mb-1 overflow-hidden">
+                      <div
+                        className="w-7 h-7 rounded-shape-sm flex items-center justify-center flex-shrink-0 overflow-hidden border transition-colors duration-fast"
+                        style={{ borderColor: user.subscription?.plan_color || 'var(--border-default)' }}
+                      >
+                        {user.avatar ? (
+                          <img
+                            src={resolveImageUrl(user.avatar, 'avatar')}
+                            alt={user.name}
+                            className="w-full h-full object-cover"
+                            referrerPolicy="no-referrer"
+                            onError={(e) => { (e.currentTarget as HTMLImageElement).src = DEFAULT_AVATAR; }}
+                          />
+                        ) : (
+                          <User size={14} className="text-[var(--text-muted)]" />
+                        )}
+                      </div>
+                      <div className="flex flex-col min-w-0 flex-1 text-start overflow-hidden">
+                        <span className="font-bold text-xs truncate leading-tight text-[var(--text-primary)]">{user.name}</span>
+                        <span className="text-[9.5px] text-[var(--text-muted)] truncate leading-tight mt-0.5 font-medium">
+                          {t(`role_${(user.role || 'user').toLowerCase()}`) || user.role || 'Member'}
+                        </span>
+                      </div>
+                      {user.subscription?.plan_name_en && (
+                        <span
+                          className="text-[8px] font-black uppercase px-1.5 py-0.5 rounded-shape-xs border border-current leading-none shrink-0"
+                          style={{ color: user.subscription?.plan_color || 'var(--text-primary)' }}
+                        >
+                          {user.subscription?.plan_name_en}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Menu options sorted hierarchically */}
+                    {sortedProfileLinks.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            setIsUserMenuOpen(false);
+                            navigate(item.path);
+                          }}
+                          className="group w-full h-[36px] min-h-[36px] flex items-center gap-2.5 px-3 py-2 rounded-shape-sm border border-transparent bg-transparent hover:bg-[var(--surface-subtle)]/25 transition-all duration-fast cursor-pointer select-none text-start text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)] active:scale-98"
+                        >
+                          <Icon size={14} className="text-[var(--text-muted)] group-hover:text-[var(--fg-accent)] shrink-0 transition-colors duration-fast" />
+                          <span className="truncate min-w-0 flex-1 text-xs font-medium text-[var(--text-primary)] group-hover:text-[var(--text-primary)] transition-colors duration-fast">
+                            {item.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+
+                    <div className="h-px bg-[var(--border-default)] my-1 mx-1" />
+
+                    {/* Logout */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsUserMenuOpen(false);
+                        logout();
+                      }}
+                      className="group w-full h-[36px] min-h-[36px] flex items-center gap-2.5 px-3 py-2 rounded-shape-sm border border-transparent bg-transparent hover:bg-red-500/10 text-[var(--fg-danger)] transition-all duration-fast cursor-pointer select-none text-start active:scale-98"
+                    >
+                      <LogOut size={14} className="text-[var(--fg-danger)] group-hover:opacity-90 shrink-0 transition-colors duration-fast" />
+                      <span className="truncate min-w-0 flex-1 text-xs font-bold text-[var(--fg-danger)] group-hover:opacity-90 transition-colors duration-fast">
+                        {t('logout') || (dir === 'rtl' ? 'تسجيل الخروج' : 'Logout')}
+                      </span>
+                    </button>
+                  </div>
+                );
+              })()}
+            </div>
           </div>
         </aside>
 
@@ -2566,7 +2996,7 @@ export const AppStudioPage: React.FC = () => {
                 exit={{ opacity: 0, x: -10 }}
                 className="flex-1 flex flex-col overflow-hidden"
               >
-                <div className="h-12 px-4 border-b border-[var(--border-default)] flex items-center justify-between bg-[var(--surface-card)] relative">
+                <div className="h-10 px-4 border-b border-[var(--border-default)] flex items-center justify-between bg-[var(--surface-card)] relative shrink-0">
                   <div className="flex items-center gap-2 overflow-hidden flex-1">
                     {isEditingProjectName ? (
                       <input
@@ -2586,13 +3016,13 @@ export const AppStudioPage: React.FC = () => {
                           }
                         }}
                         onChange={(e) => setProjectName(e.target.value)}
-                        className="bg-[var(--surface-subtle)] border border-accent/30 outline-none text-[11px] font-bold text-[var(--text-primary)] px-2 py-1.5 rounded-shape-xs w-full"
+                        className="bg-[var(--surface-subtle)] border border-accent/30 outline-none text-[11px] font-bold text-[var(--text-primary)] h-7 px-2 rounded-shape-xs w-full"
                       />
                     ) : (
-                      <div className="flex flex-col overflow-hidden">
+                      <div className="flex items-center overflow-hidden">
                         <h2 
                           onClick={() => setIsEditingProjectName(true)}
-                          className="text-[11px] font-black uppercase tracking-widest text-[var(--text-primary)] cursor-pointer hover:text-accent transition-colors truncate"
+                          className="text-[11px] font-black leading-none uppercase tracking-widest text-[var(--text-primary)] cursor-pointer hover:text-accent transition-colors truncate"
                         >
                           {projectName}
                         </h2>
@@ -2649,17 +3079,37 @@ export const AppStudioPage: React.FC = () => {
                             {msg.filesUpdated.map(fp => (
                               <button
                                 key={fp}
-                                onClick={() => {
-                                  setActiveFilePath(fp);
-                                  setActiveTab('code');
-                                }}
-                                className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold border transition-all cursor-pointer ${
+                                onClick={() => openFile(fp)}
+                                className={`px-2 py-0.5 rounded-shape-xs text-[9px] font-mono font-bold border transition-all cursor-pointer ${
                                   activeFilePath === fp ? 'bg-accent text-white border-accent' : 'bg-[var(--surface-subtle)] border-[var(--border-default)] text-[var(--text-secondary)] hover:text-accent hover:border-accent/40'
                                 }`}
                               >
                                 {fp}
                               </button>
                             ))}
+                          </div>
+                        )}
+
+                        {msg.role === 'assistant' && msg.logs && msg.logs.length > 0 && (
+                          <div className="mt-2 w-full max-w-[92%]">
+                            <button
+                              type="button"
+                              onClick={() => toggleLogs(msg.id)}
+                              className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-[var(--text-muted)] hover:text-accent transition-colors cursor-pointer"
+                            >
+                              <ChevronDown size={11} className={`transition-transform ${expandedLogs[msg.id] ? 'rotate-180' : ''}`} />
+                              <span>{language === 'ar' ? `سجل العمليات الهندسية (${msg.logs.length})` : `Build Steps (${msg.logs.length})`}</span>
+                            </button>
+                            {expandedLogs[msg.id] && (
+                              <div className="mt-1.5 p-2 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] space-y-1 text-[10px] font-mono text-[var(--text-secondary)]">
+                                {msg.logs.map((logItem, lIdx) => (
+                                  <div key={lIdx} className="flex items-start gap-1.5">
+                                    <Check size={11} className="text-[var(--fg-success)] shrink-0 mt-0.5" />
+                                    <span>{logItem}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -2673,12 +3123,22 @@ export const AppStudioPage: React.FC = () => {
                               <RefreshCw size={13} className="animate-[spin_1s_linear_infinite_reverse] text-accent shrink-0" />
                               <span className="truncate">{streamStatusMessage || (language === 'ar' ? 'جاري البناء...' : 'Building...')}</span>
                             </div>
+                            {pipelinePhase && (
+                              <span className="px-1.5 py-0.5 rounded-shape-full bg-accent/10 text-accent text-[9px] font-mono font-bold shrink-0">
+                                {language === 'ar' ? `المرحلة ${pipelinePhase}/3` : `Phase ${pipelinePhase}/3`}
+                              </span>
+                            )}
                           </div>
                           {currentlyWritingFile && (
                             <div className="px-2 py-1 rounded-shape-xs bg-[var(--surface-card)] border border-accent/20 flex items-center justify-between text-[10px] font-mono">
                               <span className="text-[var(--text-secondary)] truncate">{currentlyWritingFile}</span>
                               <span className="text-accent font-bold text-[9px] shrink-0 animate-pulse">{language === 'ar' ? 'كتابة' : 'Writing'}</span>
                             </div>
+                          )}
+                          {liveStreamText && (
+                            <pre className="p-2 rounded-shape-xs bg-slate-950 text-slate-300 font-mono text-[9px] max-h-24 overflow-hidden leading-tight whitespace-pre-wrap break-all border border-white/5">
+                              {liveStreamText}
+                            </pre>
                           )}
                         </div>
                       </div>
@@ -2687,23 +3147,42 @@ export const AppStudioPage: React.FC = () => {
 
                   {/* AI Input Area */}
                   <div className="p-3 bg-[var(--surface-card)] border-t border-[var(--border-default)]">
-                    {/* Suggestions */}
+                    {/* Suggestions: Concise titles with M3 rounded-shape-sm edges -> Populates full prompt in input on click */}
                     <AnimatePresence>
                       {chatMessages.length > 0 && chatMessages[chatMessages.length - 1].role === 'assistant' && chatMessages[chatMessages.length - 1].suggestions && !isGenerating && (
                         <motion.div 
-                          initial={{ opacity: 0, y: 10 }}
+                          initial={{ opacity: 0, y: 6 }}
                           animate={{ opacity: 1, y: 0 }}
-                          className="flex flex-wrap gap-1 mb-3"
+                          className="grid grid-cols-2 gap-1.5 mb-2.5"
                         >
-                          {chatMessages[chatMessages.length - 1].suggestions?.map((s, i) => (
-                            <button
-                              key={i}
-                              onClick={() => handleSendPrompt(s)}
-                              className="px-2 py-1 rounded-shape-full bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[10px] text-[var(--text-secondary)] hover:text-accent hover:border-accent/30 transition-all cursor-pointer whitespace-nowrap"
-                            >
-                              {s}
-                            </button>
-                          ))}
+                          {chatMessages[chatMessages.length - 1].suggestions?.slice(0, 4).map((s, i) => {
+                            const { label, fullPrompt } = resolveSuggestionChip(s);
+                            const isSelected = promptQuery.trim() === fullPrompt.trim();
+                            return (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={() => {
+                                  setPromptQuery(fullPrompt);
+                                  setTimeout(() => {
+                                    if (promptInputRef.current) {
+                                      promptInputRef.current.focus();
+                                      promptInputRef.current.setSelectionRange(fullPrompt.length, fullPrompt.length);
+                                    }
+                                  }, 20);
+                                }}
+                                title={fullPrompt}
+                                className={`h-8 px-3 rounded-shape-full border text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer text-start overflow-hidden ${
+                                  isSelected
+                                    ? 'bg-accent/10 border-accent text-accent shadow-2xs'
+                                    : 'bg-[var(--surface-subtle)] border-[var(--border-default)] text-[var(--text-secondary)] hover:text-accent hover:border-accent/40 hover:bg-[var(--surface-card)]'
+                                }`}
+                              >
+                                <Sparkles size={11} className="text-accent shrink-0" />
+                                <span className="truncate">{label}</span>
+                              </button>
+                            );
+                          })}
                         </motion.div>
                       )}
                     </AnimatePresence>
@@ -2716,6 +3195,7 @@ export const AppStudioPage: React.FC = () => {
                       className="relative rounded-shape-md bg-[var(--surface-subtle)] border border-[var(--border-default)] focus-within:border-accent/50 transition-all p-1.5"
                     >
                       <textarea
+                        ref={promptInputRef}
                         value={promptQuery}
                         onChange={(e) => setPromptQuery(e.target.value)}
                         placeholder={language === 'ar' ? 'صف التعديل أو الميزة المطلوبة...' : 'Describe feature or change...'}
@@ -2740,9 +3220,20 @@ export const AppStudioPage: React.FC = () => {
                           >
                             <Mic size={16} />
                           </button>
-                          <label className="w-8 h-8 rounded-shape-sm flex items-center justify-center text-[var(--text-muted)] hover:text-accent hover:bg-accent/10 transition-all cursor-pointer" title={language === 'ar' ? 'إرفاق ملف' : 'Attach File'}>
+                          <label className="w-8 h-8 rounded-shape-sm flex items-center justify-center text-[var(--text-muted)] hover:text-accent hover:bg-accent/10 transition-all cursor-pointer relative before:absolute before:-inset-1.5" title={language === 'ar' ? 'إرفاق ملف إلى المشروع' : 'Attach File to Project'}>
                             <Paperclip size={16} />
-                            <input type="file" className="hidden" />
+                            <input
+                              type="file"
+                              multiple
+                              onChange={(e) => {
+                                const attached = e.target.files;
+                                if (!attached || attached.length === 0) return;
+                                const names = Array.from(attached).map(f => f.name).join(', ');
+                                handleUploadFile(e);
+                                setPromptQuery(prev => prev ? `${prev}\n[الملفات المرفقة: ${names}]` : (language === 'ar' ? `استخدم الملفات المرفقة (${names}) في تطوير المشروع` : `Integrate attached files (${names}) into the project`));
+                              }}
+                              className="hidden"
+                            />
                           </label>
                         </div>
 
@@ -2780,35 +3271,37 @@ export const AppStudioPage: React.FC = () => {
                 exit={{ opacity: 0, x: -10 }}
                 className="flex-1 flex flex-col overflow-hidden"
               >
-                <div className="h-12 px-4 border-b border-[var(--border-default)] flex items-center justify-between bg-[var(--surface-subtle)]/50">
-                  <div className="flex flex-col">
-                    <h2 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                <div className="h-10 px-4 border-b border-[var(--border-default)] flex items-center justify-between bg-[var(--surface-subtle)]/50 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-[10px] font-bold leading-none uppercase tracking-wider text-[var(--text-primary)]">
                       {language === 'ar' ? 'مستعرض الملفات' : 'Explorer'}
                     </h2>
-                    <span className="text-[8px] text-[var(--text-muted)] font-medium -mt-0.5">
-                      {Object.keys(files).length} {language === 'ar' ? 'ملفات' : 'files'}
+                    <span className="text-[9px] text-[var(--text-muted)] font-mono leading-none">
+                      ({Object.keys(files).length})
                     </span>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <button 
                       onClick={() => setIsNewFileModalOpen(true)}
-                      className="w-8 h-8 rounded-shape-sm flex items-center justify-center hover:bg-[var(--surface-subtle)] text-accent transition-colors cursor-pointer"
+                      className="w-7 h-7 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] inline-flex items-center justify-center hover:border-accent/40 text-accent transition-colors cursor-pointer shrink-0"
                       title={language === 'ar' ? 'ملف جديد' : 'New File'}
                     >
-                      <Plus size={16} />
+                      <Plus size={13} />
                     </button>
-                    <div className="relative group/upload">
+                    <div className="relative group/upload flex items-center">
                       <button 
-                        className="w-8 h-8 rounded-shape-sm flex items-center justify-center hover:bg-[var(--surface-subtle)] text-[var(--text-muted)] hover:text-accent transition-colors cursor-pointer"
+                        type="button"
+                        onClick={() => setIsUploadMenuOpen(prev => !prev)}
+                        className="w-7 h-7 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] inline-flex items-center justify-center hover:border-accent/40 text-[var(--text-muted)] hover:text-accent transition-colors cursor-pointer shrink-0 relative before:absolute before:-inset-1.5"
                         title={language === 'ar' ? 'رفع ملفات' : 'Upload'}
                       >
-                        <HardDrive size={16} />
+                        <HardDrive size={13} />
                       </button>
-                      <div className="absolute end-0 top-full mt-1 hidden group-hover/upload:flex flex-col bg-[var(--surface-card)] border border-[var(--border-default)] rounded shadow-xl z-50 p-1 w-32">
-                        <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 px-2 py-1.5 text-[10px] hover:bg-[var(--surface-subtle)] rounded transition-colors text-start">
+                      <div className={`absolute end-0 top-full mt-1 ${isUploadMenuOpen ? 'flex' : 'hidden group-hover/upload:flex'} flex-col bg-[var(--surface-card)] border border-[var(--border-default)] rounded-shape-sm shadow-xl z-50 p-1 w-32`}>
+                        <button onClick={() => { setIsUploadMenuOpen(false); fileInputRef.current?.click(); }} className="flex items-center gap-2 px-2 py-1.5 text-[10px] hover:bg-[var(--surface-subtle)] rounded-shape-xs transition-colors text-start cursor-pointer">
                           <FileCode size={12} /> {language === 'ar' ? 'رفع ملف' : 'Upload File'}
                         </button>
-                        <button onClick={() => zipInputRef.current?.click()} className="flex items-center gap-2 px-2 py-1.5 text-[10px] hover:bg-[var(--surface-subtle)] rounded transition-colors text-start">
+                        <button onClick={() => { setIsUploadMenuOpen(false); zipInputRef.current?.click(); }} className="flex items-center gap-2 px-2 py-1.5 text-[10px] hover:bg-[var(--surface-subtle)] rounded-shape-xs transition-colors text-start cursor-pointer">
                           <Folder size={12} /> {language === 'ar' ? 'رفع Zip' : 'Upload Zip'}
                         </button>
                       </div>
@@ -2844,9 +3337,9 @@ export const AppStudioPage: React.FC = () => {
                           {isUnsaved && !isWriting && <span className="absolute -top-1 -right-1 w-1.5 h-1.5 bg-amber-500 rounded-full" />}
                         </div>
                         <span className="text-[11px] truncate flex-1 text-start">{path}</span>
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                          <button onClick={(e) => { e.stopPropagation(); setFileToRename(path); setNewFilePathRename(path); }} className="p-1 hover:text-accent" title={language === 'ar' ? 'إعادة تسمية' : 'Rename'}><Edit2 size={11} /></button>
-                          <button onClick={(e) => { e.stopPropagation(); setFileToDelete(path); }} className="p-1 hover:text-red-500" title={language === 'ar' ? 'حذف' : 'Delete'}><Trash2 size={11} /></button>
+                        <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
+                          <button onClick={(e) => { e.stopPropagation(); setFileToRename(path); setNewFilePathRename(path); }} className="p-1 hover:text-accent cursor-pointer" title={language === 'ar' ? 'إعادة تسمية' : 'Rename'}><Edit2 size={11} /></button>
+                          <button onClick={(e) => { e.stopPropagation(); setFileToDelete(path); }} className="p-1 hover:text-red-500 cursor-pointer" title={language === 'ar' ? 'حذف' : 'Delete'}><Trash2 size={11} /></button>
                         </div>
                       </div>
                     );
@@ -2863,16 +3356,16 @@ export const AppStudioPage: React.FC = () => {
                 exit={{ opacity: 0, x: -10 }}
                 className="flex-1 flex flex-col overflow-hidden"
               >
-                <div className="h-12 px-4 border-b border-[var(--border-default)] flex items-center justify-between bg-[var(--surface-card)]">
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                <div className="h-10 px-4 border-b border-[var(--border-default)] flex items-center justify-between bg-[var(--surface-card)] shrink-0">
+                  <h2 className="text-xs font-bold leading-none uppercase tracking-wider text-[var(--text-primary)]">
                     {language === 'ar' ? 'المشاريع' : 'Projects'}
                   </h2>
                   <button
                     onClick={handleCreateNewProject}
-                    className="w-7 h-7 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-accent hover:text-white hover:border-accent text-accent flex items-center justify-center transition-all cursor-pointer shadow-2xs"
+                    className="w-7 h-7 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-accent hover:text-white hover:border-accent text-accent inline-flex items-center justify-center transition-all cursor-pointer shrink-0"
                     title={language === 'ar' ? 'مشروع جديد' : 'New Project'}
                   >
-                    <Plus size={14} />
+                    <Plus size={13} />
                   </button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
@@ -2895,11 +3388,11 @@ export const AppStudioPage: React.FC = () => {
 
                         {/* Date & Hover Actions aligned on the same horizontal line */}
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <span className="text-[10px] font-mono text-[var(--text-muted)] group-hover:hidden transition-all">
+                          <span className="hidden md:inline text-[10px] font-mono text-[var(--text-muted)] md:group-hover:hidden transition-all">
                             {new Date(ws.updated_at).toLocaleDateString()}
                           </span>
 
-                          <div className="hidden group-hover:flex items-center gap-1">
+                          <div className="flex md:hidden md:group-hover:flex items-center gap-1">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -2937,11 +3430,11 @@ export const AppStudioPage: React.FC = () => {
                 exit={{ opacity: 0, x: -10 }}
                 className="flex-1 flex flex-col overflow-hidden"
               >
-                <div className="h-12 px-4 border-b border-[var(--border-default)] flex items-center justify-between bg-[var(--surface-subtle)]/50">
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                <div className="h-10 px-4 border-b border-[var(--border-default)] flex items-center justify-between bg-[var(--surface-subtle)]/50 shrink-0">
+                  <h2 className="text-xs font-bold leading-none uppercase tracking-wider text-[var(--text-primary)]">
                     {language === 'ar' ? 'إصدارات التطوير' : 'Versions'}
                   </h2>
-                  <History size={16} className="text-accent" />
+                  <History size={14} className="text-accent shrink-0" />
                 </div>
 
                 <div className="p-3 border-b border-[var(--border-default)] bg-[var(--surface-subtle)]/30">
@@ -2971,7 +3464,7 @@ export const AppStudioPage: React.FC = () => {
                         <span className="text-[11px] font-bold text-[var(--text-primary)] truncate">{snap.version_name}</span>
                         <button 
                           onClick={() => handleRestoreSnapshot(snap.id, snap.version_name)} 
-                          className="px-2 py-1 bg-accent text-white rounded text-[10px] font-bold opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer whitespace-nowrap"
+                          className="px-2 py-1 bg-accent text-white rounded-shape-xs text-[10px] font-bold opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity cursor-pointer whitespace-nowrap"
                         >
                           {language === 'ar' ? 'استعادة' : 'Restore'}
                         </button>
@@ -2999,11 +3492,11 @@ export const AppStudioPage: React.FC = () => {
                 exit={{ opacity: 0, x: -10 }}
                 className="flex-1 flex flex-col overflow-hidden"
               >
-                <div className="h-12 px-4 border-b border-[var(--border-default)] flex items-center justify-between bg-[var(--surface-subtle)]/50">
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+                <div className="h-10 px-4 border-b border-[var(--border-default)] flex items-center justify-between bg-[var(--surface-subtle)]/50 shrink-0">
+                  <h2 className="text-xs font-bold leading-none uppercase tracking-wider text-[var(--text-primary)]">
                     {language === 'ar' ? 'قاعدة البيانات' : 'Database'}
                   </h2>
-                  <button onClick={() => setIsDbModalOpen(true)} className="w-8 h-8 rounded-shape-sm flex items-center justify-center hover:bg-[var(--surface-subtle)] text-accent transition-colors cursor-pointer" title={language === 'ar' ? 'تكبير' : 'Expand'}><ArrowUpRight size={16} /></button>
+                  <button onClick={() => setIsDbModalOpen(true)} className="w-7 h-7 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] inline-flex items-center justify-center hover:border-accent/40 text-accent transition-colors cursor-pointer shrink-0" title={language === 'ar' ? 'تكبير' : 'Expand'}><ArrowUpRight size={13} /></button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-3 space-y-3">
                   <div className="space-y-1.5">
@@ -3041,20 +3534,20 @@ export const AppStudioPage: React.FC = () => {
         }`}>
           <div className="flex-1 flex flex-col overflow-hidden relative">
             {/* Control Bar for Canvas */}
-            <div className="h-10 border-b border-[var(--border-default)] bg-[var(--surface-card)] px-3 grid grid-cols-3 items-center z-20">
+            <div className="h-10 border-b border-[var(--border-default)] bg-[var(--surface-card)] px-3 grid grid-cols-3 items-center z-20 shrink-0">
               {/* Left: View Switcher */}
-              <div className="flex items-center">
-                <div className="flex bg-[var(--surface-subtle)] p-0.5 rounded-shape-sm border border-[var(--border-default)]">
+              <div className="flex items-center h-full">
+                <div className="h-7 p-0.5 bg-[var(--surface-subtle)] rounded-shape-xs border border-[var(--border-default)] inline-flex items-center">
                   <button
                     onClick={() => {
                       setActiveTab('preview');
                       setSideNavActiveTab('chat');
                     }}
-                    className={`h-7 px-2.5 rounded-shape-xs text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    className={`h-full px-2.5 rounded-[3px] text-[11px] font-bold leading-none transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 ${
                       activeTab === 'preview' ? 'bg-[var(--surface-card)] text-accent shadow-2xs' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                     }`}
                   >
-                    <Globe size={11} />
+                    <Globe size={12} className="shrink-0" />
                     <span>{language === 'ar' ? 'المعاينة' : 'Preview'}</span>
                   </button>
                   <button
@@ -3062,11 +3555,11 @@ export const AppStudioPage: React.FC = () => {
                       setActiveTab('code');
                       setSideNavActiveTab('files');
                     }}
-                    className={`h-7 px-2.5 rounded-shape-xs text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                    className={`h-full px-2.5 rounded-[3px] text-[11px] font-bold leading-none transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 ${
                       activeTab === 'code' ? 'bg-[var(--surface-card)] text-accent shadow-2xs' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                     }`}
                   >
-                    <Code size={11} />
+                    <Code size={12} className="shrink-0" />
                     <span>{language === 'ar' ? 'الكود' : 'Code'}</span>
                   </button>
                 </div>
@@ -3076,26 +3569,26 @@ export const AppStudioPage: React.FC = () => {
               <div className="flex justify-center h-full items-center">
                 {activeTab === 'preview' && (
                   <div className="flex items-center gap-1.5">
-                    <div className="relative group">
+                    <div className="relative group flex items-center">
                       <button
                         onClick={() => setIsDeviceMenuOpen(!isDeviceMenuOpen)}
-                        className="h-7 px-2 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:border-accent/40 text-[11px] font-bold text-[var(--text-primary)] flex items-center gap-1.5 transition-all cursor-pointer"
+                        className="h-7 px-2.5 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:border-accent/40 text-[11px] font-bold leading-none text-[var(--text-primary)] inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0"
                       >
-                        {deviceMode === 'responsive' ? <Monitor size={12} /> : deviceMode === 'mobile' ? <Smartphone size={12} /> : <Tablet size={12} />}
+                        {deviceMode === 'responsive' ? <Monitor size={12} className="shrink-0" /> : deviceMode === 'mobile' ? <Smartphone size={12} className="shrink-0" /> : <Tablet size={12} className="shrink-0" />}
                         <span className="hidden sm:inline">{deviceMode === 'responsive' ? (language === 'ar' ? 'تلقائي' : 'Desktop') : deviceMode === 'mobile' ? (language === 'ar' ? 'هاتف' : 'Mobile') : (language === 'ar' ? 'لوحي' : 'Tablet')}</span>
-                        <ChevronDown size={10} className={isDeviceMenuOpen ? 'rotate-180' : ''} />
+                        <ChevronDown size={10} className={`shrink-0 transition-transform ${isDeviceMenuOpen ? 'rotate-180' : ''}`} />
                       </button>
                       
                       <AnimatePresence>
                         {isDeviceMenuOpen && (
                           <PopCard className="absolute left-1/2 -translate-x-1/2 top-8 w-48 z-50 p-1" onClose={() => setIsDeviceMenuOpen(false)}>
-                            <button onClick={() => { setDeviceMode('responsive'); setIsDeviceMenuOpen(false); }} className="w-full h-8 px-2 rounded hover:bg-[var(--surface-subtle)] text-[11px] flex items-center gap-2 transition-colors cursor-pointer">
+                            <button onClick={() => { setDeviceMode('responsive'); setIsDeviceMenuOpen(false); }} className="w-full h-8 px-2 rounded-shape-xs hover:bg-[var(--surface-subtle)] text-[11px] flex items-center gap-2 transition-colors cursor-pointer">
                               <Monitor size={12} /> <span>{language === 'ar' ? 'تلقائي (شاشة كاملة)' : 'Responsive'}</span>
                             </button>
-                            <button onClick={() => { setDeviceMode('mobile'); setIsDeviceMenuOpen(false); }} className="w-full h-8 px-2 rounded hover:bg-[var(--surface-subtle)] text-[11px] flex items-center gap-2 transition-colors cursor-pointer">
+                            <button onClick={() => { setDeviceMode('mobile'); setIsDeviceMenuOpen(false); }} className="w-full h-8 px-2 rounded-shape-xs hover:bg-[var(--surface-subtle)] text-[11px] flex items-center gap-2 transition-colors cursor-pointer">
                               <Smartphone size={12} /> <span>{language === 'ar' ? 'هاتف (375×667)' : 'Mobile'}</span>
                             </button>
-                            <button onClick={() => { setDeviceMode('tablet'); setIsDeviceMenuOpen(false); }} className="w-full h-8 px-2 rounded hover:bg-[var(--surface-subtle)] text-[11px] flex items-center gap-2 transition-colors cursor-pointer">
+                            <button onClick={() => { setDeviceMode('tablet'); setIsDeviceMenuOpen(false); }} className="w-full h-8 px-2 rounded-shape-xs hover:bg-[var(--surface-subtle)] text-[11px] flex items-center gap-2 transition-colors cursor-pointer">
                               <Tablet size={12} /> <span>{language === 'ar' ? 'لوحي (820×1000)' : 'Tablet'}</span>
                             </button>
                           </PopCard>
@@ -3103,23 +3596,23 @@ export const AppStudioPage: React.FC = () => {
                       </AnimatePresence>
                     </div>
 
-                    <div className="w-px h-4 bg-[var(--border-default)] mx-0.5" />
+                    <div className="w-px h-4 bg-[var(--border-default)] mx-0.5 shrink-0" />
 
                     <button
                       onClick={() => setIframeKey(prev => prev + 1)}
-                      className="w-8 h-8 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:text-accent hover:border-accent/40 flex items-center justify-center transition-all cursor-pointer shrink-0"
+                      className="w-7 h-7 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-accent hover:border-accent/40 inline-flex items-center justify-center transition-all cursor-pointer shrink-0"
                       title={language === 'ar' ? 'تحديث المعاينة' : 'Refresh'}
                     >
-                      <RefreshCw size={16} />
+                      <RefreshCw size={13} />
                     </button>
 
                     <button
                       onClick={() => setIsInspectMode(!isInspectMode)}
-                      className={`h-7 px-2 rounded-shape-xs border text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                        isInspectMode ? 'bg-accent/10 text-accent border-accent/30' : 'bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                      className={`h-7 px-2.5 rounded-shape-xs border text-[11px] font-bold leading-none inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 ${
+                        isInspectMode ? 'bg-accent/10 text-accent border-accent/30' : 'bg-[var(--surface-subtle)] border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-accent/40'
                       }`}
                     >
-                      <MousePointer size={12} />
+                      <MousePointer size={12} className="shrink-0" />
                       <span className="hidden lg:inline">{language === 'ar' ? 'فحص' : 'Inspect'}</span>
                     </button>
                   </div>
@@ -3127,19 +3620,19 @@ export const AppStudioPage: React.FC = () => {
               </div>
 
               {/* Right: File name (Code mode) or Extra Actions (Preview mode) */}
-              <div className="flex justify-end gap-2 items-center overflow-hidden">
+              <div className="flex justify-end gap-2 items-center h-full overflow-hidden">
                 {activeTab === 'code' ? (
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[10px] font-mono text-[var(--text-muted)] truncate">
+                  <div className="h-7 px-2.5 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[10px] font-mono leading-none text-[var(--text-muted)] inline-flex items-center gap-1.5 truncate">
                     <FileCode size={12} className="text-accent shrink-0" />
                     <span className="truncate max-w-[150px]">{activeFilePath}</span>
                   </div>
                 ) : (
                   <button
                     onClick={handleOpenInNewTab}
-                    className="h-7 px-2 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:text-accent hover:border-accent/40 flex items-center gap-1.5 text-[10px] font-bold transition-all cursor-pointer"
+                    className="h-7 px-2.5 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-accent hover:border-accent/40 inline-flex items-center justify-center gap-1.5 text-[11px] font-bold leading-none transition-all cursor-pointer shrink-0"
                     title={language === 'ar' ? 'فتح في نافذة جديدة' : 'Open in New Tab'}
                   >
-                    <ArrowUpRight size={12} />
+                    <ArrowUpRight size={12} className="shrink-0" />
                     <span className="hidden xl:inline">{language === 'ar' ? 'فتح' : 'Pop out'}</span>
                   </button>
                 )}
@@ -3214,7 +3707,7 @@ export const AppStudioPage: React.FC = () => {
                         {isUnsaved && <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />}
                         <button 
                           onClick={(e) => closeTab(tabPath, e)}
-                          className="p-0.5 rounded-full hover:bg-[var(--surface-subtle)] text-[var(--text-muted)] hover:text-red-500 transition-colors"
+                          className="relative p-0.5 before:absolute before:-inset-2 rounded-full hover:bg-[var(--surface-subtle)] text-[var(--text-muted)] hover:text-red-500 transition-colors"
                         >
                           <X size={10} />
                         </button>
@@ -3320,14 +3813,14 @@ export const AppStudioPage: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setTerminalLogs([])}
-                        className="p-1 hover:bg-[var(--surface-card)] rounded text-[var(--text-muted)] hover:text-rose-500 transition-colors cursor-pointer"
+                        className="p-1 hover:bg-[var(--surface-card)] rounded-shape-xs text-[var(--text-muted)] hover:text-rose-500 transition-colors cursor-pointer"
                         title={language === 'ar' ? 'مسح السجل' : 'Clear'}
                       >
                         <Trash2 size={13} />
                       </button>
                       <button
                         onClick={() => setIsTerminalOpen(false)}
-                        className="p-1 hover:bg-[var(--surface-card)] rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
+                        className="p-1 hover:bg-[var(--surface-card)] rounded-shape-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
                       >
                         <X size={14} />
                       </button>
@@ -3559,7 +4052,7 @@ export const AppStudioPage: React.FC = () => {
                     {language === 'ar' ? 'متغيرات البيئة' : 'Environment Variables'}
                   </h3>
                 </div>
-                <button onClick={() => setIsEnvModalOpen(false)} className="p-1 rounded hover:bg-[var(--surface-subtle)] text-[var(--text-muted)] cursor-pointer">
+                <button onClick={() => setIsEnvModalOpen(false)} className="p-1 rounded-shape-xs hover:bg-[var(--surface-subtle)] text-[var(--text-muted)] cursor-pointer">
                   <X size={16} />
                 </button>
               </div>
@@ -3576,6 +4069,8 @@ export const AppStudioPage: React.FC = () => {
                         const updated = { ...envVars };
                         delete updated[key];
                         setEnvVars(updated);
+                        setIframeKey(prev => prev + 1);
+                        saveProjectToDb(projectId, projectName, files, updated);
                         toast.info(language === 'ar' ? `تم حذف ${key}` : `Removed ${key}`);
                       }}
                       className="p-1 text-[var(--text-muted)] hover:text-rose-400 cursor-pointer"
@@ -3606,10 +4101,12 @@ export const AppStudioPage: React.FC = () => {
                 <button
                   onClick={() => {
                     if (newEnvKey.trim()) {
-                      setEnvVars(prev => ({ ...prev, [newEnvKey.trim()]: newEnvVal.trim() }));
+                      const updated = { ...envVars, [newEnvKey.trim()]: newEnvVal.trim() };
+                      setEnvVars(updated);
                       setNewEnvKey('');
                       setNewEnvVal('');
                       setIframeKey(prev => prev + 1);
+                      saveProjectToDb(projectId, projectName, files, updated);
                       toast.success(language === 'ar' ? 'تم حفظ وحقن متغير البيئة بنجاح!' : 'Saved and injected environment variable!');
                     }
                   }}
@@ -3667,7 +4164,7 @@ export const AppStudioPage: React.FC = () => {
                 <label className="text-[11px] font-bold text-[var(--text-secondary)] block">
                   {language === 'ar' ? 'لتأكيد الحذف، اكتب اسم المشروع أدناه:' : 'To confirm deletion, type the project name below:'}
                 </label>
-                <div className="p-1.5 px-2 rounded bg-[var(--surface-subtle)] border border-[var(--border-default)] font-mono text-xs font-bold text-rose-400 select-all">
+                <div className="p-1.5 px-2 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] font-mono text-xs font-bold text-rose-400 select-all">
                   {projectToDelete.title}
                 </div>
                 <input
@@ -3945,11 +4442,12 @@ export const AppStudioPage: React.FC = () => {
                     if (e.key === 'Enter' && newFilePathInput.trim()) {
                       e.preventDefault();
                       const path = newFilePathInput.trim();
-                      setFiles(prev => ({
-                        ...prev,
-                        [path]: { name: path.split('/').pop() || path, path, type: path.split('.').pop() || 'txt', content: '// كود جديد\n' }
-                      }));
-                      setActiveFilePath(path);
+                      const createdFile: ProjectFile = { name: path.split('/').pop() || path, path, type: path.split('.').pop() || 'txt', content: '// كود جديد\n' };
+                      const nextFiles = { ...files, [path]: createdFile };
+                      setFiles(nextFiles);
+                      setSavedFiles(prev => ({ ...prev, [path]: createdFile }));
+                      openFile(path);
+                      saveProjectToDb(projectId, projectName, nextFiles);
                       addLog('success', `تم إنشاء الملف: ${path}`);
                       setIsNewFileModalOpen(false);
                       setNewFilePathInput('');
@@ -3974,11 +4472,12 @@ export const AppStudioPage: React.FC = () => {
                   onClick={() => {
                     const path = newFilePathInput.trim();
                     if (!path) return;
-                    setFiles(prev => ({
-                      ...prev,
-                      [path]: { name: path.split('/').pop() || path, path, type: path.split('.').pop() || 'txt', content: '// كود جديد\n' }
-                    }));
-                    setActiveFilePath(path);
+                    const createdFile: ProjectFile = { name: path.split('/').pop() || path, path, type: path.split('.').pop() || 'txt', content: '// كود جديد\n' };
+                    const nextFiles = { ...files, [path]: createdFile };
+                    setFiles(nextFiles);
+                    setSavedFiles(prev => ({ ...prev, [path]: createdFile }));
+                    openFile(path);
+                    saveProjectToDb(projectId, projectName, nextFiles);
                     addLog('success', `تم إنشاء الملف: ${path}`);
                     setIsNewFileModalOpen(false);
                     setNewFilePathInput('');
@@ -4040,21 +4539,28 @@ export const AppStudioPage: React.FC = () => {
                       e.preventDefault();
                       const trimmed = newFilePathRename.trim();
                       const oldPath = fileToRename;
-                      setFiles(prev => {
+                      const fileData = files[oldPath];
+                      const renamedFile: ProjectFile = {
+                        ...fileData,
+                        name: trimmed.split('/').pop() || trimmed,
+                        path: trimmed,
+                        type: trimmed.split('.').pop() || 'txt'
+                      };
+                      const nextFiles = { ...files };
+                      delete nextFiles[oldPath];
+                      nextFiles[trimmed] = renamedFile;
+                      setFiles(nextFiles);
+                      setSavedFiles(prev => {
                         const next = { ...prev };
-                        const fileData = next[oldPath];
                         delete next[oldPath];
-                        next[trimmed] = {
-                          ...fileData,
-                          name: trimmed.split('/').pop() || trimmed,
-                          path: trimmed,
-                          type: trimmed.split('.').pop() || 'txt'
-                        };
+                        next[trimmed] = renamedFile;
                         return next;
                       });
+                      setOpenTabs(prev => prev.map(t => (t === oldPath ? trimmed : t)));
                       if (activeFilePath === oldPath) {
                         setActiveFilePath(trimmed);
                       }
+                      saveProjectToDb(projectId, projectName, nextFiles);
                       addLog('log', `تم تغيير اسم الملف من ${oldPath} إلى ${trimmed}`);
                       setFileToRename(null);
                       toast.success(language === 'ar' ? 'تمت إعادة التسمية بنجاح' : 'Renamed successfully');
@@ -4079,21 +4585,28 @@ export const AppStudioPage: React.FC = () => {
                     const trimmed = newFilePathRename.trim();
                     const oldPath = fileToRename;
                     if (!trimmed || trimmed === oldPath) return;
-                    setFiles(prev => {
+                    const fileData = files[oldPath];
+                    const renamedFile: ProjectFile = {
+                      ...fileData,
+                      name: trimmed.split('/').pop() || trimmed,
+                      path: trimmed,
+                      type: trimmed.split('.').pop() || 'txt'
+                    };
+                    const nextFiles = { ...files };
+                    delete nextFiles[oldPath];
+                    nextFiles[trimmed] = renamedFile;
+                    setFiles(nextFiles);
+                    setSavedFiles(prev => {
                       const next = { ...prev };
-                      const fileData = next[oldPath];
                       delete next[oldPath];
-                      next[trimmed] = {
-                        ...fileData,
-                        name: trimmed.split('/').pop() || trimmed,
-                        path: trimmed,
-                        type: trimmed.split('.').pop() || 'txt'
-                      };
+                      next[trimmed] = renamedFile;
                       return next;
                     });
+                    setOpenTabs(prev => prev.map(t => (t === oldPath ? trimmed : t)));
                     if (activeFilePath === oldPath) {
                       setActiveFilePath(trimmed);
                     }
+                    saveProjectToDb(projectId, projectName, nextFiles);
                     addLog('log', `تم تغيير اسم الملف من ${oldPath} إلى ${trimmed}`);
                     setFileToRename(null);
                     toast.success(language === 'ar' ? 'تمت إعادة التسمية بنجاح' : 'Renamed successfully');

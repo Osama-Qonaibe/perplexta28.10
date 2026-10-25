@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { motion, AnimatePresence } from 'motion/react';
 import { useSwipeToClose } from '../utils/swipe';
@@ -11,8 +10,6 @@ export { AuthCard } from './auth/AuthCard';
 
 export const AuthModal: React.FC = () => {
   const { dir, isAuthModalOpen, setIsAuthModalOpen, user } = useAppContext();
-  const location = useLocation();
-  const navigate = useNavigate();
 
   const swipeHandlers = useSwipeToClose({
     onSwipeClose: () => setIsAuthModalOpen(false),
@@ -24,21 +21,15 @@ export const AuthModal: React.FC = () => {
   useModalScrollLock(isAuthModalOpen, 'auth-modal');
 
   useEffect(() => {
-    if (isAuthModalOpen && user) {
+    if (!isAuthModalOpen) return;
+
+    // Preload ChatPage chunk immediately while modal is open for 0ms post-login transition
+    import('../pages/ChatPage').catch(() => {});
+
+    if (user) {
       setIsAuthModalOpen(false);
-      if (location.pathname === '/' || location.pathname === '/overview' || location.pathname === '/welcome') {
-        let targetRoute = '/chat';
-        try {
-          const savedRedirect = sessionStorage.getItem('perplexta_post_auth_redirect');
-          if (savedRedirect && savedRedirect.startsWith('/')) {
-            targetRoute = savedRedirect;
-            sessionStorage.removeItem('perplexta_post_auth_redirect');
-          }
-        } catch {}
-        navigate(targetRoute, { replace: true });
-      }
     }
-  }, [isAuthModalOpen, user, setIsAuthModalOpen, location.pathname, navigate]);
+  }, [isAuthModalOpen, user, setIsAuthModalOpen]);
 
   const handleClose = () => {
     setIsAuthModalOpen(false);
@@ -47,30 +38,32 @@ export const AuthModal: React.FC = () => {
   return (
     <AnimatePresence>
       {isAuthModalOpen && (
-        <div className={themeConfig.auth.overlay}>
+        <motion.div
+          key="perplexta-auth-modal"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.16, ease: [0.16, 1, 0.3, 1] }}
+          onClick={handleClose}
+          className={themeConfig.auth.overlay}
+        >
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={handleClose}
-            className="fixed inset-0 bg-black/75 backdrop-blur-md"
-          />
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            initial={{ opacity: 0, scale: 0.97, y: 6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ type: 'spring', duration: 0.3, bounce: 0.1 }}
+            exit={{ opacity: 0, scale: 0.98, y: 4 }}
+            transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
             onTouchStart={swipeHandlers.onTouchStart}
             onTouchMove={swipeHandlers.onTouchMove}
             onTouchEnd={swipeHandlers.onTouchEnd}
-            className="relative z-10 w-full flex justify-center"
+            onClick={(e) => e.stopPropagation()}
+            className="relative z-10 w-full flex justify-center transform-gpu"
           >
             <AuthCard onClose={handleClose} onSuccess={handleClose} showCloseButton={true} />
           </motion.div>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );
 };
+
 

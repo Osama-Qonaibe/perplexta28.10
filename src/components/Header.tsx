@@ -856,6 +856,7 @@ export const Header: React.FC<{ activeLanguage?: string }> = ({ activeLanguage }
               )}
             </AnimatePresence>
           </div>
+
         </div>
       )}
     </div>
