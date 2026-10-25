@@ -1958,8 +1958,8 @@ export const ProjectOverviewPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Certified AI Ecosystem Marquee Strip */}
-          <motion.div className="mb-14 text-center max-w-5xl mx-auto" variants={fadeUpVariants}>
+          {/* Certified AI Ecosystem Marquee Strip - Instant Paint (No Animation Delay) */}
+          <div className="mb-14 text-center max-w-5xl mx-auto">
             <div className="rounded-shape-lg bg-[var(--surface-card)]/60 border border-[var(--border-main)]/60 p-4 sm:p-5 overflow-hidden shadow-xs relative backdrop-blur-md">
               <p className="font-bold text-xs uppercase tracking-wider text-[var(--text-muted)] mb-3">
                 {isRtl ? 'محركات الحوسبة والشراكات التكنولوجية المدعومة' : 'Supported AI Engines & Technology Partnerships'}
@@ -2015,23 +2015,51 @@ export const ProjectOverviewPage: React.FC = () => {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
 
-          {/* Hero Video Showcase Frame - Seamless Integrated Video Player */}
-          <motion.div id="sandbox" ref={videoFrameRef} className="relative max-w-5xl mx-auto" variants={scaleInVariants}>
-            <div className="relative aspect-[16/9] w-full rounded-shape-lg overflow-hidden bg-black shadow-2xl flex items-center justify-center group border border-white/5">
+          {/* Hero Video Showcase Frame - Instant Above-the-Fold Speed Index Optimization */}
+          <div id="sandbox" ref={videoFrameRef} className="relative max-w-5xl mx-auto">
+            <div className="relative aspect-[16/9] w-full rounded-shape-lg overflow-hidden bg-slate-950 shadow-2xl flex items-center justify-center group border border-[var(--border-main)]/80">
+              {/* High-Tech Studio IDE Visual Backdrop (Zero Layout Shift & Immediate Speed Index Visual Completeness) */}
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950/90 pointer-events-none flex flex-col justify-between p-4 sm:p-6 z-0 select-none">
+                <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-rose-500/80 inline-block" />
+                    <span className="w-3 h-3 rounded-full bg-amber-500/80 inline-block" />
+                    <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
+                    <span className="ms-2 text-xs font-mono font-bold text-slate-300">
+                      {isRtl ? 'منظومة استوديو بيربليكستا للمؤسسات' : 'Perplexta Enterprise Studio Engine'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[11px] font-mono text-slate-400">
+                    <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-bold">
+                      {isRtl ? 'إنتاج رقمي متعدد الأنماط 4K' : '4K Multimodal Production'}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-blue-600/20 border border-blue-500/40 text-blue-400 flex items-center justify-center shadow-lg backdrop-blur-sm group-hover:scale-110 transition-transform">
+                    <Play size={24} className="ms-1 fill-current" />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-[11px] font-mono text-slate-500 border-t border-slate-800/60 pt-2">
+                  <span>workspace.ts — live compilation</span>
+                  <span>60 FPS • Realtime Neural Sandbox</span>
+                </div>
+              </div>
+
               {activeVideoSourceType === 'youtube' && activeYoutubeUrl ? (
                 extractYouTubeId(activeYoutubeUrl) ? (
                   <iframe
                     key={`hero-yt-${isRtl ? 'ar' : 'en'}-${extractYouTubeId(activeYoutubeUrl)}`}
                     src={getYouTubeEmbedUrl(activeYoutubeUrl, heroVideoConfig.autoplay ?? true) || ''}
                     title={isRtl ? (heroVideoConfig.titleAr || 'جولة سريعة داخل منظومة بيربليكستا') : (heroVideoConfig.titleEn || 'Quick Tour Inside Perplexta Ecosystem')}
-                    className="w-full h-full border-0"
+                    className="w-full h-full border-0 relative z-10"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowFullScreen
                   />
                 ) : (
-                  <div className="p-8 text-center text-amber-400 flex flex-col items-center gap-2">
+                  <div className="p-8 text-center text-amber-400 flex flex-col items-center gap-2 relative z-10">
                     <AlertCircle size={28} />
                     <span className="text-sm font-bold">{isRtl ? 'رابط يوتيوب غير صالح' : 'Invalid YouTube link'}</span>
                   </div>
@@ -2047,7 +2075,7 @@ export const ProjectOverviewPage: React.FC = () => {
                   loop={heroVideoConfig.loop ?? true}
                   controls={heroVideoConfig.controls ?? true}
                   playsInline
-                  preload="auto"
+                  preload="metadata"
                   onError={(e: any) => {
                     const target = e.target as HTMLVideoElement;
                     if (target && target.src !== window.location.origin + '/videos/hero_showcase.mp4') {
@@ -2056,11 +2084,11 @@ export const ProjectOverviewPage: React.FC = () => {
                       target.play().catch(() => {});
                     }
                   }}
-                  className="w-full h-full object-contain bg-black"
+                  className="w-full h-full object-contain bg-transparent relative z-10"
                 />
               )}
             </div>
-          </motion.div>
+          </div>
         </div>
 
 
