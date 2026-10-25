@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { Sparkles, Cpu } from 'lucide-react';
+import { Cpu } from 'lucide-react';
 import { useAppContext } from '../../context/AppContext';
 import { resolveImageUrl } from '../../utils/imageResolver';
 import { NotificationIconRenderer } from '../../utils/imageProcessor';
@@ -21,8 +21,38 @@ export interface AssistantIconProps {
   spinDirection?: 'normal' | 'reverse';
 }
 
+const PerplextaBrandAiMark: React.FC<{ size: number; className?: string }> = ({ size, className = '' }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`shrink-0 ${className}`}
+    style={{ width: `${size}px`, height: `${size}px`, maxWidth: `${size}px`, maxHeight: `${size}px` }}
+  >
+    <path
+      d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z"
+      fill="currentColor"
+      fillOpacity="0.15"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M12 7L13.2 10.8L17 12L13.2 13.2L12 17L10.8 13.2L7 12L10.8 10.8L12 7Z"
+      fill="currentColor"
+      stroke="currentColor"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 export const AssistantIcon: React.FC<AssistantIconProps> = ({
-  size = 16,
+  size = 22,
   isSpinning = false,
   dir = 'ltr',
   className = '',
@@ -35,7 +65,7 @@ export const AssistantIcon: React.FC<AssistantIconProps> = ({
 
   const rawLogo = (theme === 'light' && siteSettings?.logoLightBase64) 
     ? siteSettings?.logoLightBase64 
-    : siteSettings?.logoBase64;
+    : (siteSettings?.logoBase64 || siteSettings?.logoUrl || siteSettings?.siteLogo || siteSettings?.appLogo || siteSettings?.seoImageUrl);
   const logoUrl = rawLogo ? resolveImageUrl(rawLogo, 'general') : null;
   const displayName = isRtl 
     ? (siteSettings?.siteNameAr || siteSettings?.siteName || 'بيربليكستا') 
@@ -51,7 +81,7 @@ export const AssistantIcon: React.FC<AssistantIconProps> = ({
       className={`shrink-0 transition-transform ${spinClass}`}
     />
   ) : (
-    <Sparkles
+    <PerplextaBrandAiMark
       size={size}
       className={`shrink-0 transition-transform ${spinClass}`}
     />

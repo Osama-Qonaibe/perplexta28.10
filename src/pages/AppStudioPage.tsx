@@ -2530,7 +2530,9 @@ export const AppStudioPage: React.FC = () => {
   };
 
   const activeFile = files[activeFilePath] || files['index.html'];
-  const logoSrc = (theme === 'light' && siteSettings?.logoLightBase64) ? siteSettings.logoLightBase64 : siteSettings?.logoBase64;
+  const logoSrc = (theme === 'light' && siteSettings?.logoLightBase64) 
+    ? siteSettings?.logoLightBase64 
+    : (siteSettings?.logoBase64 || siteSettings?.logoUrl || siteSettings?.siteLogo || siteSettings?.appLogo || siteSettings?.seoImageUrl);
 
   // Pre-warm primary destination chunks (ChatPage & ProjectOverviewPage) so Back button navigation has 0ms Suspense delay
   useEffect(() => {
@@ -2759,17 +2761,17 @@ export const AppStudioPage: React.FC = () => {
               <div className="w-full h-full bg-[var(--surface-card)] rounded-[calc(var(--radius-shape-md,12px)-1px)] rtl:rounded-es-3xs ltr:rounded-ee-3xs relative z-10" />
             </div>
 
-            <div className="relative w-6 h-6 flex items-center justify-center shrink-0 z-10">
+            <div className="relative w-6.5 h-6.5 flex items-center justify-center shrink-0 z-10">
               {logoSrc ? (
                 <NotificationIconRenderer
                   src={resolveImageUrl(logoSrc, 'general')}
                   alt="Platform Logo"
-                  size={20}
+                  size={22}
                   className="w-5.5 h-5.5 object-contain block relative z-10"
-                  fallbackIcon={<AssistantIcon size={20} fallbackType="sparkles" className="text-accent relative z-10" />}
+                  fallbackIcon={<AssistantIcon size={22} fallbackType="sparkles" className="text-accent relative z-10" />}
                 />
               ) : (
-                <AssistantIcon size={20} fallbackType="sparkles" className="relative z-10" />
+                <AssistantIcon size={22} fallbackType="sparkles" className="text-accent relative z-10" />
               )}
             </div>
             <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
