@@ -2727,23 +2727,49 @@ export const AppStudioPage: React.FC = () => {
             }}
             className={`w-9 h-9 flex items-center justify-center transition-all cursor-pointer relative group shrink-0 border before:absolute before:-inset-1.5 ${
               sideNavActiveTab === 'chat'
-                ? 'bg-[var(--surface-subtle)] border-[var(--border-accent)] text-[var(--fg-accent)] shadow-2xs'
-                : 'bg-transparent border-[var(--border-default)] hover:border-[var(--border-accent)] hover:bg-[var(--surface-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                ? 'bg-[var(--surface-subtle)] border-transparent text-[var(--fg-accent)] shadow-2xs'
+                : 'bg-transparent border-[var(--border-default)] hover:border-transparent hover:bg-[var(--surface-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
             } rounded-shape-md rtl:rounded-es-2xs ltr:rounded-ee-2xs`}
             title={language === 'ar' ? 'المساعد الذكي' : 'AI Assistant'}
           >
-            <div className="relative w-6 h-6 flex items-center justify-center shrink-0">
-              <div className={`absolute -inset-1 rounded-full border border-dashed ${sideNavActiveTab === 'chat' ? 'border-accent' : 'border-accent/50'} ${isGenerating ? 'animate-[spin_2s_linear_infinite_reverse]' : 'animate-[spin_8s_linear_infinite_reverse] group-hover:border-accent group-hover:scale-105'} transition-all opacity-80 group-hover:opacity-100`} />
+            {/* Ambient Soft Glow Layer */}
+            <div
+              className={`absolute -inset-[2px] rounded-shape-md rtl:rounded-es-2xs ltr:rounded-ee-2xs overflow-hidden pointer-events-none z-0 ${
+                sideNavActiveTab === 'chat' || isGenerating ? 'opacity-40 blur-[2px]' : 'opacity-0 group-hover:opacity-30 blur-[2px]'
+              } transition-opacity duration-300`}
+            >
+              <div
+                className={`absolute -inset-[150%] bg-[conic-gradient(from_0deg,#3b82f6_0%,#8b5cf6_25%,#ec4899_50%,#10b981_75%,#3b82f6_100%)] ${
+                  isGenerating ? 'animate-[spin_2s_linear_infinite_reverse]' : 'animate-[spin_5s_linear_infinite_reverse]'
+                }`}
+              />
+            </div>
+
+            {/* Static Outer Mask with Rotating Rainbow Border Light Stream */}
+            <div
+              className={`absolute -inset-[1px] rounded-shape-md rtl:rounded-es-2xs ltr:rounded-ee-2xs overflow-hidden p-[1.5px] pointer-events-none z-0 ${
+                sideNavActiveTab === 'chat' || isGenerating ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+              } transition-opacity duration-300`}
+            >
+              <div
+                className={`absolute -inset-[150%] bg-[conic-gradient(from_0deg,#3b82f6_0%,#8b5cf6_25%,#ec4899_50%,#f59e0b_75%,#10b981_88%,#3b82f6_100%)] ${
+                  isGenerating ? 'animate-[spin_2s_linear_infinite_reverse]' : 'animate-[spin_5s_linear_infinite_reverse]'
+                }`}
+              />
+              <div className="w-full h-full bg-[var(--surface-card)] rounded-[calc(var(--radius-shape-md,12px)-1px)] rtl:rounded-es-3xs ltr:rounded-ee-3xs relative z-10" />
+            </div>
+
+            <div className="relative w-6 h-6 flex items-center justify-center shrink-0 z-10">
               {logoSrc ? (
                 <NotificationIconRenderer
                   src={resolveImageUrl(logoSrc, 'general')}
                   alt="Platform Logo"
-                  size={18}
-                  className="w-4.5 h-4.5 object-contain block relative z-10"
-                  fallbackIcon={<AssistantIcon size={16} isSpinning={isGenerating} spinDirection="reverse" fallbackType="sparkles" className="text-accent relative z-10" />}
+                  size={20}
+                  className="w-5.5 h-5.5 object-contain block relative z-10"
+                  fallbackIcon={<AssistantIcon size={20} fallbackType="sparkles" className="text-accent relative z-10" />}
                 />
               ) : (
-                <AssistantIcon size={16} isSpinning={isGenerating} spinDirection="reverse" fallbackType="sparkles" className="relative z-10" />
+                <AssistantIcon size={20} fallbackType="sparkles" className="relative z-10" />
               )}
             </div>
             <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
