@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en" class="light theme-booting" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover, interactive-widget=resizes-content" />
+    <meta id="theme-color-meta" name="theme-color" content="#ffffff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Perplexta" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Perplexta Mobile" />
+    <meta name="msapplication-TileColor" content="#ffffff" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta name="edge-sidebar" content="disable" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Visual Viewport & Keyboard Handler -->
+    <script>
+      (function() {
+        var rafId = null;
+        function updateViewportVars() {
+          if (!window.visualViewport) return;
+          if (rafId) cancelAnimationFrame(rafId);
+          rafId = requestAnimationFrame(function() {
+            var vv = window.visualViewport;
+            var kbHeight = Math.max(0, window.innerHeight - vv.height);
+            document.documentElement.style.setProperty('--kb-height', kbHeight + 'px');
+            document.documentElement.style.setProperty('--vv-height', vv.height + 'px');
+          });
+        }
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener('resize', updateViewportVars, { passive: true });
+          window.addEventListener('orientationchange', function() {
+            setTimeout(updateViewportVars, 200);
+          }, { passive: true });
+        }
+      })();
+    </script>
+
+    <!-- Canonical Theme & Language Bootstrap -->
+    <script>
+      (function () {
+        const STORAGE_KEY = 'perplexta.theme.bootstrap.v5';
+        const MODE_KEY = 'perplexta.theme.mode.v1';
+        const root = document.documentElement;
+
+        try {
+          const savedLang = localStorage.getItem('language') || 'en';
+          root.setAttribute('lang', savedLang);
+          root.setAttribute('dir', savedLang === 'ar' ? 'rtl' : 'ltr');
+
+          const savedMode = localStorage.getItem(MODE_KEY) || localStorage.getItem('perplexta_theme') || localStorage.getItem('theme');
+          const systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const requestedMode = savedMode === 'light' || savedMode === 'dark' || savedMode === 'system' ? savedMode : 'light';
+          const resolvedMode = requestedMode === 'system' ? (systemDark ? 'dark' : 'light') : requestedMode;
+
+          root.dataset.theme = resolvedMode;
+          root.classList.toggle('dark', resolvedMode === 'dark');
+          root.classList.toggle('light', resolvedMode === 'light');
+          root.style.colorScheme = resolvedMode;
+
+          const themeColor = resolvedMode === 'dark' ? '#0d1117' : '#ffffff';
+          const iosStatusBarStyle = resolvedMode === 'dark' ? 'black-translucent' : 'default';
+
+          const meta = document.getElementById('theme-color-meta') || document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', themeColor);
+          
+          const iosMeta = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+          if (iosMeta) iosMeta.setAttribute('content', iosStatusBarStyle);
+
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const payload = JSON.parse(raw);
+            if (payload && payload.tokens) {
+              const modeTokens = payload.tokens[resolvedMode];
+              if (modeTokens && typeof modeTokens === 'object') {
+                for (const [key, value] of Object.entries(modeTokens)) {
+                  if (typeof key === 'string' && key.startsWith('--') && typeof value === 'string' && value.length <= 250) {
+                    root.style.setProperty(key, value);
+                  }
+                }
+              }
+            }
+          }
+        } catch (_) {}
+      })();
+    </script>
+
+    <style>
+      :root.dark, :root[data-theme="dark"] { --pwa-theme-color: #0d1117; --pwa-bg-color: #0d1117; color-scheme: dark; }
+      :root.light, :root[data-theme="light"] { --pwa-theme-color: #ffffff; --pwa-bg-color: #ffffff; color-scheme: light; }
+      html, body { background-color: var(--surface-page, var(--pwa-bg-color)); margin: 0; padding: 0; }
+    </style>
+    
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&display=swap" media="print" onload="this.media='all'" />
+    
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <title>Perplexta Mobile – Professional Social & AI Feed</title>
+    <meta name="description" content="Sovereign mobile application for Perplexta. Professional social feed, real-time AI chat, and secure wallet management." />
+    <link rel="manifest" href="/manifest.json" />
+  </head>
+  <body class="layout-locked global-motion-lock">
+    <div id="root"></div>
+    <script type="module" src="/src/mobile-app/main.tsx"></script>
+    <script>
+      (function() {
+        window.addEventListener('load', function() {
+          const deferredScripts = ['/telemetry.js'];
+          deferredScripts.forEach(function(src) {
+            const script = document.createElement('script');
+            script.src = src;
+            script.async = true;
+            document.body.appendChild(script);
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

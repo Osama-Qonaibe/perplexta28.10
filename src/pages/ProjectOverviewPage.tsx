@@ -247,7 +247,7 @@ const ShimmerButton = React.forwardRef<HTMLButtonElement, ShimmerButtonProps>(
             '--bg': background,
           } as React.CSSProperties
         }
-        className={`group relative z-0 inline-flex cursor-pointer items-center justify-center overflow-hidden rounded-shape-sm border border-white/20 px-6 h-10 leading-none whitespace-nowrap text-[var(--comp-button-primary-fg)] [background:var(--bg)] transform-gpu transition-all duration-300 ease-in-out active:scale-95 shadow-md hover:shadow-lg font-bold text-xs before:absolute before:-inset-1 before:content-[''] ${className}`}
+        className={`group relative z-0 inline-flex cursor-pointer items-center justify-center overflow-hidden rounded-shape-sm border border-white/20 px-4 h-8 min-h-[32px] max-h-[32px] btn-long-standard leading-[23px] whitespace-nowrap text-[var(--comp-button-primary-fg)] [background:var(--bg)] transform-gpu transition-all duration-300 ease-in-out active:scale-95 shadow-md hover:shadow-lg font-bold text-xs before:absolute before:-inset-1 before:content-[''] ${className}`}
         ref={ref}
         {...props}
       >
@@ -256,7 +256,7 @@ const ShimmerButton = React.forwardRef<HTMLButtonElement, ShimmerButtonProps>(
             <div className="animate-spin-around absolute -inset-full w-auto [translate:0_0] rotate-0 [background:conic-gradient(from_calc(270deg-(var(--spread)*0.5)),transparent_0,var(--shimmer-color)_var(--spread),transparent_var(--spread))]" />
           </div>
         </div>
-        <span className="relative z-10 inline-flex items-center justify-center gap-2 leading-none">{children}</span>
+        <span className="relative z-10 inline-flex items-center justify-center gap-2 h-[23px] leading-[23px]">{children}</span>
         <div className="absolute inset-0 size-full rounded-shape-sm px-4 py-1.5 text-xs font-medium shadow-[inset_0_-8px_10px_#ffffff25] transform-gpu transition-all duration-300 ease-in-out group-hover:shadow-[inset_0_-6px_10px_#ffffff40] group-active:shadow-[inset_0_-10px_10px_#ffffff40] pointer-events-none" />
         <div className="absolute [inset:var(--cut)] -z-20 [border-radius:var(--radius)] [background:var(--bg)] pointer-events-none" />
       </button>
@@ -916,7 +916,7 @@ export const ProjectOverviewPage: React.FC = () => {
         description: isRtl
           ? 'محرر طبقات متجهة وتصميم حر لتحريك العناصر، صناعة إعلانات الريلز والموشن جرافيك، وتصديرها بدقة 4K فائقة.'
           : 'Advanced freeform vector layer editor to create, animate, and export 4K motion graphics and promotional reels.',
-        icon: <ImageIcon className="size-5 text-indigo-500" />,
+        icon: <ImageIcon className="size-4 text-indigo-500" />,
         badge: isRtl ? 'تصميم وموشن' : 'Vector & Motion',
         route: '/image-studio',
       },
@@ -928,7 +928,7 @@ export const ProjectOverviewPage: React.FC = () => {
         description: isRtl
           ? 'توليد وتجميع تطبيقات الويب الكاملة مع شجرة ملفات حقيقية، معاينة حية، وتصدير فوري للمشروع.'
           : 'Full-stack web application development with real file trees, live browser compilation, and instant project export.',
-        icon: <Code2 className="size-5 text-blue-500" />,
+        icon: <Code2 className="size-4 text-blue-500" />,
         badge: isRtl ? 'تطبيقات ويب' : 'Web Apps',
         route: '/app',
       },
@@ -940,7 +940,7 @@ export const ProjectOverviewPage: React.FC = () => {
         description: isRtl
           ? 'توليد الأصوات العصبية الواقعية، تحويل النصوص إلى كلام (TTS) بنقاء 24kHz، ومعالجة الترددات والأوامر الصوتية.'
           : 'High-fidelity neural voice synthesis, 24kHz studio text-to-speech, and real-time voice command processing.',
-        icon: <Volume2 className="size-5 text-rose-500" />,
+        icon: <Volume2 className="size-4 text-rose-500" />,
         badge: isRtl ? 'هندسة صوتية' : 'Neural Audio',
         route: '/audio-studio',
       },
@@ -952,7 +952,7 @@ export const ProjectOverviewPage: React.FC = () => {
         description: isRtl
           ? 'نشر القوالب والتصاميم في الدليل العام بعائد مباشر ($0.70 لكل استخدام)، عمولة إحالة 20% متكررة، ومكافأة ترحيبية $50.'
           : 'Publish templates to the marketplace, earn $0.70 per execution, 20% recurring referral split, and a $50 welcome bonus.',
-        icon: <Users className="size-5 text-emerald-500" />,
+        icon: <Users className="size-4 text-emerald-500" />,
         badge: isRtl ? 'مجتمع وعوائد' : 'Community & Royalties',
         route: '/viralbook',
       },
@@ -1128,7 +1128,7 @@ export const ProjectOverviewPage: React.FC = () => {
         category: isRtl ? 'الاستجابة اللحظية الفورية' : 'Ultra-Fast Response',
         desc: isRtl ? 'نموذج التوليد والاستجابة اللحظية بزمن استجابة أقل من 0.08 ثانية للإجابة الفورية والأسئلة اليومية.' : 'Sub-0.08s ultra-fast neural dispatch for quick Q&A and rapid ideation.',
         badge: isRtl ? 'استجابة لحظية' : '< 0.08s',
-        icon: <Zap className="size-5 text-amber-500" />,
+        icon: <Zap className="size-4 text-amber-500" />,
         route: '/chat?mode=fast',
       },
       {
@@ -1137,7 +1137,7 @@ export const ProjectOverviewPage: React.FC = () => {
         category: isRtl ? 'توليد متعدد الأنماط' : 'Multi-Modal Pro',
         desc: isRtl ? 'أعلى المستويات التوليدية لبناء المشروعات المعقدة والتصاميم الهندسية والأكواد الضخمة.' : 'Enterprise multi-modal model engineered for complex full-stack web apps and assets.',
         badge: isRtl ? 'جودة فائقة' : 'Ultra Quality',
-        icon: <Sparkles className="size-5 text-indigo-500" />,
+        icon: <Sparkles className="size-4 text-indigo-500" />,
         route: '/chat?mode=pro',
       },
       {
@@ -1146,7 +1146,7 @@ export const ProjectOverviewPage: React.FC = () => {
         category: isRtl ? 'تحليل منطقي ورياضي' : 'Deep Logical Reasoning',
         desc: isRtl ? 'محرك التفكير متعدد الخطوات، يفكك المسائل المعقدة ويصيغ خوارزميات الاستنتاج بدقة متناهية.' : 'Deep multi-step reasoning model that analyzes mathematical proofs and algorithm invariants.',
         badge: isRtl ? 'تفكير عميق' : 'Multi-step Logic',
-        icon: <Cpu className="size-5 text-purple-500" />,
+        icon: <Cpu className="size-4 text-purple-500" />,
         route: '/chat?mode=reasoning',
       },
       {
@@ -1155,7 +1155,7 @@ export const ProjectOverviewPage: React.FC = () => {
         category: isRtl ? 'ربط سحابي بالويب' : 'Real-time Web Search',
         desc: isRtl ? 'البحث الحي المباشر في الويب مع تحليل المستندات الضخمة واستخراج كشوف الحقائق الموثقة.' : 'Live web grounding and large document ingestion with traceable citations.',
         badge: isRtl ? 'بحث حي' : 'NEW',
-        icon: <Search className="size-5 text-emerald-500" />,
+        icon: <Search className="size-4 text-emerald-500" />,
         route: '/chat?mode=search',
       },
       {
@@ -1164,7 +1164,7 @@ export const ProjectOverviewPage: React.FC = () => {
         category: isRtl ? 'حملات وتسويق' : 'Marketing & Ad Campaigns',
         desc: isRtl ? 'صياغة نصوص الحملات الإعلانية عالية التحويل وزيادة معدل النقر والوصول للعملاء المستهدفين.' : 'High-converting ad copy synthesis, ViralBook sponsored post builder, and conversion hooks.',
         badge: isRtl ? 'تسويق ذكي' : 'Viral Growth',
-        icon: <Megaphone className="size-5 text-amber-500" />,
+        icon: <Megaphone className="size-4 text-amber-500" />,
         route: '/viralbook?tab=ads',
       },
       {
@@ -1173,7 +1173,7 @@ export const ProjectOverviewPage: React.FC = () => {
         category: isRtl ? 'توثيق وأوراق بحثية' : 'Scholarly Literature',
         desc: isRtl ? 'قراءة وتلخيص المراجع العلمية، صياغة الفرضيات، وتنسيق الاقتباسات آلياً وفق معايير التوثيق الشاملة.' : 'Deep scholarly paper digestion, research hypothesis generation, and automatic citation formatting.',
         badge: isRtl ? 'توثيق علمي' : 'APA & IEEE',
-        icon: <BookOpen className="size-5 text-teal-500" />,
+        icon: <BookOpen className="size-4 text-teal-500" />,
         route: '/chat?mode=academic',
       },
     ],
@@ -1679,20 +1679,20 @@ export const ProjectOverviewPage: React.FC = () => {
               </div>
 
               {/* Right Action Controls */}
-              <div className="hidden lg:flex items-center gap-3">
+              <div className="hidden lg:flex items-center gap-2.5">
                 <button
                   type="button"
                   onClick={() => setLanguage(isRtl ? 'en' : 'ar')}
-                  className="px-3.5 py-1.5 min-h-[36px] rounded-[var(--comp-button-radius,8px)] text-xs font-bold border border-[var(--border-main)] hover:border-[var(--border-accent)] hover:bg-[var(--surface-subtle)] text-[var(--text-secondary)] transition-colors cursor-pointer flex items-center justify-center"
+                  className="h-8 px-3 rounded-shape-sm text-xs font-bold border border-[var(--border-main)] hover:border-[var(--border-accent)] hover:bg-[var(--surface-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-all cursor-pointer flex items-center justify-center relative touch-target-44-expanded"
                   title={isRtl ? 'Switch to English' : 'التحويل للعربية'}
                 >
                   {isRtl ? 'EN' : 'عربي'}
                 </button>
-                <ThemeToggleButton variant="icon-button" size="sm" />
+                <ThemeToggleButton variant="icon-button" size="sm" className="!w-8 !h-8 !rounded-shape-sm" />
                 <button
                   type="button"
                   onClick={handleStartNow}
-                  className="rounded-[var(--comp-button-radius,8px)] min-h-[36px] px-4 py-1.5 text-xs font-black uppercase tracking-wider bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] hover:opacity-90 transition-all active:scale-95 cursor-pointer shadow-sm flex items-center justify-center"
+                  className="h-8 px-4 rounded-shape-sm text-xs font-black uppercase tracking-wider bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] hover:opacity-90 transition-all active:scale-95 cursor-pointer shadow-xs flex items-center justify-center relative touch-target-44-expanded"
                 >
                   <span>{isRtl ? 'ابدأ الآن' : 'Get Started'}</span>
                 </button>
@@ -1905,11 +1905,11 @@ export const ProjectOverviewPage: React.FC = () => {
                 </p>
               </div>
 
-              {/* Action CTAs Buttons - Unified 40px Perplexta Standard */}
+              {/* Action CTAs Buttons - Unified 32px Perplexta Standard */}
               <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 px-4 sm:px-0">
-                <ShimmerButton onClick={handleStartNow} className="w-full sm:w-auto h-10 px-6 rounded-shape-sm">
-                  <span className="text-xs font-bold leading-none">{isRtl ? 'البدء في استخدام المنصة' : 'Get Started Now'}</span>
-                  <ArrowRight size={15} className={isRtl ? 'rotate-180 stroke-[2.5] shrink-0' : 'stroke-[2.5] shrink-0'} />
+                <ShimmerButton onClick={handleStartNow} className="w-full sm:w-auto h-8 px-4 rounded-shape-sm btn-long-standard">
+                  <span className="text-xs font-bold h-[23px] leading-[23px] inline-flex items-center gap-1.5">{isRtl ? 'البدء في استخدام المنصة' : 'Get Started Now'}</span>
+                  <ArrowRight size={14} className={isRtl ? 'rotate-180 stroke-[2.5] shrink-0' : 'stroke-[2.5] shrink-0'} />
                 </ShimmerButton>
                 <button
                   type="button"
@@ -1917,10 +1917,10 @@ export const ProjectOverviewPage: React.FC = () => {
                     const el = document.getElementById('modular-showcase');
                     el?.scrollIntoView({ behavior: 'smooth' });
                   }}
-                  className="relative h-10 px-6 rounded-shape-sm bg-[var(--surface-card)]/90 hover:bg-[var(--surface-subtle)] text-[var(--text-primary)] border border-[var(--border-main)] hover:border-[var(--border-accent)] font-bold text-xs leading-none inline-flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 shadow-2xs backdrop-blur-md w-full sm:w-auto before:absolute before:-inset-1 before:content-['']"
+                  className="relative h-8 px-4 rounded-shape-sm btn-long-standard bg-[var(--surface-card)]/90 hover:bg-[var(--surface-subtle)] text-[var(--text-primary)] border border-[var(--border-main)] hover:border-[var(--border-accent)] font-bold text-xs leading-[23px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-95 shadow-2xs backdrop-blur-md w-full sm:w-auto before:absolute before:-inset-1 before:content-['']"
                 >
-                  <LayoutGrid size={15} className="text-[var(--fg-accent)] shrink-0" />
-                  <span>{isRtl ? 'استعراض الحلول والقدرات' : 'Explore Solutions'}</span>
+                  <LayoutGrid size={14} className="text-[var(--fg-accent)] shrink-0" />
+                  <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'استعراض الحلول والقدرات' : 'Explore Solutions'}</span>
                 </button>
               </div>
 
@@ -1928,9 +1928,9 @@ export const ProjectOverviewPage: React.FC = () => {
               <div className="mt-7 flex justify-center">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1 rounded-shape-md bg-[var(--surface-subtle)]/70 border border-[var(--border-main)] backdrop-blur-xl w-full max-w-2xl">
                   {[
-                    { id: 'developers', studioTab: 'apps', icon: <Code2 size={15} />, labelAr: 'مسار المطورين والمهندسين', labelEn: 'Engineers & Developers' },
-                    { id: 'creators', studioTab: 'motion', icon: <Sparkles size={15} />, labelAr: 'مسار المبدعين وصناع المحتوى', labelEn: 'Creators & Designers' },
-                    { id: 'enterprises', studioTab: 'video', icon: <Cpu size={15} />, labelAr: 'مسار المؤسسات والباحثين', labelEn: 'Enterprise & Researchers' },
+                    { id: 'developers', studioTab: 'apps', icon: <Code2 size={14} />, labelAr: 'مسار المطورين والمهندسين', labelEn: 'Engineers & Developers' },
+                    { id: 'creators', studioTab: 'motion', icon: <Sparkles size={14} />, labelAr: 'مسار المبدعين وصناع المحتوى', labelEn: 'Creators & Designers' },
+                    { id: 'enterprises', studioTab: 'video', icon: <Cpu size={14} />, labelAr: 'مسار المؤسسات والباحثين', labelEn: 'Enterprise & Researchers' },
                   ].map((path) => (
                     <button
                       key={path.id}
@@ -1941,7 +1941,7 @@ export const ProjectOverviewPage: React.FC = () => {
                         const el = document.getElementById('modular-showcase');
                         el?.scrollIntoView({ behavior: 'smooth' });
                       }}
-                      className={`relative h-9 px-3.5 rounded-shape-sm text-xs font-bold leading-none inline-flex items-center justify-center gap-2 transition-all cursor-pointer before:absolute before:-inset-1 before:content-[''] ${
+                      className={`relative h-8 px-3 rounded-shape-sm text-xs font-bold leading-[23px] inline-flex items-center justify-center gap-2 transition-all cursor-pointer before:absolute before:-inset-1 before:content-[''] ${
                         selectedPersonaPath === path.id
                           ? 'bg-[var(--surface-card)] text-[var(--fg-accent)] shadow-2xs border border-[var(--border-accent)]/30'
                           : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-card)]/40 border border-transparent'
@@ -1999,7 +1999,7 @@ export const ProjectOverviewPage: React.FC = () => {
                       key={`hero-partner-${index}`}
                       className="shrink-0 flex items-center gap-3 px-4 py-2.5 rounded-shape-md bg-[var(--surface-card)] border border-[var(--border-main)] hover:border-[var(--border-accent)] transition-all duration-300 shadow-2xs select-none group/item cursor-default"
                     >
-                      <div className="w-7 h-7 rounded-shape-xs flex items-center justify-center text-white shrink-0 shadow-2xs" style={{ backgroundColor: partner.color }}>
+                      <div className="w-8 h-8 rounded-shape-sm flex items-center justify-center text-white shrink-0 shadow-2xs" style={{ backgroundColor: partner.color }}>
                         {getPartnerIcon(partner.name)}
                       </div>
                       <div className="text-start dir-ltr">
@@ -2126,12 +2126,12 @@ export const ProjectOverviewPage: React.FC = () => {
                   className="w-[310px] sm:w-[360px] p-5 rounded-shape-lg bg-[var(--surface-card)] border border-[var(--border-main)] shadow-sm flex flex-col justify-between shrink-0 group hover:border-[var(--border-accent)] hover:shadow-md transition-all cursor-pointer text-start"
                   onClick={() => handleNavigateToSection((tool as any).route || '/chat')}
                 >
-                  {/* Level 1 (Shortest): Icon + Short Kicker Badge at Start */}
+                  {/* Level 1 (Shortest): 32px Icon Container + Sleek Kicker at Start */}
                   <div className="flex items-center gap-2.5 mb-2.5">
-                    <div className="p-2 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-main)] text-[var(--fg-accent)] group-hover:scale-105 transition-transform shrink-0">
+                    <div className="w-8 h-8 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-main)] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform text-[var(--fg-accent)]">
                       {tool.icon}
                     </div>
-                    <span className="px-2.5 py-0.5 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-main)] text-[11px] font-sans font-bold text-[var(--fg-accent)]">
+                    <span className="text-[11px] font-sans font-black tracking-wider uppercase text-[var(--fg-accent)]">
                       {tool.badge}
                     </span>
                   </div>
@@ -2186,12 +2186,12 @@ export const ProjectOverviewPage: React.FC = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <div>
-                  {/* Level 1 (Shortest): Icon + Compact Studio Badge at Start */}
+                  {/* Level 1 (Shortest): 32px Square Icon Container + Compact Kicker */}
                   <div className="flex items-center gap-2.5 mb-3">
-                    <div className="p-2 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-main)] group-hover/card:scale-105 transition-transform shrink-0">
+                    <div className="w-8 h-8 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-main)] flex items-center justify-center shrink-0 shadow-2xs group-hover/card:scale-105 transition-transform text-[var(--fg-accent)]">
                       {feature.icon}
                     </div>
-                    <span className="px-2.5 py-1 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-main)] text-[11px] font-sans font-bold text-[var(--fg-accent)]">
+                    <span className="text-[11px] font-sans font-black tracking-wider uppercase text-[var(--fg-accent)]">
                       {isRtl ? `استوديو ${feature.number} • ${feature.badge}` : `Studio ${feature.number} • ${feature.badge}`}
                     </span>
                   </div>
@@ -2217,7 +2217,7 @@ export const ProjectOverviewPage: React.FC = () => {
                             <ImageIcon size={13} />
                             <span>{isRtl ? 'مساحة عمل الموشن والطبقات المتجهة' : 'Rinex Motion & Graphic Canvas'}</span>
                           </span>
-                          <span className="px-2 py-0.5 rounded-shape-xs bg-indigo-500/10 text-indigo-400 text-[10px] font-bold">
+                          <span className="text-[11px] font-mono font-bold text-indigo-400">
                             {isRtl ? 'شريط زمني 4K' : '4K Vector Timeline'}
                           </span>
                         </div>
@@ -2254,7 +2254,7 @@ export const ProjectOverviewPage: React.FC = () => {
                             <Code2 size={13} />
                             <span>{isRtl ? 'مترجم التطبيقات السحابي' : 'Full-Stack Compiler'}</span>
                           </span>
-                          <span className="px-2 py-0.5 rounded-shape-xs bg-emerald-500/10 text-emerald-500 text-[10px] font-bold">
+                          <span className="text-[11px] font-mono font-bold text-emerald-500">
                             {isRtl ? 'تجميع خلال 0.8ث' : 'Compiled in 0.8s'}
                           </span>
                         </div>
@@ -2275,7 +2275,7 @@ export const ProjectOverviewPage: React.FC = () => {
                             <Volume2 size={13} />
                             <span>{isRtl ? 'مُركّب الصوت العصبي المتقدم' : 'Neural Voice Synthesizer'}</span>
                           </span>
-                          <span className="px-2 py-0.5 rounded-shape-xs bg-rose-500/10 text-rose-400 text-[10px] font-bold">
+                          <span className="text-[11px] font-mono font-bold text-rose-400">
                             {isRtl ? 'جودة 24kHz' : '24kHz Audio'}
                           </span>
                         </div>
@@ -2299,7 +2299,7 @@ export const ProjectOverviewPage: React.FC = () => {
                             <Users size={13} />
                             <span>{isRtl ? 'مؤشر عوائد وأرباح القوالب' : 'ViralBook Monetization Radar'}</span>
                           </span>
-                          <span className="px-2 py-0.5 rounded-shape-xs bg-emerald-500/10 text-emerald-500 text-[10px] font-bold">
+                          <span className="text-[11px] font-mono font-bold text-emerald-500">
                             {isRtl ? 'مكافأة $50 نشطة' : '$50 Creator Bonus Active'}
                           </span>
                         </div>
@@ -2326,17 +2326,17 @@ export const ProjectOverviewPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Bottom Interactive CTA Action Link */}
+                {/* Bottom Interactive CTA Action Link - Sovereign 32px Standard */}
                 <div className="pt-3 border-t border-[var(--border-main)] flex items-center justify-between">
                   <button
                     type="button"
                     onClick={() => handleNavigateToSection((feature as any).route || '/app')}
-                    className="inline-flex items-center gap-2 text-xs font-bold font-sans text-[var(--fg-accent)] hover:underline cursor-pointer"
+                    className="h-8 px-3 rounded-shape-sm btn-long-standard text-xs font-bold font-sans text-[var(--fg-accent)] hover:bg-[var(--surface-subtle)] transition-all cursor-pointer inline-flex items-center gap-2 relative touch-target-44-expanded"
                   >
-                    <span>{isRtl ? 'فتح الاستوديو مباشرة' : 'Open Studio Directly'}</span>
+                    <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'فتح الاستوديو مباشرة' : 'Open Studio Directly'}</span>
                     <ArrowRight size={14} className={isRtl ? 'rotate-180' : ''} />
                   </button>
-                  <span className="text-[10px] font-sans font-bold text-[var(--text-muted)]">
+                  <span className="text-[10px] font-sans font-black tracking-wider uppercase text-[var(--text-muted)]">
                     {isRtl ? 'جاهز للتشغيل الفوري' : 'PRODUCTION READY'}
                   </span>
                 </div>
@@ -2378,14 +2378,14 @@ export const ProjectOverviewPage: React.FC = () => {
                     key={tab.id}
                     type="button"
                     onClick={() => setSelectedModularStudioTab(tab.id as any)}
-                    className={`relative h-9 px-3.5 rounded-shape-sm text-xs font-bold leading-none inline-flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap shrink-0 before:absolute before:-inset-1 before:content-[''] ${
+                    className={`relative h-8 px-3 rounded-shape-sm text-xs font-bold leading-[23px] inline-flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap shrink-0 before:absolute before:-inset-1 before:content-[''] ${
                       selectedModularStudioTab === tab.id
                         ? 'bg-[var(--surface-card)] text-[var(--fg-accent)] shadow-2xs border border-[var(--border-main)]'
                         : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] border border-transparent'
                     }`}
                   >
                     <span className="shrink-0 flex items-center">{tab.icon}</span>
-                    <span>{isRtl ? tab.labelAr : tab.labelEn}</span>
+                    <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? tab.labelAr : tab.labelEn}</span>
                   </button>
                 ))}
               </div>
@@ -2604,9 +2604,9 @@ export const ProjectOverviewPage: React.FC = () => {
                 else if (selectedModularStudioTab === 'viral') handleNavigateToSection('/viralbook');
                 else handleNavigateToSection('/app');
               }}
-              className="relative h-10 px-6 rounded-shape-sm bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs leading-none inline-flex items-center justify-center gap-2 shadow-sm hover:opacity-90 active:scale-95 transition-all cursor-pointer before:absolute before:-inset-1 before:content-['']"
+              className="relative h-8 px-4 rounded-shape-sm btn-long-standard bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs leading-[23px] inline-flex items-center justify-center gap-2 shadow-sm hover:opacity-90 active:scale-95 transition-all cursor-pointer before:absolute before:-inset-1 before:content-['']"
             >
-              <span>
+              <span className="h-[23px] leading-[23px] inline-flex items-center">
                 {selectedModularStudioTab === 'apps' && (isRtl ? 'فتح استوديو تطوير البرمجيات (IDE)' : 'Launch Software IDE Studio')}
                 {selectedModularStudioTab === 'motion' && (isRtl ? 'فتح استوديو التصميم والموشن (رينكس)' : 'Launch Rinex Design & Motion Studio')}
                 {selectedModularStudioTab === 'video' && (isRtl ? 'فتح استوديو الإنتاج المرئي والريلز' : 'Launch Video & Reels Studio')}
@@ -2730,26 +2730,26 @@ export const ProjectOverviewPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveTab('user')}
-                  className={`relative flex-1 sm:flex-initial h-9 px-4 rounded-shape-sm text-xs font-bold leading-none transition-all inline-flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap before:absolute before:-inset-1 before:content-[''] ${
+                  className={`relative flex-1 sm:flex-initial h-8 px-3.5 rounded-shape-sm text-xs font-bold leading-[23px] transition-all inline-flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap before:absolute before:-inset-1 before:content-[''] ${
                     activeTab === 'user'
                       ? 'bg-[var(--surface-card)] text-[var(--text-primary)] shadow-2xs border border-[var(--border-main)]'
                       : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-transparent'
                   }`}
                 >
                   <Sparkles size={14} className={activeTab === 'user' ? 'text-[var(--fg-accent)] shrink-0' : 'shrink-0'} />
-                  <span>{isRtl ? 'خطط الاستخدام العام' : 'Standard Plans'}</span>
+                  <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'خطط الاستخدام العام' : 'Standard Plans'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab('developer')}
-                  className={`relative flex-1 sm:flex-initial h-9 px-4 rounded-shape-sm text-xs font-bold leading-none transition-all inline-flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap before:absolute before:-inset-1 before:content-[''] ${
+                  className={`relative flex-1 sm:flex-initial h-8 px-3.5 rounded-shape-sm text-xs font-bold leading-[23px] transition-all inline-flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap before:absolute before:-inset-1 before:content-[''] ${
                     activeTab === 'developer'
                       ? 'bg-[var(--surface-card)] text-[var(--text-primary)] shadow-2xs border border-[var(--border-main)]'
                       : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-transparent'
                   }`}
                 >
                   <Code2 size={14} className={activeTab === 'developer' ? 'text-[var(--fg-accent)] shrink-0' : 'shrink-0'} />
-                  <span>{isRtl ? 'خطط المطورين والوكلاء' : 'Developer & API Plans'}</span>
+                  <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'خطط المطورين والوكلاء' : 'Developer & API Plans'}</span>
                 </button>
               </div>
 
@@ -2761,24 +2761,24 @@ export const ProjectOverviewPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsYearly(false)}
-                  className={`relative flex-1 sm:flex-initial h-9 px-4 rounded-shape-sm text-xs font-bold leading-none transition-all inline-flex items-center justify-center cursor-pointer whitespace-nowrap before:absolute before:-inset-1 before:content-[''] ${
+                  className={`relative flex-1 sm:flex-initial h-8 px-3.5 rounded-shape-sm text-xs font-bold leading-[23px] transition-all inline-flex items-center justify-center cursor-pointer whitespace-nowrap before:absolute before:-inset-1 before:content-[''] ${
                     !isYearly
                       ? 'bg-[var(--surface-card)] text-[var(--text-primary)] shadow-2xs border border-[var(--border-main)]'
                       : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-transparent'
                   }`}
                 >
-                  {isRtl ? 'شهرياً' : 'Monthly'}
+                  <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'شهرياً' : 'Monthly'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsYearly(true)}
-                  className={`relative flex-1 sm:flex-initial h-9 px-4 rounded-shape-sm text-xs font-bold leading-none transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap before:absolute before:-inset-1 before:content-[''] ${
+                  className={`relative flex-1 sm:flex-initial h-8 px-3.5 rounded-shape-sm text-xs font-bold leading-[23px] transition-all inline-flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap before:absolute before:-inset-1 before:content-[''] ${
                     isYearly
                       ? 'bg-[var(--surface-card)] text-[var(--text-primary)] shadow-2xs border border-[var(--border-main)]'
                       : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-transparent'
                   }`}
                 >
-                  <span>{isRtl ? 'سنوياً' : 'Annually'}</span>
+                  <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'سنوياً' : 'Annually'}</span>
                   <span className="px-1.5 py-0.5 rounded-shape-xs bg-emerald-500/15 text-emerald-500 text-[10px] font-mono font-bold leading-none">
                     -20%
                   </span>
@@ -2859,7 +2859,7 @@ export const ProjectOverviewPage: React.FC = () => {
                       {/* Overlapping Top-Right Badge - Elevated Foreground Layer */}
                       <div className={`absolute top-0 ${isRtl ? 'left-6' : 'right-6'} -translate-y-1/2 z-30 pointer-events-none drop-shadow-md`}>
                         <span
-                          className="inline-flex items-center justify-center px-3.5 py-1 text-[11px] sm:text-xs font-black uppercase tracking-wider text-white rounded-shape-xs shadow-lg border border-white/30 whitespace-nowrap"
+                          className="inline-flex items-center justify-center h-6 px-3 text-[10.5px] font-black uppercase tracking-wider text-white rounded-shape-xs shadow-md border border-white/30 whitespace-nowrap"
                           style={{ backgroundColor: cardBadgeColor }}
                         >
                           {cardBadgeText}
@@ -2881,28 +2881,28 @@ export const ProjectOverviewPage: React.FC = () => {
                       </div>
 
                       {/* In-Card Segmented Billing Cycle Toggle (MONTHLY / ANNUAL) */}
-                      <div className="p-1 rounded-shape-sm flex items-center bg-[var(--surface-subtle)] border border-[var(--border-main)] mb-4">
+                      <div className="h-8 p-0.5 rounded-shape-sm flex items-center bg-[var(--surface-subtle)] border border-[var(--border-main)] mb-4">
                         <button
                           type="button"
                           onClick={() => setSelectedPlanCycles((prev) => ({ ...prev, [plan.id]: 'monthly' }))}
-                          className={`flex-1 py-1.5 px-3 rounded-shape-xs text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                          className={`flex-1 h-7 px-3 rounded-shape-xs text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center ${
                             effectiveCycle === 'monthly'
                               ? 'bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-main)] shadow-xs'
                               : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                           }`}
                         >
-                          {isRtl ? 'شهرياً' : 'MONTHLY'}
+                          <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'شهرياً' : 'MONTHLY'}</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => setSelectedPlanCycles((prev) => ({ ...prev, [plan.id]: 'annual' }))}
-                          className={`flex-1 py-1.5 px-3 rounded-shape-xs text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                          className={`flex-1 h-7 px-3 rounded-shape-xs text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center ${
                             effectiveCycle === 'annual'
                               ? 'bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-main)] shadow-xs'
                               : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                           }`}
                         >
-                          {isRtl ? 'سنوياً' : 'ANNUAL'}
+                          <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'سنوياً' : 'ANNUAL'}</span>
                         </button>
                       </div>
 
@@ -2926,9 +2926,9 @@ export const ProjectOverviewPage: React.FC = () => {
                       </div>
 
                       {/* Credits Allowance Box (exact match to image.png) */}
-                      <div className="mb-4 p-2.5 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-main)] flex items-center justify-between shadow-2xs">
+                      <div className="mb-4 h-8 px-3 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-main)] flex items-center justify-between shadow-2xs">
                         <div className="flex items-center gap-2 text-xs font-black text-[var(--text-primary)]">
-                          <Sparkles size={15} style={{ color: cardAccentColor }} className="shrink-0" />
+                          <Sparkles size={14} style={{ color: cardAccentColor }} className="shrink-0" />
                           <span className="font-mono">
                             {Number(
                               effectiveCycle === 'daily'
@@ -2960,21 +2960,21 @@ export const ProjectOverviewPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Action Buttons matching image.png */}
+                      {/* Action Buttons matching sovereign 32px standard */}
                       <div className="mb-5">
                         {planPrice === 0 ? (
                           <button
                             type="button"
                             onClick={() => handlePlanAction(plan.id, 'free')}
-                            className="w-full min-h-[44px] py-3 rounded-shape-xs bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] text-[var(--text-primary)] border border-[var(--border-main)] font-bold text-xs uppercase tracking-wider transition-all duration-150 shadow-xs cursor-pointer flex items-center justify-center gap-2 active:scale-98"
+                            className="w-full h-8 px-4 rounded-shape-xs btn-long-standard bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] text-[var(--text-primary)] border border-[var(--border-main)] font-bold text-xs uppercase tracking-wider transition-all duration-150 shadow-xs cursor-pointer flex items-center justify-center gap-2 active:scale-98 relative touch-target-44-expanded"
                           >
                             {isPlanActive ? (
-                              <div className="flex items-center gap-1.5">
-                                <CheckCircle2 size={16} />
+                              <div className="flex items-center gap-1.5 h-[23px] leading-[23px]">
+                                <CheckCircle2 size={14} />
                                 <span>{isRtl ? 'الخطة الحالية النشطة' : 'Current Active Plan'}</span>
                               </div>
                             ) : (
-                              <span>{isRtl ? 'تفعيل الخطة المجانية' : 'Activate Free Plan'}</span>
+                              <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'تفعيل الخطة المجانية' : 'Activate Free Plan'}</span>
                             )}
                           </button>
                         ) : (
@@ -2982,25 +2982,25 @@ export const ProjectOverviewPage: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => handlePlanAction(plan.id, 'subscribe')}
-                              className="w-full min-h-[44px] py-3 rounded-shape-xs text-white font-black text-xs uppercase tracking-wider transition-all duration-150 shadow-md cursor-pointer flex items-center justify-center gap-1.5 hover:opacity-95 active:scale-98"
+                              className="w-full h-8 px-3 rounded-shape-xs btn-long-standard text-white font-black text-xs uppercase tracking-wider transition-all duration-150 shadow-md cursor-pointer flex items-center justify-center gap-1.5 hover:opacity-95 active:scale-98 relative touch-target-44-expanded"
                               style={{ backgroundColor: cardAccentColor }}
                             >
                               {isPlanActive ? (
-                                <div className="flex items-center gap-1">
-                                  <CheckCircle2 size={14} />
+                                <div className="flex items-center gap-1 h-[23px] leading-[23px]">
+                                  <CheckCircle2 size={13} />
                                   <span>{isRtl ? 'نشط' : 'Active'}</span>
                                 </div>
                               ) : (
-                                <span>{isRtl ? 'اشتراك' : 'Subscribe'}</span>
+                                <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'اشتراك' : 'Subscribe'}</span>
                               )}
                             </button>
                             <button
                               type="button"
                               onClick={() => handlePlanAction(plan.id, 'balance')}
-                              className="w-full min-h-[44px] py-3 rounded-shape-xs font-black text-xs uppercase tracking-wider transition-all duration-150 border bg-transparent hover:bg-[var(--surface-subtle)] cursor-pointer flex items-center justify-center gap-1.5 active:scale-98"
+                              className="w-full h-8 px-3 rounded-shape-xs btn-long-standard font-black text-xs uppercase tracking-wider transition-all duration-150 border bg-transparent hover:bg-[var(--surface-subtle)] cursor-pointer flex items-center justify-center gap-1.5 active:scale-98 relative touch-target-44-expanded"
                               style={{ borderColor: cardAccentColor, color: cardAccentColor }}
                             >
-                              <span>{isRtl ? 'دفع بالرصيد' : 'Pay with Balance'}</span>
+                              <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'دفع بالرصيد' : 'Pay with Balance'}</span>
                             </button>
                           </div>
                         )}
@@ -3144,7 +3144,7 @@ export const ProjectOverviewPage: React.FC = () => {
                       <img
                         src={review.avatar}
                         alt={review.name}
-                        className="w-10 h-10 aspect-square shrink-0 rounded-shape-xs object-cover border border-[var(--border-default)] shadow-2xs group-hover:scale-105 transition-transform"
+                        className="w-8 h-8 aspect-square shrink-0 rounded-shape-sm object-cover border border-[var(--border-default)] shadow-2xs group-hover:scale-105 transition-transform"
                       />
                       <div className="min-w-0 text-start">
                         <div className="flex items-center gap-1.5 text-start">
@@ -3192,7 +3192,7 @@ export const ProjectOverviewPage: React.FC = () => {
                       <img
                         src={review.avatar}
                         alt={review.name}
-                        className="w-10 h-10 aspect-square shrink-0 rounded-shape-xs object-cover border border-[var(--border-default)] shadow-2xs group-hover:scale-105 transition-transform"
+                        className="w-8 h-8 aspect-square shrink-0 rounded-shape-sm object-cover border border-[var(--border-default)] shadow-2xs group-hover:scale-105 transition-transform"
                       />
                       <div className="min-w-0 text-start">
                         <div className="flex items-center gap-1.5 text-start">
@@ -3234,29 +3234,29 @@ export const ProjectOverviewPage: React.FC = () => {
         <section id="refund-policy" className="py-16 sm:py-24 max-w-6xl mx-auto px-4">
           <div className="p-8 sm:p-12 rounded-shape-lg bg-[var(--surface-card)] border border-[var(--border-main)] shadow-sm space-y-8">
             <div className="flex flex-col md:flex-row items-center gap-6 justify-between border-b border-[var(--border-main)] pb-6">
-              <div className="flex items-center gap-4 text-start">
-                <div className="w-14 h-14 rounded-shape-md bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/30 shrink-0">
-                  <ShieldCheck size={28} />
+              <div className="flex items-center gap-3.5 text-start">
+                <div className="w-8 h-8 rounded-shape-sm bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/30 shrink-0 shadow-2xs">
+                  <ShieldCheck size={16} />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-[var(--fg-success)] uppercase tracking-wider mb-1">
+                  <div className="text-[11px] font-black text-[var(--fg-success)] uppercase tracking-wider mb-0.5">
                     {isRtl ? 'اتفاقية الضمان المالي المعتمدة' : 'Official Financial Guarantee Agreement'}
                   </div>
-                  <h2 className="text-2xl sm:text-3xl font-black text-[var(--text-primary)] tracking-tight">
+                  <h2 className="text-xl sm:text-2xl font-black text-[var(--text-primary)] tracking-tight">
                     {isRtl ? 'سياسة الاسترداد والضمان النقدي (14 يوماً)' : '14-Day Money-Back Guarantee & Refund Policy'}
                   </h2>
                 </div>
               </div>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-main)] text-xs font-mono font-bold text-[var(--text-secondary)]">
+              <div className="inline-flex items-center gap-1.5 h-8 px-3 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-main)] text-xs font-mono font-bold text-[var(--text-secondary)] shadow-2xs">
                 <Lock size={13} className="text-emerald-500" />
-                <span>{isRtl ? 'مسجل في دفتر الأستاذ المشفر' : 'Logged in Append-Only Ledger'}</span>
+                <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'مسجل في دفتر الأستاذ المشفر' : 'Logged in Append-Only Ledger'}</span>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs sm:text-sm text-[var(--text-secondary)] leading-relaxed font-medium text-start">
               <div className="p-5 rounded-shape-md bg-[var(--surface-subtle)] border border-[var(--border-main)] space-y-2 text-start">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-shape-xs bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-bold text-emerald-500">
-                  <CheckCircle2 size={13} />
+                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-500 font-sans">
+                  <CheckCircle2 size={13} className="shrink-0" />
                   <span>{isRtl ? 'ضمان 100%' : '100% Guarantee'}</span>
                 </div>
                 <h3 className="text-sm sm:text-base font-black text-[var(--text-primary)]">
@@ -3270,8 +3270,8 @@ export const ProjectOverviewPage: React.FC = () => {
               </div>
 
               <div className="p-5 rounded-shape-md bg-[var(--surface-subtle)] border border-[var(--border-main)] space-y-2 text-start">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-shape-xs bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-bold text-emerald-500">
-                  <CheckCircle2 size={13} />
+                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-500 font-sans">
+                  <CheckCircle2 size={13} className="shrink-0" />
                   <span>{isRtl ? 'معالجة آلية' : 'Automated Refund'}</span>
                 </div>
                 <h3 className="text-sm sm:text-base font-black text-[var(--text-primary)]">
@@ -3285,8 +3285,8 @@ export const ProjectOverviewPage: React.FC = () => {
               </div>
 
               <div className="p-5 rounded-shape-md bg-[var(--surface-subtle)] border border-[var(--border-main)] space-y-2 text-start">
-                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-shape-xs bg-emerald-500/10 border border-emerald-500/20 text-[11px] font-bold text-emerald-500">
-                  <CheckCircle2 size={13} />
+                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-500 font-sans">
+                  <CheckCircle2 size={13} className="shrink-0" />
                   <span>{isRtl ? 'توثيق مالي' : 'Ledger Verified'}</span>
                 </div>
                 <h3 className="text-sm sm:text-base font-black text-[var(--text-primary)]">
@@ -3306,9 +3306,9 @@ export const ProjectOverviewPage: React.FC = () => {
               </span>
               <a
                 href="#contact"
-                className="h-10 px-5 rounded-shape-sm bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] border border-[var(--border-main)] text-xs font-bold text-[var(--text-primary)] transition-all flex items-center gap-2 cursor-pointer"
+                className="h-8 px-3.5 rounded-shape-sm btn-long-standard bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] border border-[var(--border-main)] text-xs font-bold text-[var(--text-primary)] transition-all inline-flex items-center gap-2 cursor-pointer shadow-2xs relative touch-target-44-expanded"
               >
-                <span>{isRtl ? 'التواصل مع الدعم المالي' : 'Contact Financial Support'}</span>
+                <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'التواصل مع الدعم المالي' : 'Contact Financial Support'}</span>
                 <ArrowRight size={14} className={isRtl ? 'rotate-180' : ''} />
               </a>
             </div>
@@ -3354,7 +3354,7 @@ export const ProjectOverviewPage: React.FC = () => {
                       className="w-full min-h-[64px] sm:min-h-[68px] py-3.5 px-4 sm:px-5 flex items-center justify-between text-start gap-3.5 cursor-pointer text-[var(--text-primary)]"
                     >
                       <span className="flex items-center gap-3 flex-1 min-w-0">
-                        <span className="w-7 h-7 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-main)] flex items-center justify-center text-[var(--fg-accent)] shrink-0 text-xs font-black select-none">
+                        <span className="w-[30px] h-[30px] rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-main)] flex items-center justify-center text-[var(--fg-accent)] shrink-0 text-xs font-black select-none shadow-2xs">
                           {String(questionIndex + 1).padStart(2, '0')}
                         </span>
                         <span className="text-[13.5px] sm:text-sm font-bold text-[var(--text-primary)] leading-snug">
@@ -3405,7 +3405,7 @@ export const ProjectOverviewPage: React.FC = () => {
                       className="w-full min-h-[64px] sm:min-h-[68px] py-3.5 px-4 sm:px-5 flex items-center justify-between text-start gap-3.5 cursor-pointer text-[var(--text-primary)]"
                     >
                       <span className="flex items-center gap-3 flex-1 min-w-0">
-                        <span className="w-7 h-7 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-main)] flex items-center justify-center text-[var(--fg-accent)] shrink-0 text-xs font-black select-none">
+                        <span className="w-[30px] h-[30px] rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-main)] flex items-center justify-center text-[var(--fg-accent)] shrink-0 text-xs font-black select-none shadow-2xs">
                           {String(questionIndex + 1).padStart(2, '0')}
                         </span>
                         <span className="text-[13.5px] sm:text-sm font-bold text-[var(--text-primary)] leading-snug">
@@ -3500,9 +3500,9 @@ export const ProjectOverviewPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setContactSubmitted(false)}
-                    className="h-10 px-6 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-main)] text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--surface-inset)] cursor-pointer"
+                    className="h-8 px-4 rounded-shape-sm btn-long-standard bg-[var(--surface-subtle)] border border-[var(--border-main)] text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--surface-inset)] cursor-pointer inline-flex items-center justify-center"
                   >
-                    {isRtl ? 'إرسال رسالة أخرى' : 'Send Another Message'}
+                    <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'إرسال رسالة أخرى' : 'Send Another Message'}</span>
                   </button>
                 </div>
               ) : (
@@ -3617,10 +3617,10 @@ export const ProjectOverviewPage: React.FC = () => {
                     <button
                       type="submit"
                       disabled={isSubmittingContact}
-                      className="relative w-full sm:w-auto h-10 px-6 rounded-shape-sm bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs leading-none shadow-sm hover:opacity-90 transition-all active:scale-95 cursor-pointer inline-flex items-center justify-center gap-2 before:absolute before:-inset-1 before:content-['']"
+                      className="relative w-full sm:w-auto h-8 px-4 rounded-shape-sm btn-long-standard bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs leading-[23px] shadow-sm hover:opacity-90 transition-all active:scale-95 cursor-pointer inline-flex items-center justify-center gap-2 before:absolute before:-inset-1 before:content-['']"
                     >
-                      {isSubmittingContact ? <Loader2 size={15} className="animate-spin shrink-0" /> : <Send size={15} className="shrink-0" />}
-                      <span>{isRtl ? 'إرسال الرسالة' : 'Send Message'}</span>
+                      {isSubmittingContact ? <Loader2 size={14} className="animate-spin shrink-0" /> : <Send size={14} className="shrink-0" />}
+                      <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'إرسال الرسالة' : 'Send Message'}</span>
                     </button>
                   </div>
                 </form>
@@ -3681,14 +3681,14 @@ export const ProjectOverviewPage: React.FC = () => {
                       value={newsletterEmail}
                       onChange={(e) => setNewsletterEmail(e.target.value)}
                       placeholder={isRtl ? 'ادخل بريدك الإلكتروني...' : 'Enter your email...'}
-                      className="w-full sm:w-80 h-10 px-4 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-main)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
+                      className="w-full sm:w-80 h-8 px-3 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-main)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)]"
                     />
                     <button
                       type="submit"
-                      className="w-full sm:w-auto h-10 px-6 rounded-shape-sm bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs shadow-2xs hover:opacity-90 transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full sm:w-auto h-8 px-4 rounded-shape-sm btn-long-standard bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs shadow-2xs hover:opacity-90 transition-all active:scale-95 cursor-pointer inline-flex items-center justify-center gap-2 relative touch-target-44-expanded"
                     >
-                      <Send size={14} />
-                      <span>{isRtl ? 'اشتراك' : 'Subscribe'}</span>
+                      <Send size={13} className="shrink-0" />
+                      <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'اشتراك' : 'Subscribe'}</span>
                     </button>
                   </form>
                 )}
@@ -3722,10 +3722,10 @@ export const ProjectOverviewPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleStartNow}
-                    className="relative h-10 px-6 rounded-shape-sm bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs leading-none shadow-2xs hover:opacity-90 transition-all active:scale-95 cursor-pointer inline-flex items-center justify-center gap-2 before:absolute before:-inset-1 before:content-['']"
+                    className="relative h-8 px-5 rounded-shape-sm btn-long-standard bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs leading-[23px] shadow-2xs hover:opacity-90 transition-all active:scale-95 cursor-pointer inline-flex items-center justify-center gap-2 touch-target-44-expanded"
                   >
-                    <UserPlus size={15} className="shrink-0" />
-                    <span>{isRtl ? 'إنشاء حساب مجاني الآن' : 'Create Free Account'}</span>
+                    <UserPlus size={14} className="shrink-0" />
+                    <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'إنشاء حساب مجاني الآن' : 'Create Free Account'}</span>
                   </button>
                 </div>
               </div>
@@ -4012,9 +4012,9 @@ export const ProjectOverviewPage: React.FC = () => {
                             setIsLiveAssistantOpen(false);
                             setIsAuthModalOpen(true);
                           }}
-                          className="px-4 py-2.5 min-h-[44px] rounded-shape-md bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs hover:opacity-90 cursor-pointer shadow-md flex items-center justify-center transition-all active:scale-95 w-full sm:w-auto"
+                          className="h-8 px-4 rounded-shape-sm btn-long-standard bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs hover:opacity-90 cursor-pointer shadow-md flex items-center justify-center transition-all active:scale-95 w-full sm:w-auto relative touch-target-44-expanded"
                         >
-                          {isRtl ? 'تسجيل الدخول / حساب جديد' : 'Sign In / Register'}
+                          <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'تسجيل الدخول / حساب جديد' : 'Sign In / Register'}</span>
                         </button>
                         <a
                           href="#contact"
@@ -4024,9 +4024,9 @@ export const ProjectOverviewPage: React.FC = () => {
                             const el = document.getElementById('contact');
                             if (el) el.scrollIntoView({ behavior: 'smooth' });
                           }}
-                          className="px-4 py-2.5 min-h-[44px] rounded-shape-md bg-[var(--surface-card)] border border-[var(--border-main)] font-bold text-xs hover:bg-[var(--surface-inset)] cursor-pointer text-[var(--text-primary)] flex items-center justify-center transition-all active:scale-95 shadow-sm w-full sm:w-auto"
+                          className="h-8 px-4 rounded-shape-sm btn-long-standard bg-[var(--surface-card)] border border-[var(--border-main)] font-bold text-xs hover:bg-[var(--surface-inset)] cursor-pointer text-[var(--text-primary)] flex items-center justify-center transition-all active:scale-95 shadow-sm w-full sm:w-auto relative touch-target-44-expanded"
                         >
-                          {isRtl ? 'فتح تذكرة اتصل بنا' : 'Contact Support'}
+                          <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'فتح تذكرة اتصل بنا' : 'Contact Support'}</span>
                         </a>
                       </div>
                     </div>
@@ -4112,15 +4112,15 @@ export const ProjectOverviewPage: React.FC = () => {
                         ? (isRtl ? 'استنفدت الحد المسموح به للزوار...' : 'Visitor limit reached...')
                         : (isRtl ? 'اكتب سؤالك هنا عن خدمات المنصة...' : 'Ask about platform capabilities...')
                     }
-                    className="flex-1 px-3.5 py-2.5 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-main)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--border-accent)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    className="flex-1 h-8 px-3 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-main)] text-xs text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:outline-none focus:border-[var(--border-accent)] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                   />
                   <button
                     type="submit"
                     aria-label={isRtl ? 'إرسال الرسالة' : 'Send message'}
                     disabled={visitorMessageCount >= 5 || isAssistantSending || !assistantInput.trim()}
-                    className="w-10 h-10 rounded-shape-sm bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs flex items-center justify-center hover:opacity-90 transition-all cursor-pointer shadow-md active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="w-8 h-8 rounded-shape-sm btn-square-primary bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs flex items-center justify-center hover:opacity-90 transition-all cursor-pointer shadow-md active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed shrink-0 relative touch-target-44-expanded"
                   >
-                    {isAssistantSending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} className={isRtl ? 'rotate-180' : ''} />}
+                    {isAssistantSending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} className={isRtl ? 'rotate-180' : ''} />}
                   </button>
                 </motion.form>
               </motion.div>

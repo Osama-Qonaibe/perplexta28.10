@@ -708,6 +708,8 @@ interface CacheStats {
 const seoRouteStats = new Map<string, CacheStats>();
 
 function trackSeoCache(route: string, type: string, isHit: boolean) {
+  if (process.env.DEBUG_CACHE !== 'true') return;
+
   let stats = seoRouteStats.get(route);
   if (!stats) {
     stats = { hits: 0, misses: 0 };

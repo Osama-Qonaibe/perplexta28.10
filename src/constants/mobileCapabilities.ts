@@ -43,6 +43,11 @@ export const DESKTOP_ONLY_ROUTES = [
   '/settings/developers',
   '/developer-portal',
   '/developer',
+  '/image-studio',
+  '/app-studio',
+  '/audio-studio',
+  '/video-studio',
+  '/canvas',
 ];
 
 export const isDesktopOnlyRoute = (pathname: string): boolean => {

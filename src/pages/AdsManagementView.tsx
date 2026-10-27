@@ -1073,136 +1073,116 @@ export const AdsManagementView: React.FC<{
   }, []);
 
   return (
-    <div className="w-full max-w-full space-y-6 ads-management-container transition-theme [will-change:background-color,border-color,color] px-1 md:px-2">
-      {/* Top Sovereign Orchestrator Diagnostic Header */}
-      <div className="p-6 rounded-[var(--radius-lg)] border bg-[var(--surface-card)] border-[var(--border-default)] shadow-xs transition-theme flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-[var(--radius-sm)] bg-[var(--surface-subtle)] border border-[var(--border-default)] flex items-center justify-center text-[var(--fg-accent)] shadow-xs">
-            <Megaphone size={22} />
+    <div className="w-full max-w-full space-y-6 ads-management-container transition-theme px-1 md:px-4">
+      {/* Meta-Grade Control Center Header */}
+      <header className="p-6 rounded-shape-lg border bg-[var(--surface-card)] border-[var(--border-main)] shadow-xs transition-theme flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-shape-md bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shadow-2xs shrink-0">
+            <Megaphone size={26} />
           </div>
           <div>
-            <h1 className="text-xl font-black tracking-tight flex items-center gap-3 text-[var(--text-primary)]">
-              <span>{isRtl ? 'إدارة الإعلانات والتبويبات التجاريّة' : 'Ads & Commercial Bulletin Control Center'}</span>
-              <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-[var(--radius-xs)] bg-[var(--bg-accent-emphasis)]/10 text-[var(--fg-accent)] border border-[var(--border-accent)]/30 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-[var(--radius-full)] bg-[var(--fg-accent)] animate-pulse" />
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight flex items-center gap-3 text-[var(--text-primary)]">
+              <span>{isRtl ? 'مركز التحكم والعمليات الإعلانية' : 'Ads & Campaigns Control Center'}</span>
+              <span className="text-[10px] font-mono font-black px-2 py-0.5 rounded-shape-xs bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 {totalActive} {isRtl ? 'نشط' : 'Active'}
               </span>
             </h1>
-            <p className="text-xs text-[var(--text-muted)] mt-0.5">
+            <p className="text-xs sm:text-sm text-[var(--text-muted)] mt-1 font-medium">
               {isRtl
-                ? 'إدارة إعلانات المنصة، التبويبات التجارية، مراجعة الاعتمادات، وتحليلات الأداء لحظياً'
-                : 'Real-time administration for platform ads, bulletin posts, 2FA approvals, and performance analytics'}
+                ? 'إدارة متكاملة للحملات الإعلانية، مراجعة الاعتمادات التقنية، وتحليلات الأداء اللحظية.'
+                : 'Advanced management for ad campaigns, technical approvals, and real-time performance analytics.'}
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          {/* Quick Metrics Bar */}
-          <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-md)] bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[11px] font-mono text-[var(--text-secondary)]">
-            <span>{isRtl ? 'المشاهدات:' : 'Impressions:'} <strong className="text-[var(--text-primary)]">{totalImpressions.toLocaleString()}</strong></span>
-            <span className="text-[var(--border-default)]">|</span>
-            <span>{isRtl ? 'النقرات:' : 'Clicks:'} <strong className="text-[var(--text-primary)]">{totalClicks.toLocaleString()}</strong></span>
-            <span className="text-[var(--border-default)]">|</span>
-            <span>CTR: <strong className="text-[var(--fg-accent)]">{avgCtr}%</strong></span>
+          {/* Real-time Statistics Badge */}
+          <div className="hidden lg:flex items-center gap-3 px-4 py-2 rounded-shape-md bg-[var(--surface-subtle)] border border-[var(--border-main)] text-xs font-bold text-[var(--text-secondary)]">
+            <div className="flex flex-col">
+              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">{isRtl ? 'المشاهدات' : 'Impressions'}</span>
+              <span className="text-[var(--text-primary)] font-mono">{totalImpressions.toLocaleString()}</span>
+            </div>
+            <div className="h-6 w-px bg-[var(--border-main)]" />
+            <div className="flex flex-col">
+              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">{isRtl ? 'النقرات' : 'Clicks'}</span>
+              <span className="text-[var(--text-primary)] font-mono">{totalClicks.toLocaleString()}</span>
+            </div>
+            <div className="h-6 w-px bg-[var(--border-main)]" />
+            <div className="flex flex-col">
+              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider">CTR</span>
+              <span className="text-accent font-mono">{avgCtr}%</span>
+            </div>
           </div>
 
           <button
             onClick={handleOpenCreateModal}
-            className="flex items-center justify-center gap-2 px-5 py-2.5 min-h-[44px] touch-target-44 rounded-[var(--radius-sm)] bg-[var(--bg-accent-emphasis)] hover:opacity-90 text-[var(--fg-on-emphasis)] font-bold text-xs shadow-xs transition-all active:scale-95 cursor-pointer shrink-0"
+            className="flex items-center justify-center gap-2 px-6 py-3 min-h-[44px] rounded-shape-md bg-accent text-white font-black text-xs shadow-md shadow-accent/20 hover:opacity-90 transition-all active:scale-95 cursor-pointer shrink-0"
           >
-            <Plus size={16} />
-            <span>{isRtl ? 'إضافة إعلان جديد' : 'Create New Ad'}</span>
+            <Plus size={18} />
+            <span>{isRtl ? 'إنشاء إعلان تقني جديد' : 'Create Technical Ad'}</span>
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Sub-Tab Switcher */}
-      <div className="flex items-center gap-3 border-b border-[var(--border-default)] pb-3">
-        <button
-          onClick={() => setActiveTab('platform')}
-          className={`px-4 py-2 rounded-[var(--radius-sm)] text-xs font-bold transition-theme flex items-center gap-2 ${
-            activeTab === 'platform'
-              ? 'bg-accent text-white shadow-md shadow-none'
-              : 'bg-[var(--surface-subtle)] text-[var(--text-muted)] hover:text-accent'
-          }`}
-        >
-          <Megaphone size={15} />
-          <span>{isRtl ? 'إعلانات الشريط الجانبي والمنصة' : 'Platform & Sidebar Ads'}</span>
-          <span className="px-2 py-0.5 rounded-full text-[10px] bg-white/20 text-white font-extrabold">
-            {ads.length}
-          </span>
-        </button>
+      {/* Sub-Tab Switcher - Enterprise Grade */}
+      <nav className="flex items-center gap-2 border-b border-[var(--border-main)] pb-1 overflow-x-auto scrollbar-none">
+        {[
+          { id: 'platform', icon: Megaphone, labelAr: 'إعلانات المنصة', labelEn: 'Platform Ads', count: ads.length },
+          { 
+            id: 'bulletin', 
+            icon: Sparkles, 
+            labelAr: 'إعلانات المجتمع', 
+            labelEn: 'ViralBook Ads', 
+            count: bulletinAds.length,
+            pending: bulletinAds.filter(b => b.status === 'pending').length
+          },
+          { id: 'analytics', icon: BarChart2, labelAr: 'التحليلات التقنية', labelEn: 'Ad Analytics' },
+          { id: 'economy', icon: Coins, labelAr: 'إعدادات الاقتصاد', labelEn: 'Economy Core' },
+          { 
+            id: 'approval', 
+            icon: CheckCircle2, 
+            labelAr: 'الموافقات (2FA)', 
+            labelEn: 'Approval Queue',
+            pending: approvalRequests.filter(r => r.status === 'pending').length
+          },
+          { id: 'audit', icon: History, labelAr: 'سجل العمليات', labelEn: 'Audit Logs' }
+        ].map((tab) => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setActiveTab(tab.id as any);
+                if (tab.id === 'bulletin') fetchBulletinAds();
+                if (tab.id === 'analytics') fetchAdminAnalytics();
+                if (tab.id === 'economy') { fetchEconomySettings(); fetchGiftCatalog(); }
+                if (tab.id === 'approval') fetchApprovalQueue();
+                if (tab.id === 'audit') fetchAuditLogs();
+              }}
+              className={`px-4 py-2.5 rounded-t-shape-sm text-xs font-black transition-all flex items-center gap-2 border-b-2 shrink-0 cursor-pointer ${
+                isActive
+                  ? 'border-accent text-accent bg-accent/5'
+                  : 'border-transparent text-[var(--text-muted)] hover:text-accent hover:bg-[var(--surface-subtle)]'
+              }`}
+            >
+              <Icon size={16} />
+              <span>{isRtl ? tab.labelAr : tab.labelEn}</span>
+              {tab.count !== undefined && (
+                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${isActive ? 'bg-accent text-white' : 'bg-[var(--border-main)] text-[var(--text-secondary)]'}`}>
+                  {tab.count}
+                </span>
+              )}
+              {tab.pending ? (
+                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              ) : null}
+            </button>
+          );
+        })}
+      </nav>
 
-        <button
-          onClick={() => {
-            setActiveTab('bulletin');
-            fetchBulletinAds();
-          }}
-          className={`px-4 py-2 rounded-[var(--radius-sm)] text-xs font-bold transition-theme flex items-center gap-2 ${
-            activeTab === 'bulletin'
-              ? 'bg-accent text-white shadow-md shadow-none'
-              : 'bg-[var(--surface-subtle)] text-[var(--text-muted)] hover:text-accent'
-          }`}
-        >
-          <Sparkles size={15} />
-          <span>{isRtl ? 'إعلانات فيرال بوك والمجتمع' : 'ViralBook Community Ads'}</span>
-          {bulletinAds.filter(b => b.status === 'pending').length > 0 && (
-            <span className="px-2 py-0.5 rounded-full text-[10px] bg-[var(--fg-warning)] text-white font-extrabold animate-pulse">
-              {bulletinAds.filter(b => b.status === 'pending').length} {isRtl ? 'معلّق' : 'Pending'}
-            </span>
-          )}
-        </button>
-
-        <button
-          onClick={() => {
-            setActiveTab('analytics');
-            fetchAdminAnalytics();
-          }}
-          className={`px-4 py-2 rounded-[var(--radius-sm)] text-xs font-bold transition-theme flex items-center gap-2 ${
-            activeTab === 'analytics'
-              ? 'bg-accent text-white shadow-md shadow-none'
-              : 'bg-[var(--surface-subtle)] text-[var(--text-muted)] hover:text-accent'
-          }`}
-        >
-          <BarChart2 size={15} />
-          <span>{isRtl ? 'تحليلات الإعلانات والإيرادات الشاملة' : 'Ad Analytics & Advertiser Revenue'}</span>
-        </button>
-
-        <button
-          onClick={() => {
-            setActiveTab('economy');
-            fetchEconomySettings();
-            fetchGiftCatalog();
-          }}
-          className={`px-4 py-2 rounded-[var(--radius-sm)] text-xs font-bold transition-theme flex items-center gap-2 ${
-            activeTab === 'economy'
-              ? 'bg-accent text-white shadow-md shadow-none'
-              : 'bg-[var(--surface-subtle)] text-[var(--text-muted)] hover:text-accent'
-          }`}
-        >
-          <Coins size={15} />
-          <span>{isRtl ? 'إعدادات الأسعار والهدايا' : 'Economy & Pricing Settings'}</span>
-        </button>
-
-        <button
-          onClick={() => {
-            setActiveTab('approval');
-            fetchApprovalQueue();
-          }}
-          className={`px-4 py-2 rounded-[var(--radius-sm)] text-xs font-bold transition-theme flex items-center gap-2 ${
-            activeTab === 'approval'
-              ? 'bg-[var(--fg-warning)] text-white shadow-md shadow-amber-500/20'
-              : 'bg-[var(--surface-subtle)] text-[var(--text-muted)] hover:text-[var(--fg-warning)]'
-          }`}
-        >
-          <CheckCircle2 size={15} />
-          <span>{isRtl ? 'قائمة الموافقات (2FA)' : 'Approval Queue (2FA)'}</span>
-          {approvalRequests.filter(r => r.status === 'pending').length > 0 && (
-            <span className="px-2 py-0.5 rounded-full text-[10px] bg-[var(--fg-danger)] text-white font-extrabold animate-pulse">
-              {approvalRequests.filter(r => r.status === 'pending').length}
-            </span>
-          )}
-        </button>
+      <div className="flex items-center gap-3">
 
         <button
           onClick={() => {
@@ -2490,8 +2470,8 @@ export const AdsManagementView: React.FC<{
             <div className="overflow-x-auto">
               <table className="w-full text-start text-xs border-collapse">
                 <thead>
-                  <tr className="bg-[var(--surface-page)] border-b border-[var(--border-default)] text-[var(--text-muted)] font-bold">
-                    <th className="p-3 w-10 text-center">
+                  <tr className="border-b border-[var(--border-main)] bg-[var(--surface-subtle)]/50 text-[10px] uppercase tracking-wider font-black text-[var(--text-muted)]">
+                    <th className="p-4 text-center w-12">
                       <input
                         type="checkbox"
                         checked={selectedBulletinIds.length === bulletinAds.length && bulletinAds.length > 0}
@@ -2502,20 +2482,20 @@ export const AdsManagementView: React.FC<{
                             setSelectedBulletinIds([]);
                           }
                         }}
-                        className="w-4 h-4 rounded-[var(--radius-xs)] text-[var(--fg-accent)] accent-[var(--accent)] cursor-pointer"
+                        className="w-4 h-4 rounded-shape-xs text-accent accent-accent cursor-pointer"
                       />
                     </th>
-                    <th className="p-3 text-start">{isRtl ? 'المستخدم & الإعلان' : 'User & Ad'}</th>
-                    <th className="p-3 text-center">{isRtl ? 'المدة والخصم' : 'Duration & Paid'}</th>
-                    <th className="p-3 text-center">{isRtl ? 'التفاعل' : 'Interactions'}</th>
-                    <th className="p-3 text-center">{isRtl ? 'الحالة' : 'Status'}</th>
-                    <th className="p-3 text-end">{isRtl ? 'الإجراءات' : 'Actions'}</th>
+                    <th className="p-4 text-start">{isRtl ? 'الهوية والبيانات التقنية' : 'Identity & Tech Data'}</th>
+                    <th className="p-4 text-center">{isRtl ? 'الميزانية والجدولة' : 'Budget & Schedule'}</th>
+                    <th className="p-4 text-center">{isRtl ? 'أداء الانتشار' : 'Reach Performance'}</th>
+                    <th className="p-4 text-center">{isRtl ? 'حالة الاعتماد' : 'Validation Status'}</th>
+                    <th className="p-4 text-end">{isRtl ? 'العمليات التشغيلية' : 'Operations'}</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--border-default)]">
+                <tbody className="divide-y divide-[var(--border-main)]">
                   {bulletinAds.map((ad, bIdx) => (
-                    <tr key={`bulletin-ad-row-${ad.id || bIdx}-${bIdx}`} className="hover:bg-[var(--surface-page)]/50 transition-colors">
-                      <td className="p-3 text-center">
+                    <tr key={`bulletin-ad-row-${ad.id || bIdx}-${bIdx}`} className="hover:bg-accent/5 transition-theme group">
+                      <td className="p-4 text-center">
                         <input
                           type="checkbox"
                           checked={selectedBulletinIds.includes(ad.id)}
@@ -2526,63 +2506,95 @@ export const AdsManagementView: React.FC<{
                               setSelectedBulletinIds(prev => prev.filter(id => id !== ad.id));
                             }
                           }}
-                          className="w-4 h-4 rounded-[var(--radius-xs)] text-[var(--fg-accent)] accent-[var(--accent)] cursor-pointer"
+                          className="w-4 h-4 rounded-shape-xs text-accent accent-accent cursor-pointer"
                         />
                       </td>
-                      <td className="p-3">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={getMediaUrl(ad.image_url)}
-                            alt={ad.title}
-                            className="w-14 h-14 rounded-[var(--radius-sm)] object-cover border border-[var(--border-default)] shrink-0"
-                          />
-                          <div>
-                            <div className="font-extrabold text-[var(--text-primary)] text-xs">{ad.title}</div>
-                            <div className="text-[11px] text-[var(--text-muted)] line-clamp-1">{ad.description}</div>
-                            <div className="text-[10px] text-[var(--fg-accent)] font-mono mt-1">
-                              👤 @{ad.username || 'مستخدم'} • ID: #{ad.id}
+                      <td className="p-4">
+                        <div className="flex items-center gap-4">
+                          <div className="relative shrink-0">
+                            <img
+                              src={getMediaUrl(ad.image_url)}
+                              alt={ad.title}
+                              className="w-16 h-16 rounded-shape-sm object-cover border border-[var(--border-main)] shadow-2xs group-hover:scale-105 transition-transform"
+                            />
+                            {ad.is_boosted && (
+                              <div className="absolute -top-1.5 -end-1.5 w-5 h-5 rounded-full bg-accent text-white flex items-center justify-center shadow-xs ring-2 ring-[var(--surface-card)]">
+                                <Zap size={10} fill="currentColor" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-black text-[var(--text-primary)] text-sm line-clamp-1">{ad.title}</div>
+                            <div className="text-[11px] text-[var(--text-secondary)] line-clamp-1 mt-0.5">{ad.description}</div>
+                            <div className="flex items-center gap-2 mt-2">
+                              <span className="text-[10px] font-mono font-bold text-accent px-1.5 py-0.5 rounded-shape-xs bg-accent/10 border border-accent/20">
+                                @{ad.username || 'user'}
+                              </span>
+                              <span className="text-[10px] font-mono text-[var(--text-muted)]">
+                                ID: #{ad.id}
+                              </span>
                             </div>
                           </div>
                         </div>
                       </td>
 
-                      <td className="p-3 text-center">
-                        <div className="font-extrabold text-[var(--text-primary)]">{ad.duration_days} {isRtl ? 'أيام' : 'days'}</div>
-                        <div className="text-[11px] text-[var(--fg-accent)] font-black mt-0.5">${ad.amount_paid}</div>
-                      </td>
-
-                      <td className="p-3 text-center">
-                        <div className="text-[11px] text-[var(--text-muted)]">
-                          👍 {ad.like_count || 0} • 💬 {ad.comment_count || 0} • 👁️ {ad.impression_count || 0}
+                      <td className="p-4 text-center">
+                        <div className="inline-flex flex-col items-center">
+                          <span className="font-black text-[var(--text-primary)] text-sm">{ad.duration_days || 0} {isRtl ? 'يوم' : 'days'}</span>
+                          <span className="px-2 py-0.5 rounded-shape-xs bg-[var(--status-success-subtle)] text-[var(--fg-success)] text-[10px] font-black border border-[var(--fg-success)]/20 mt-1">
+                            ${Number(ad.price_paid ?? ad.amount_paid ?? 0).toFixed(2)} USD
+                          </span>
                         </div>
                       </td>
 
-                      <td className="p-3 text-center">
-                        <span className={`px-2.5 py-1 rounded-[var(--radius-full)] text-[10px] font-black ${
+                      <td className="p-4 text-center">
+                        {(() => {
+                          const impCount = Number(ad.impressions_count ?? ad.impression_count ?? 0);
+                          const clkCount = Number(ad.clicks_count ?? ad.click_count ?? ad.comment_count ?? 0);
+                          const ctrPercent = impCount > 0 ? Math.min(100, Math.round((clkCount / impCount) * 100 * 10)) : 0;
+                          return (
+                            <div className="flex flex-col items-center gap-1.5">
+                              <div className="flex items-center gap-3 text-[10px] font-mono font-bold text-[var(--text-muted)]">
+                                <span className="flex items-center gap-1"><Users size={11} className="text-blue-500" /> {impCount.toLocaleString()}</span>
+                                <span className="flex items-center gap-1"><MousePointerClick size={11} className="text-emerald-500" /> {clkCount.toLocaleString()}</span>
+                              </div>
+                              <div className="w-20 h-1 rounded-full bg-[var(--surface-subtle)] overflow-hidden">
+                                <div className="h-full bg-accent transition-all" style={{ width: `${ctrPercent}%` }} />
+                              </div>
+                            </div>
+                          );
+                        })()}
+                      </td>
+
+                      <td className="p-4 text-center">
+                        <span className={`h-7 px-3 rounded-shape-sm text-[10px] font-black inline-flex items-center gap-1.5 border ${
                           ad.status === 'approved'
-                            ? 'bg-[var(--bg-accent-muted)] text-[var(--fg-accent)] border border-[var(--border-accent)]/30'
+                            ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 shadow-2xs'
                             : ad.status === 'pending'
-                            ? 'bg-[var(--status-warning-subtle)] text-[var(--fg-warning)] border border-[var(--fg-warning)]/20 animate-pulse'
+                            ? 'bg-amber-500/10 text-amber-600 border-amber-500/20 animate-pulse'
                             : ad.status === 'rejected'
-                            ? 'bg-[var(--status-danger-subtle)] text-[var(--fg-danger)] border border-[var(--fg-danger)]/20'
-                            : 'bg-[var(--surface-subtle)] text-[var(--text-muted)] border border-[var(--border-default)]'
+                            ? 'bg-red-500/10 text-red-600 border-red-500/20'
+                            : 'bg-[var(--surface-subtle)] text-[var(--text-muted)] border-[var(--border-main)]'
                         }`}>
-                          {ad.status === 'approved' && (isRtl ? 'مقبول / نشط' : 'Approved')}
-                          {ad.status === 'pending' && (isRtl ? 'قيد المراجعة' : 'Pending')}
+                          <span className={`w-1.5 h-1.5 rounded-full ${
+                            ad.status === 'approved' ? 'bg-emerald-500' : ad.status === 'pending' ? 'bg-amber-500' : 'bg-[var(--text-muted)]'
+                          }`} />
+                          {ad.status === 'approved' && (isRtl ? 'نشط تقنياً' : 'Technical Active')}
+                          {ad.status === 'pending' && (isRtl ? 'قيد المراجعة' : 'In Review')}
                           {ad.status === 'rejected' && (isRtl ? 'مرفوض' : 'Rejected')}
-                          {ad.status === 'expired' && (isRtl ? 'منتهي' : 'Expired')}
+                          {ad.status === 'expired' && (isRtl ? 'منتهي الصلاحية' : 'Expired')}
                         </span>
                       </td>
 
-                      <td className="p-3 text-end">
-                        <div className="flex items-center justify-end gap-1.5">
+                      <td className="p-4 text-end">
+                        <div className="flex items-center justify-end gap-2">
                           {ad.status === 'pending' && (
                             <>
                               <button
                                 onClick={() => handleApproveBulletinAd(ad.id)}
-                                className="px-2.5 py-1 rounded-[var(--radius-xs)] bg-[var(--accent)] text-white font-bold text-[10px] hover:opacity-90 transition-theme flex items-center gap-1 shadow-sm cursor-pointer"
+                                className="h-8 min-h-[32px] max-h-[32px] px-4 rounded-shape-sm bg-accent text-white font-black text-[10px] hover:opacity-90 shadow-sm transition-all active:scale-95 cursor-pointer flex items-center gap-1.5"
                               >
-                                <CheckCircle2 size={12} />
+                                <CheckCircle2 size={13} />
                                 <span>{isRtl ? 'اعتماد' : 'Approve'}</span>
                               </button>
 
@@ -2591,9 +2603,9 @@ export const AdsManagementView: React.FC<{
                                   setRejectingAdId(ad.id);
                                   setRejectionReason('');
                                 }}
-                                className="px-2.5 py-1 rounded-[var(--radius-xs)] bg-[var(--status-danger-subtle)] text-[var(--status-danger)] font-bold text-[10px] hover:bg-[var(--status-danger)] hover:text-white transition-theme flex items-center gap-1 cursor-pointer"
+                                className="h-8 min-h-[32px] max-h-[32px] px-3 rounded-shape-sm bg-red-500/10 text-red-600 font-bold text-[10px] hover:bg-red-500 hover:text-white transition-all cursor-pointer flex items-center gap-1.5 border border-red-500/20"
                               >
-                                <XCircle size={12} />
+                                <XCircle size={13} />
                                 <span>{isRtl ? 'رفض' : 'Reject'}</span>
                               </button>
                             </>
@@ -2605,17 +2617,17 @@ export const AdsManagementView: React.FC<{
                                 setStoppingAdId(ad.id);
                                 setStopReason('');
                               }}
-                              className="px-2.5 py-1 rounded-[var(--radius-xs)] bg-[var(--status-warning-subtle)] text-[var(--fg-warning)] font-bold text-[10px] hover:bg-[var(--fg-warning)] hover:text-white transition-theme flex items-center gap-1 cursor-pointer"
+                              className="h-8 min-h-[32px] max-h-[32px] px-3 rounded-shape-sm bg-amber-500/10 text-amber-600 font-bold text-[10px] hover:bg-amber-500 hover:text-white transition-all cursor-pointer flex items-center gap-1.5 border border-amber-500/20"
                               title={isRtl ? 'إيقاف الإعلان فوراً وإشعار المستخدم' : 'Stop Ad & Notify User'}
                             >
-                              <XCircle size={12} />
+                              <XCircle size={13} />
                               <span>{isRtl ? 'إيقاف' : 'Stop'}</span>
                             </button>
                           )}
 
                           <button
                             onClick={() => handleDeleteBulletinAd(ad.id)}
-                            className="p-1 rounded-[var(--radius-xs)] text-[var(--text-muted)] hover:text-[var(--status-danger)] hover:bg-[var(--status-danger-subtle)] transition-colors cursor-pointer"
+                            className="w-8 h-8 rounded-shape-sm text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 transition-all cursor-pointer flex items-center justify-center border border-transparent hover:border-red-500/20"
                             title={isRtl ? 'حذف نهائي' : 'Delete'}
                           >
                             <Trash2 size={14} />

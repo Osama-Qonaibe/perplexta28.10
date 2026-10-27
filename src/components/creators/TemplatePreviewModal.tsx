@@ -135,7 +135,7 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({ temp
 
               <button
                 onClick={onClose}
-                className="touch-target-44 w-8 h-8 rounded-shape-full bg-[var(--surface-card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-primary)] flex items-center justify-center transition-colors cursor-pointer"
+                className="touch-target-44-expanded w-8 h-8 min-w-[32px] min-h-[32px] max-w-[32px] max-h-[32px] btn-square-primary rounded-shape-sm bg-[var(--surface-card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-primary)] flex items-center justify-center transition-colors cursor-pointer"
                 aria-label={isAr ? 'إغلاق' : 'Close'}
               >
                 <X size={16} />
@@ -279,22 +279,22 @@ export const TemplatePreviewModal: React.FC<TemplatePreviewModalProps> = ({ temp
             </div>
 
             {/* Modal Primary Action Footer */}
-            <div className="p-4 border-t border-[var(--border-default)] bg-[var(--surface-subtle)] flex items-center justify-between shrink-0">
+            <div className="p-3.5 border-t border-[var(--border-default)] bg-[var(--surface-subtle)] flex items-center justify-between shrink-0">
               <button
                 type="button"
                 onClick={onClose}
-                className="h-10 px-4 rounded-shape-sm bg-[var(--surface-card)] border border-[var(--border-default)] text-[var(--text-primary)] font-bold text-xs hover:bg-[var(--surface-inset)] transition-colors cursor-pointer"
+                className="h-8 min-h-[32px] max-h-[32px] px-3.5 rounded-shape-sm btn-long-standard bg-[var(--surface-card)] border border-[var(--border-default)] text-[var(--text-primary)] font-bold text-xs leading-[23px] hover:bg-[var(--surface-inset)] transition-colors cursor-pointer inline-flex items-center justify-center"
               >
-                {isAr ? 'إغلاق' : 'Close'}
+                <span className="h-[23px] leading-[23px] inline-flex items-center">{isAr ? 'إغلاق' : 'Close'}</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleUseTemplate}
-                className="h-10 px-6 rounded-shape-sm bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-black text-xs flex items-center gap-2 hover:opacity-90 transition-all cursor-pointer shadow-md active:scale-95"
+                className="h-8 min-h-[32px] max-h-[32px] px-4 rounded-shape-sm btn-long-standard bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs leading-[23px] inline-flex items-center gap-1.5 hover:opacity-90 transition-all cursor-pointer shadow-sm active:scale-95"
               >
-                <Zap size={15} className="fill-current" />
-                <span>{isAr ? 'فتح وتعديل القالب في الاستوديو' : 'Edit & Open Template in Studio'}</span>
+                <Zap size={14} className="fill-current shrink-0" />
+                <span className="h-[23px] leading-[23px] inline-flex items-center">{isAr ? 'فتح وتعديل القالب في الاستوديو' : 'Edit & Open Template in Studio'}</span>
               </button>
             </div>
 

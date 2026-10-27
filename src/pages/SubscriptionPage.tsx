@@ -32,7 +32,10 @@ import {
   Server, 
   Key, 
   Music,
-  Clock
+  Clock,
+  ShieldCheck,
+  Lock,
+  ArrowRight
 } from 'lucide-react';
 
 import { ContentContainer } from '../components/ContentContainer';
@@ -360,47 +363,49 @@ export const SubscriptionPage: React.FC = () => {
 
       <div className="sticky -top-0.5 z-20 -mx-4 md:-mx-8 px-4 md:px-8 py-3.5 mb-6 transition-theme bg-[var(--surface-page)]/95 backdrop-blur-md border-b border-[var(--border-main)]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3 md:gap-4">
+          <div className="flex items-center gap-3">
             <button 
               onClick={() => navigate('/')}
-              className="w-9 h-9 min-h-[44px] min-w-[44px] sm:min-h-[36px] sm:min-w-[36px] sm:w-9 sm:h-9 rounded-shape-sm flex items-center justify-center transition-theme bg-[var(--surface-subtle)] border border-[var(--border-main)] text-[var(--text-secondary)] hover:text-[var(--fg-accent)] hover:border-[var(--border-accent)] active:scale-95 cursor-pointer touch-target-44"
+              className="w-8 h-8 min-w-[32px] min-h-[32px] max-w-[32px] max-h-[32px] btn-square-primary touch-target-44-expanded rounded-shape-sm flex items-center justify-center transition-theme bg-[var(--surface-subtle)] border border-[var(--border-main)] text-[var(--text-secondary)] hover:text-[var(--fg-accent)] hover:border-[var(--border-accent)] active:scale-95 cursor-pointer shrink-0"
               title={dir === 'rtl' ? 'الرئيسية' : 'Home'}
             >
-              {dir === 'rtl' ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+              {dir === 'rtl' ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
             </button>
             <div>
               <h1 className="text-xl md:text-2xl font-black tracking-tight text-[var(--text-primary)] uppercase">{t('subscription')}</h1>
               <p className="text-[11px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
-                {dir === 'rtl' ? 'اختر الخطة المثالية لاحتياجاتك وأدائك' : 'CHOOSE YOUR PERFORMANCE TIER'}
+                {dir === 'rtl' ? 'اختر الخطة المناسبة لمتطلبات عملك وأدائك' : 'CHOOSE YOUR PERFORMANCE TIER'}
               </p>
             </div>
           </div>
 
-          <div className="p-1 rounded-shape-md flex items-center bg-[var(--surface-subtle)] border border-[var(--border-main)]">
+          <div className="h-8 p-0.5 rounded-shape-sm flex items-center bg-[var(--surface-subtle)] border border-[var(--border-main)]">
             <button 
               onClick={() => setBillingCycle('monthly')}
-              className={`px-5 md:px-6 py-2 min-h-[36px] rounded-shape-sm text-xs font-black uppercase tracking-wider transition-all duration-150 cursor-pointer ${
+              className={`px-3 h-7 rounded-shape-xs text-xs font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer flex items-center justify-center ${
                 billingCycle === 'monthly' 
-                  ? 'bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-main)] shadow-sm' 
+                  ? 'bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-main)] shadow-2xs' 
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
-              {t('monthly')}
+              <span className="h-[23px] leading-[23px] inline-flex items-center">{t('monthly')}</span>
             </button>
             <button 
               onClick={() => setBillingCycle('annual')}
-              className={`px-5 md:px-6 py-2 min-h-[36px] rounded-shape-sm text-xs font-black uppercase tracking-wider transition-all duration-150 cursor-pointer flex items-center gap-1.5 ${
+              className={`px-3 h-7 rounded-shape-xs text-xs font-bold uppercase tracking-wider transition-all duration-150 cursor-pointer flex items-center justify-center gap-1.5 ${
                 billingCycle === 'annual' 
-                  ? 'bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-main)] shadow-sm' 
+                  ? 'bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-main)] shadow-2xs' 
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
-              <span>{t('annual')}</span>
-              {Math.max(...plans.map(p => getSavingPercentage(p)), 0) > 0 && (
-                <span className="px-1.5 py-0.5 rounded-shape-xs bg-[var(--status-success-subtle)] text-[var(--fg-success)] dark:text-[var(--fg-success)] text-[10px] font-bold">
-                  -{Math.max(...plans.map(p => getSavingPercentage(p)), 0)}%
-                </span>
-              )}
+              <span className="h-[23px] leading-[23px] inline-flex items-center gap-1.5">
+                <span>{t('annual')}</span>
+                {Math.max(...plans.map(p => getSavingPercentage(p)), 0) > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-shape-xs bg-[var(--status-success-subtle)] text-[var(--fg-success)] text-[10px] font-bold">
+                    -{Math.max(...plans.map(p => getSavingPercentage(p)), 0)}%
+                  </span>
+                )}
+              </span>
             </button>
           </div>
         </div>
@@ -408,22 +413,22 @@ export const SubscriptionPage: React.FC = () => {
 
       {/* Active Subscription Credit Meter */}
       {user?.subscription && user.subscription.status === 'active' && (
-        <div className="mb-8 p-4 md:p-5 rounded-shape-md bg-gradient-to-r from-[var(--surface-card)] to-[var(--surface-subtle)] border border-[var(--border-main)] shadow-sm">
+        <div className="mb-6 p-4 rounded-shape-md bg-[var(--surface-card)] border border-[var(--border-main)] shadow-2xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-shape-sm flex items-center justify-center bg-[var(--bg-accent-subtle)] text-[var(--fg-accent)] border border-[var(--border-accent)]/30 shrink-0">
-                <Sparkles size={20} />
+              <div className="w-8 h-8 rounded-shape-sm flex items-center justify-center bg-[var(--bg-accent-subtle)] text-[var(--fg-accent)] border border-[var(--border-accent)]/30 shrink-0">
+                <Sparkles size={16} />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-black text-[var(--text-primary)]">
+                  <h3 className="text-sm md:text-base font-bold text-[var(--text-primary)]">
                     {dir === 'rtl' ? user.subscription.plan_name_ar || user.subscription.plan_name_en : user.subscription.plan_name_en}
                   </h3>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-[var(--status-success-subtle)] text-[var(--fg-success)]">
-                    {dir === 'rtl' ? 'اشتراكك الحالي' : 'Active Plan'}
+                  <span className="px-2 py-0.5 rounded-shape-xs text-[10px] font-bold uppercase bg-[var(--status-success-subtle)] text-[var(--fg-success)]">
+                    {dir === 'rtl' ? 'الاشتراك الحالي' : 'Active Plan'}
                   </span>
                 </div>
-                <p className="text-xs text-[var(--text-muted)] font-medium mt-0.5">
+                <p className="text-[11px] text-[var(--text-muted)] font-medium mt-0.5">
                   {dir === 'rtl' 
                     ? `دورة الاشتراك: ${user.subscription.billing_period === 'annual' ? 'سنوي' : user.subscription.billing_period === 'daily' ? 'أيام مخصصة' : 'شهري'}` 
                     : `Billing Cycle: ${user.subscription.billing_period || 'Monthly'}`}
@@ -433,21 +438,21 @@ export const SubscriptionPage: React.FC = () => {
             </div>
             <div className="text-left sm:text-right">
               <div className="flex items-baseline sm:justify-end gap-1 font-mono">
-                <span className="text-xl md:text-2xl font-black text-[var(--text-primary)]">
+                <span className="text-lg md:text-xl font-bold text-[var(--text-primary)]">
                   {(user.subscription.remaining_credits ?? ((user.subscription.cycle_credits || 0) - (user.subscription.used_credits || 0))).toLocaleString()}
                 </span>
-                <span className="text-xs text-[var(--text-muted)] font-bold">
-                  / {(user.subscription.cycle_credits || 0).toLocaleString()} {dir === 'rtl' ? 'كريديت' : 'credits'}
+                <span className="text-[11px] text-[var(--text-muted)] font-medium">
+                  / {(user.subscription.cycle_credits || 0).toLocaleString()} {dir === 'rtl' ? 'رصيد' : 'credits'}
                 </span>
               </div>
-              <p className="text-[11px] text-[var(--text-secondary)] font-bold mt-0.5">
-                {dir === 'rtl' ? 'رصيد نقاط الذكاء الاصطناعي المتبقي لدورتك الحالية' : 'Remaining AI credits in this billing cycle'}
+              <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">
+                {dir === 'rtl' ? 'الرصيد المتبقي للدورة الحالية' : 'Remaining credits in this billing cycle'}
               </p>
             </div>
           </div>
 
           {/* Progress Bar */}
-          <div className="w-full h-2.5 bg-[var(--surface-subtle)] rounded-full overflow-hidden border border-[var(--border-main)]">
+          <div className="w-full h-2 bg-[var(--surface-subtle)] rounded-full overflow-hidden border border-[var(--border-main)]">
             <div 
               className="h-full bg-gradient-to-r from-[var(--fg-accent)] to-[var(--fg-success)] transition-all duration-500 rounded-full"
               style={{ 
@@ -458,32 +463,32 @@ export const SubscriptionPage: React.FC = () => {
         </div>
       )}
 
-      <div className="flex justify-center mb-8">
-        <div className="p-1 rounded-shape-md flex items-center bg-[var(--surface-subtle)] border border-[var(--border-main)] max-w-lg w-full">
+      <div className="flex justify-center mb-6">
+        <div className="h-8 p-0.5 rounded-shape-sm flex items-center bg-[var(--surface-subtle)] border border-[var(--border-main)] max-w-md w-full">
           <button
             onClick={() => setActiveTab('user')}
-            className={`flex-1 px-4 py-2.5 min-h-[40px] rounded-shape-sm text-xs font-black uppercase tracking-wider transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer ${
+            className={`flex-1 h-7 rounded-shape-xs text-xs font-bold uppercase tracking-wider transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === 'user'
-                ? 'bg-[var(--surface-card)] border border-[var(--border-main)] text-[var(--text-primary)] shadow-sm'
+                ? 'bg-[var(--surface-card)] border border-[var(--border-main)] text-[var(--text-primary)] shadow-2xs'
                 : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
             }`}
           >
-            <Sparkles size={14} className={activeTab === 'user' ? 'text-[var(--fg-accent)]' : ''} />
-            <span>
-              {dir === 'rtl' ? 'خطط الاستخدام العام' : 'Performance Plans'}
+            <span className="h-[23px] leading-[23px] flex items-center justify-center gap-1.5">
+              <Sparkles size={13} className={activeTab === 'user' ? 'text-[var(--fg-accent)]' : ''} />
+              <span>{dir === 'rtl' ? 'خطط الاستخدام' : 'Performance Plans'}</span>
             </span>
           </button>
           <button
             onClick={() => setActiveTab('developer')}
-            className={`flex-1 px-4 py-2.5 min-h-[40px] rounded-shape-sm text-xs font-black uppercase tracking-wider transition-all duration-150 flex items-center justify-center gap-2 cursor-pointer ${
+            className={`flex-1 h-7 rounded-shape-xs text-xs font-bold uppercase tracking-wider transition-all duration-150 flex items-center justify-center gap-1.5 cursor-pointer ${
               activeTab === 'developer'
-                ? 'bg-[var(--surface-card)] border border-[var(--border-main)] text-[var(--text-primary)] shadow-sm'
+                ? 'bg-[var(--surface-card)] border border-[var(--border-main)] text-[var(--text-primary)] shadow-2xs'
                 : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
             }`}
           >
-            <Code2 size={14} className={activeTab === 'developer' ? 'text-[var(--fg-accent)]' : ''} />
-            <span>
-              {dir === 'rtl' ? 'خطط المطورين والوكلاء' : 'Developer & Agent Plans'}
+            <span className="h-[23px] leading-[23px] flex items-center justify-center gap-1.5">
+              <Code2 size={13} className={activeTab === 'developer' ? 'text-[var(--fg-accent)]' : ''} />
+              <span>{dir === 'rtl' ? 'خطط المطورين' : 'Developer Plans'}</span>
             </span>
           </button>
         </div>
@@ -491,34 +496,34 @@ export const SubscriptionPage: React.FC = () => {
 
       {displayedPlans.length === 0 ? (
         <div
-          className="w-full max-w-3xl mx-auto rounded-shape-lg border border-[var(--border-main)] bg-[var(--surface-card)] p-8 md:p-12 text-center relative overflow-hidden flex flex-col items-center justify-center min-h-[350px] shadow-sm"
+          className="w-full max-w-3xl mx-auto rounded-shape-md border border-[var(--border-main)] bg-[var(--surface-card)] p-6 md:p-8 text-center relative overflow-hidden flex flex-col items-center justify-center min-h-[300px] shadow-2xs"
         >
-          <div className="w-14 h-14 rounded-shape-md bg-[var(--surface-subtle)] flex items-center justify-center mb-5 border border-[var(--border-main)] text-[var(--fg-accent)]">
-            <Code2 size={26} className="animate-pulse" />
+          <div className="w-10 h-10 rounded-shape-sm bg-[var(--surface-subtle)] flex items-center justify-center mb-4 border border-[var(--border-main)] text-[var(--fg-accent)]">
+            <Code2 size={20} className="animate-pulse" />
           </div>
 
-          <h2 className="text-xl md:text-2xl font-black text-[var(--text-primary)] mb-3 tracking-wide">
-            {dir === 'rtl' ? 'بوابة المطورين والوكلاء (قيد الإنشاء والتطوير)' : 'Developer & Agent Portal (Under Construction)'}
+          <h2 className="text-base md:text-lg font-bold text-[var(--text-primary)] mb-2">
+            {dir === 'rtl' ? 'بوابة المطورين (قيد الإعداد)' : 'Developer Portal (In Development)'}
           </h2>
 
-          <p className="text-xs md:text-sm text-[var(--text-secondary)] leading-relaxed max-w-2xl mb-8">
+          <p className="text-xs text-[var(--text-secondary)] leading-relaxed max-w-xl mb-6">
             {dir === 'rtl' ? (
-              'نحن نعمل بجِد على بناء أدوات وحلول متكاملة مخصصة للمطورين والوكلاء لتمكين التوزيع البرمجي المباشر والمزامنة لخدمات PERPLEXTA. ترقبوا إطلاق واجهات برمجة تطبيقات مخصصة، إمكانيات استخدام وكلاء مستقلين (Autonomous Bots)، وموارد حوسبة سحابية متطورة تمكّنكم من دمج الذكاء الاصطناعي الفائق في تطبيقاتكم وبنيتكم التحتية بكفاءة متناهية.'
+              'يجري العمل على إتاحة أدوات متقدمة ومفاتيح واجهات برمجة التطبيقات (APIs) للمطورين والشركاء لربط خدمات المنصة بتطبيقاتهم البرمجية بشكل مباشر.'
             ) : (
-              'We are working diligently on building comprehensive tools and solutions tailored for developers and partners to enable direct programmatic distribution and deep integration with PERPLEXTA services. Stay tuned for custom API key provisioning, autonomous agent hosting, and enterprise-grade high-performance compute resources designed to integrate next-generation AI into your infrastructure.'
+              'We are preparing dedicated developer APIs and programmatic integration endpoints for developers and teams to connect platform capabilities directly into external applications.'
             )}
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-main)] text-xs text-[var(--text-muted)] font-bold">
-              <span className="w-2.5 h-2.5 rounded-shape-full bg-[var(--fg-accent)] animate-ping" />
-              <span>{dir === 'rtl' ? 'المرحلة: التأسيس المعماري والنمذجة' : 'Phase: Architectural Ingestion & Setup'}</span>
+          <div className="flex flex-col sm:flex-row items-center gap-2.5">
+            <div className="h-8 px-3 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-main)] text-xs text-[var(--text-muted)] font-medium flex items-center gap-2">
+              <span className="w-2 h-2 rounded-shape-full bg-[var(--fg-accent)] animate-ping" />
+              <span className="h-[23px] leading-[23px] inline-flex items-center">{dir === 'rtl' ? 'المرحلة: التجهيز المعماري' : 'Phase: Architecture Preparation'}</span>
             </div>
             <button
               onClick={() => navigate('/')}
-              className="px-6 py-2.5 min-h-[44px] rounded-shape-sm bg-[var(--fg-accent)] text-[var(--comp-button-primary-fg,#ffffff)] font-bold text-xs hover:opacity-90 transition-all duration-150 shadow-sm active:scale-95 cursor-pointer touch-target-44"
+              className="h-8 px-4 rounded-shape-sm btn-long-standard bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs hover:opacity-90 transition-theme shadow-2xs flex items-center justify-center cursor-pointer"
             >
-              {dir === 'rtl' ? 'العودة لمساحة العمل' : 'Return to Workspace'}
+              <span className="h-[23px] leading-[23px] inline-flex items-center">{dir === 'rtl' ? 'العودة للرئيسية' : 'Return to Home'}</span>
             </button>
           </div>
         </div>
@@ -534,7 +539,7 @@ export const SubscriptionPage: React.FC = () => {
             return (
               <div 
                 key={`sub-plan-${plan.id || planIdx}-${planIdx}`} 
-                className={`relative rounded-shape-lg border p-5 md:p-7 flex flex-col transition-all duration-200 bg-[var(--surface-card)] border-[var(--border-main)] group ${
+                className={`relative rounded-shape-md border p-5 md:p-6 flex flex-col transition-all duration-200 bg-[var(--surface-card)] border-[var(--border-main)] group shadow-2xs ${
                   isPlanActive 
                     ? 'ring-2 shadow-md' 
                     : 'hover:border-[var(--border-strong)] hover:shadow-sm'
@@ -545,14 +550,14 @@ export const SubscriptionPage: React.FC = () => {
               >
                 {/* Admin Defined Plan Color Stripe */}
                 <div 
-                  className="absolute top-0 left-0 right-0 h-1.5 rounded-t-lg transition-all group-hover:h-2" 
+                  className="absolute top-0 left-0 right-0 h-1 rounded-t-[var(--radius-md)] transition-all group-hover:h-1.5" 
                   style={{ backgroundColor: planColor }}
                 />
 
                 {plan.badge && plan.badge !== 'none' && (
-                  <div className="absolute top-0 right-5 md:right-7 -translate-y-1/2 z-30 pointer-events-none drop-shadow-md">
+                  <div className="absolute top-0 right-5 md:right-6 -translate-y-1/2 z-30 pointer-events-none drop-shadow-sm">
                     <span 
-                      className="inline-flex items-center justify-center px-3.5 py-1 text-[11px] md:text-xs font-black uppercase tracking-wider text-white rounded-shape-xs shadow-lg border border-white/30 whitespace-nowrap" 
+                      className="inline-flex items-center justify-center px-3 py-0.5 text-[10px] md:text-[11px] font-bold uppercase tracking-wider text-white rounded-shape-xs shadow-md border border-white/30 whitespace-nowrap" 
                       style={{ backgroundColor: planColor }}
                     >
                       {t(plan.badge)}
@@ -561,7 +566,7 @@ export const SubscriptionPage: React.FC = () => {
                 )}
 
                 <div className="mb-3 pt-1">
-                  <h3 className="text-xl md:text-2xl font-bold mb-1 flex items-center gap-2 text-[var(--text-primary)]">
+                  <h3 className="text-lg md:text-xl font-bold mb-1 flex items-center gap-2 text-[var(--text-primary)]">
                     <span 
                       className="w-2.5 h-2.5 rounded-shape-full shrink-0 shadow-xs" 
                       style={{ backgroundColor: planColor }}
@@ -573,34 +578,38 @@ export const SubscriptionPage: React.FC = () => {
 
                 {/* Plan-Specific Billing Cycle Options */}
                 {availableCycles.length > 1 ? (
-                  <div className="p-1 rounded-shape-sm flex items-center bg-[var(--surface-subtle)] border border-[var(--border-main)] mb-3">
+                  <div className="h-8 p-0.5 rounded-shape-sm flex items-center bg-[var(--surface-subtle)] border border-[var(--border-main)] mb-3">
                     {availableCycles.map((c) => (
                       <button
                         key={`plan-c-${plan.id}-${c}`}
                         type="button"
                         onClick={() => setSelectedPlanCycles((prev) => ({ ...prev, [plan.id]: c }))}
-                        className={`flex-1 py-1.5 px-2 rounded-shape-xs text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+                        className={`flex-1 h-7 rounded-shape-xs text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center ${
                           effectiveCycle === c
-                            ? 'bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-main)] shadow-xs'
+                            ? 'bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-main)] shadow-2xs'
                             : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                         }`}
                       >
-                        {getCycleLabel(c, plan)}
+                        <span className="h-[23px] leading-[23px] inline-flex items-center justify-center">
+                          {getCycleLabel(c, plan)}
+                        </span>
                       </button>
                     ))}
                   </div>
                 ) : (
                   <div className="mb-3">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-shape-xs text-[11px] font-bold bg-[var(--surface-subtle)] border border-[var(--border-main)] text-[var(--text-secondary)]">
+                    <span className="h-8 inline-flex items-center gap-1.5 px-2.5 rounded-shape-xs text-[11px] font-bold bg-[var(--surface-subtle)] border border-[var(--border-main)] text-[var(--text-secondary)]">
                       <Clock size={12} style={{ color: planColor }} />
-                      <span>{dir === 'rtl' ? `الفترة: ${getCycleLabel(effectiveCycle, plan)}` : `Duration: ${getCycleLabel(effectiveCycle, plan)}`}</span>
+                      <span className="h-[23px] leading-[23px] inline-flex items-center">
+                        {dir === 'rtl' ? `الفترة: ${getCycleLabel(effectiveCycle, plan)}` : `Duration: ${getCycleLabel(effectiveCycle, plan)}`}
+                      </span>
                     </span>
                   </div>
                 )}
 
                 <div className="mb-5 text-[var(--text-primary)]">
                   <div className="flex items-baseline gap-1.5">
-                    <span className="text-3xl md:text-4xl font-extrabold text-[var(--text-primary)] tracking-tight">
+                    <span className="text-2xl md:text-3xl font-bold text-[var(--text-primary)] tracking-tight">
                       ${planPrice.toFixed(2)}
                     </span>
                     <span className="text-xs text-[var(--text-muted)] font-medium">/ {getCycleLabel(effectiveCycle, plan)}</span>
@@ -612,10 +621,10 @@ export const SubscriptionPage: React.FC = () => {
                   )}
 
                   {/* Plan Credits Allowance Badge */}
-                  <div className="mt-2.5 p-2 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-main)] flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-xs font-black text-[var(--text-primary)]">
-                      <Sparkles size={14} style={{ color: planColor }} />
-                      <span>
+                  <div className="mt-2.5 h-8 px-2.5 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-main)] flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-[var(--text-primary)]">
+                      <Sparkles size={13} style={{ color: planColor }} />
+                      <span className="h-[23px] leading-[23px] inline-flex items-center">
                         {Number(
                           effectiveCycle === 'daily'
                             ? (plan.dailyCredits || Math.round((plan.dailyPrice || 0) * 1000))
@@ -624,68 +633,74 @@ export const SubscriptionPage: React.FC = () => {
                               : (plan.monthlyCredits || Math.round((plan.monthlyPrice || 0) * 1000))
                         ).toLocaleString()}
                       </span>
-                      <span className="text-[10px] text-[var(--text-muted)] font-bold">
-                        {dir === 'rtl' ? 'كريديت ذكاء اصطناعي' : 'AI Credits'}
+                      <span className="text-[10px] text-[var(--text-muted)] font-medium">
+                        {dir === 'rtl' ? 'رصيد الذكاء الاصطناعي' : 'AI Credits'}
                       </span>
                     </div>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[var(--surface-card)] border border-[var(--border-main)] text-[var(--text-secondary)]">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-shape-xs bg-[var(--surface-card)] border border-[var(--border-main)] text-[var(--text-secondary)]">
                       {getCycleLabel(effectiveCycle, plan)}
                     </span>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2.5 mb-6 relative z-10">
+                <div className="grid grid-cols-2 gap-2.5 mb-5 relative z-10">
                   {planPrice === 0 ? (
                     <button 
                       onClick={() => handleUpgrade(plan.id)}
                       disabled={loading !== null || isPlanActive}
-                      className={`col-span-2 py-2.5 md:py-3 min-h-[44px] rounded-shape-sm text-white font-bold text-xs md:text-sm transition-all duration-150 shadow-sm flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-95 active:scale-[0.98] cursor-pointer touch-target-44 ${loading === `${plan.id}-stripe` ? 'animate-pulse' : ''}`}
+                      className={`col-span-2 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm btn-long-standard text-white font-bold text-xs transition-theme shadow-2xs flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-95 active:scale-[0.98] cursor-pointer touch-target-44-expanded ${loading === `${plan.id}-stripe` ? 'animate-pulse' : ''}`}
                       style={{ 
                         backgroundColor: planColor, 
-                        boxShadow: isPlanActive ? `0 0 16px ${planColor}30` : `0 2px 10px 0 ${planColor}35`,
+                        boxShadow: isPlanActive ? `0 0 16px ${planColor}30` : `0 2px 8px 0 ${planColor}30`,
                         opacity: isPlanActive ? 0.9 : 1
                       }}
                     >
-                      {isPlanActive ? (
-                        <div className="flex items-center gap-1.5"><CheckCircle2 size={16} />{dir === 'rtl' ? 'الخطة الحالية النشطة' : 'Current Active Plan'}</div>
-                      ) : (loading === `${plan.id}-stripe` ? '...' : (dir === 'rtl' ? 'تفعيل الخطة المجانية' : 'Activate Free Plan'))}
+                      <span className="h-[23px] leading-[23px] inline-flex items-center justify-center">
+                        {isPlanActive ? (
+                          <span className="flex items-center gap-1.5"><CheckCircle2 size={13} />{dir === 'rtl' ? 'الخطة الحالية النشطة' : 'Current Active Plan'}</span>
+                        ) : (loading === `${plan.id}-stripe` ? '...' : (dir === 'rtl' ? 'تفعيل الخطة المجانية' : 'Activate Free Plan'))}
+                      </span>
                     </button>
                   ) : (
                     <>
                       <button 
                         onClick={() => handleUpgrade(plan.id)}
                         disabled={loading !== null || isPlanActive}
-                        className={`py-2.5 md:py-3 min-h-[44px] rounded-shape-sm text-white font-bold text-xs md:text-sm transition-all duration-150 shadow-sm flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-95 active:scale-[0.98] cursor-pointer touch-target-44 ${loading === `${plan.id}-stripe` ? 'animate-pulse' : ''}`}
+                        className={`h-8 min-h-[32px] max-h-[32px] rounded-shape-sm btn-long-standard text-white font-bold text-xs transition-theme shadow-2xs flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-95 active:scale-[0.98] cursor-pointer touch-target-44-expanded ${loading === `${plan.id}-stripe` ? 'animate-pulse' : ''}`}
                         style={{ 
                           backgroundColor: planColor, 
-                          boxShadow: isPlanActive ? `0 0 16px ${planColor}30` : `0 2px 10px 0 ${planColor}35`,
+                          boxShadow: isPlanActive ? `0 0 16px ${planColor}30` : `0 2px 8px 0 ${planColor}30`,
                           opacity: isPlanActive ? 0.9 : 1
                         }}
                       >
-                        {isPlanActive ? (
-                          <div className="flex items-center gap-1.5"><CheckCircle2 size={16} />{dir === 'rtl' ? 'نشط' : 'Active'}</div>
-                        ) : (loading === `${plan.id}-stripe` ? '...' : (dir === 'rtl' ? 'اشتراك' : 'Subscribe'))}
+                        <span className="h-[23px] leading-[23px] inline-flex items-center justify-center">
+                          {isPlanActive ? (
+                            <span className="flex items-center gap-1.5"><CheckCircle2 size={13} />{dir === 'rtl' ? 'نشط' : 'Active'}</span>
+                          ) : (loading === `${plan.id}-stripe` ? '...' : (dir === 'rtl' ? 'اشتراك' : 'Subscribe'))}
+                        </span>
                       </button>
                       <button 
                         onClick={() => handlePayWithBalance(plan.id)}
                         disabled={loading !== null || isPlanActive}
-                        className={`py-2.5 md:py-3 min-h-[44px] rounded-shape-sm font-bold text-xs md:text-sm transition-all duration-150 border bg-transparent hover:bg-[var(--surface-subtle)] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] cursor-pointer touch-target-44 ${loading === `${plan.id}-balance` ? 'animate-pulse' : ''}`}
+                        className={`h-8 min-h-[32px] max-h-[32px] rounded-shape-sm btn-long-standard font-bold text-xs transition-theme border bg-transparent hover:bg-[var(--surface-subtle)] flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] cursor-pointer touch-target-44-expanded ${loading === `${plan.id}-balance` ? 'animate-pulse' : ''}`}
                         style={{ borderColor: planColor, color: planColor, opacity: isPlanActive ? 0.8 : 1 }}
                       >
-                        {isPlanActive ? (dir === 'rtl' ? 'نشط' : 'Active') : (loading === `${plan.id}-balance` ? '...' : t('payWithBalance'))}
+                        <span className="h-[23px] leading-[23px] inline-flex items-center justify-center">
+                          {isPlanActive ? (dir === 'rtl' ? 'نشط' : 'Active') : (loading === `${plan.id}-balance` ? '...' : t('payWithBalance'))}
+                        </span>
                       </button>
                     </>
                   )}
                 </div>
 
-                <div className="flex-1 space-y-2.5 mb-6">
-                  <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">
+                <div className="flex-1 space-y-2 mb-5">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
                     {dir === 'rtl' ? 'الميزات والخصائص' : 'Features & Capabilities'}
                   </p>
                   {plan.features.map((feature: any, idx: number) => (
-                    <div key={`feat-${plan.id}-${idx}`} className="flex items-start gap-2.5">
-                      <CheckCircle2 size={15} className="shrink-0 mt-0.5" style={{ color: planColor }} />
-                      <span className="text-xs md:text-sm text-[var(--text-secondary)] leading-tight">
+                    <div key={`feat-${plan.id}-${idx}`} className="flex items-start gap-2">
+                      <CheckCircle2 size={14} className="shrink-0 mt-0.5" style={{ color: planColor }} />
+                      <span className="text-xs text-[var(--text-secondary)] leading-snug">
                         {dir === 'rtl' ? feature.textAr : feature.textEn}
                       </span>
                     </div>
@@ -693,43 +708,45 @@ export const SubscriptionPage: React.FC = () => {
                 </div>
 
                 {!plan.hideTools && (
-                  <div className="mt-auto pt-4 border-t border-[var(--border-main)]">
-                    <div className="flex justify-between items-center px-0.5 mb-2.5">
-                      <p className="text-[11px] font-black uppercase tracking-wider text-[var(--text-muted)] m-0">
+                  <div className="mt-auto pt-3 border-t border-[var(--border-main)]">
+                    <div className="flex justify-between items-center px-0.5 mb-2">
+                      <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--text-muted)] m-0">
                         {dir === 'rtl' ? 'حدود الأدوات اليومية' : 'Daily Tool Limits'}
                       </p>
                       <button 
                         onClick={() => togglePlanExpand(plan.id.toString())}
-                        className="text-xs font-bold flex items-center gap-1 transition-opacity hover:opacity-80 cursor-pointer"
+                        className="h-7 px-2 rounded-shape-xs text-xs font-bold flex items-center gap-1 transition-opacity hover:opacity-80 cursor-pointer"
                         style={{ color: planColor }}
                       >
-                        <span>{expandedPlans[plan.id.toString()] ? (dir === 'rtl' ? 'إخفاء' : 'Hide') : (dir === 'rtl' ? 'تفاصيل' : 'Details')}</span>
-                        <ChevronDown size={14} className={`transition-transform duration-150 ${expandedPlans[plan.id.toString()] ? 'rotate-180' : ''}`} />
+                        <span className="h-[23px] leading-[23px] flex items-center gap-1">
+                          <span>{expandedPlans[plan.id.toString()] ? (dir === 'rtl' ? 'إخفاء' : 'Hide') : (dir === 'rtl' ? 'تفاصيل' : 'Details')}</span>
+                          <ChevronDown size={13} className={`transition-transform duration-150 ${expandedPlans[plan.id.toString()] ? 'rotate-180' : ''}`} />
+                        </span>
                       </button>
                     </div>
                     
                     {expandedPlans[plan.id.toString()] && (
                       <div className="overflow-hidden">
                           <div className="max-h-[220px] overflow-y-auto scrollbar-none pb-1 pt-1">
-                            <div className="grid grid-cols-4 sm:grid-cols-5 gap-1.5 md:gap-2">
+                            <div className="grid grid-cols-4 sm:grid-cols-5 gap-1.5">
                               {(() => {
                                 const toolIcons: Record<string, React.ReactNode> = {
-                                  chat: <MessageSquare size={12} className="md:w-3.5 md:h-3.5" />,
-                                  chat_fast: <MessageSquare size={12} className="md:w-3.5 md:h-3.5" />,
-                                  chat_pro: <Sparkles size={12} className="md:w-3.5 md:h-3.5" />,
-                                  chat_reasoning: <Cpu size={12} className="md:w-3.5 md:h-3.5" />,
-                                  sovereign_search: <Search size={12} className="md:w-3.5 md:h-3.5" />,
-                                  perplexta_analysis: <Search size={12} className="md:w-3.5 md:h-3.5" />,
-                                  ads_copilot: <Megaphone size={12} className="md:w-3.5 md:h-3.5" />,
-                                  image: <Sparkles size={12} className="md:w-3.5 md:h-3.5" />,
-                                  video: <Tv size={12} className="md:w-3.5 md:h-3.5" />,
-                                  code: <Code2 size={12} className="md:w-3.5 md:h-3.5" />,
-                                  audio_studio: <Music size={12} className="md:w-3.5 md:h-3.5" />,
-                                  stt: <Mic size={12} className="md:w-3.5 md:h-3.5" />,
-                                  tts: <Volume2 size={12} className="md:w-3.5 md:h-3.5" />,
-                                  perplexta_music: <Music size={12} className="md:w-3.5 md:h-3.5" />,
-                                  x402_api: <Key size={12} className="md:w-3.5 md:h-3.5" />,
-                                  storage_mb: <Cloud size={12} className="md:w-3.5 md:h-3.5" />,
+                                  chat: <MessageSquare size={12} />,
+                                  chat_fast: <MessageSquare size={12} />,
+                                  chat_pro: <Sparkles size={12} />,
+                                  chat_reasoning: <Cpu size={12} />,
+                                  sovereign_search: <Search size={12} />,
+                                  perplexta_analysis: <Search size={12} />,
+                                  ads_copilot: <Megaphone size={12} />,
+                                  image: <Sparkles size={12} />,
+                                  video: <Tv size={12} />,
+                                  code: <Code2 size={12} />,
+                                  audio_studio: <Music size={12} />,
+                                  stt: <Mic size={12} />,
+                                  tts: <Volume2 size={12} />,
+                                  perplexta_music: <Music size={12} />,
+                                  x402_api: <Key size={12} />,
+                                  storage_mb: <Cloud size={12} />,
                                 };
                                 return ALL_TOOLS.map((toolId) => {
                                   const limitVal = (plan.limits && plan.limits[toolId] !== undefined)
@@ -739,7 +756,7 @@ export const SubscriptionPage: React.FC = () => {
                                   if (limitVal?.isHidden === true || limitVal?.isHidden === 'true') return null;
 
                                   const label = t(toolId) || toolId;
-                                  const icon = toolIcons[toolId] || <CheckCircle2 size={12} className="md:w-3.5 md:h-3.5" />;
+                                  const icon = toolIcons[toolId] || <CheckCircle2 size={12} />;
                                   return (
                                     <LimitItem
                                       key={`sub-tool-${plan.id}-${toolId}`}
@@ -762,6 +779,94 @@ export const SubscriptionPage: React.FC = () => {
           })}
         </div>
       )}
+
+      {/* 14-Day Money-Back Guarantee Agreement Section */}
+      <div className="mt-10 rounded-shape-md bg-[var(--surface-card)] border border-[var(--border-main)] shadow-2xs p-5 md:p-8 space-y-6">
+        <div className="flex flex-col md:flex-row items-center gap-4 justify-between border-b border-[var(--border-main)] pb-5">
+          <div className="flex items-center gap-3.5 text-start w-full md:w-auto">
+            <div className="w-8 h-8 rounded-shape-sm bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/30 shrink-0 shadow-2xs">
+              <ShieldCheck size={16} />
+            </div>
+            <div>
+              <div className="text-[11px] font-bold text-[var(--fg-success)] uppercase tracking-wider mb-0.5">
+                {dir === 'rtl' ? 'اتفاقية الضمان المالي المعتمدة' : 'Official Financial Guarantee Agreement'}
+              </div>
+              <h2 className="text-base sm:text-lg font-bold text-[var(--text-primary)] tracking-tight">
+                {dir === 'rtl' ? 'سياسة الاسترداد والضمان النقدي (14 يوماً)' : '14-Day Money-Back Guarantee & Refund Policy'}
+              </h2>
+            </div>
+          </div>
+          <div className="inline-flex items-center gap-1.5 h-8 px-3 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-main)] text-xs font-mono font-bold text-[var(--text-secondary)] shadow-2xs shrink-0 self-start md:self-auto">
+            <Lock size={13} className="text-emerald-500" />
+            <span className="h-[23px] leading-[23px] inline-flex items-center">
+              {dir === 'rtl' ? 'مسجل في دفتر الأستاذ المشفر' : 'Logged in Append-Only Ledger'}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-[var(--text-secondary)] leading-relaxed font-medium text-start">
+          <div className="p-4 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-main)] space-y-1.5 text-start">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-500 font-sans">
+              <CheckCircle2 size={13} className="shrink-0" />
+              <span>{dir === 'rtl' ? 'ضمان 100%' : '100% Guarantee'}</span>
+            </div>
+            <h3 className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">
+              {dir === 'rtl' ? 'استرداد مالي كامل خلال 14 يوماً' : 'Full Refund Within 14 Days'}
+            </h3>
+            <p className="text-[11px] sm:text-xs text-[var(--text-muted)]">
+              {dir === 'rtl' 
+                ? 'يحق لكل مشترك جديد طلب استرداد مالي كامل بنسبة 100% خلال أول 14 يوماً من التفعيل، بشرط عدم تجاوز استهلاك الموارد نسبة 5%.'
+                : 'Every new subscriber is entitled to a 100% full refund within 14 days of activation, provided compute resource usage remains below 5%.'}
+            </p>
+          </div>
+
+          <div className="p-4 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-main)] space-y-1.5 text-start">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-500 font-sans">
+              <CheckCircle2 size={13} className="shrink-0" />
+              <span>{dir === 'rtl' ? 'معالجة آلية' : 'Automated Refund'}</span>
+            </div>
+            <h3 className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">
+              {dir === 'rtl' ? 'معالجة فورية وآمنة للمدفوعات' : 'Instant & Secure Processing'}
+            </h3>
+            <p className="text-[11px] sm:text-xs text-[var(--text-muted)]">
+              {dir === 'rtl' 
+                ? 'تتم معالجة طلبات الاسترداد آلياً عبر بوابة الدفع المركزية وإعادتها لذات وسيلة الدفع أو رصيد المحفظة خلال 3 إلى 5 أيام عمل.'
+                : 'Refund requests are processed automatically and credited back to the original payment method or wallet within 3-5 business days.'}
+            </p>
+          </div>
+
+          <div className="p-4 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-main)] space-y-1.5 text-start">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-500 font-sans">
+              <CheckCircle2 size={13} className="shrink-0" />
+              <span>{dir === 'rtl' ? 'توثيق مالي' : 'Ledger Verified'}</span>
+            </div>
+            <h3 className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">
+              {dir === 'rtl' ? 'شفافية تامة في الدفاتر المالية' : 'Absolute Ledger Transparency'}
+            </h3>
+            <p className="text-[11px] sm:text-xs text-[var(--text-muted)]">
+              {dir === 'rtl' 
+                ? 'تُسجل كافة المعاملات وعمليات الاسترداد في دفتر الأستاذ المالي المشفر غير القابل للتعديل لضمان حقوق كافة الأطراف.'
+                : 'All transactions and refunds are immutably logged in our append-only financial ledger guaranteeing complete auditability.'}
+            </p>
+          </div>
+        </div>
+
+        <div className="pt-4 flex flex-wrap items-center justify-between gap-4 border-t border-[var(--border-main)]">
+          <span className="text-xs text-[var(--text-muted)]">
+            {dir === 'rtl' ? 'هل لديك استفسار حول سياسة الفوترة؟ تواصل مع الدعم المالي مباشرة.' : 'Questions about billing? Contact our financial support directly.'}
+          </span>
+          <button
+            onClick={() => navigate('/#contact')}
+            className="h-8 px-3.5 rounded-shape-sm btn-long-standard bg-[var(--surface-subtle)] hover:bg-[var(--surface-card)] border border-[var(--border-main)] text-xs font-bold text-[var(--text-primary)] transition-all inline-flex items-center gap-2 cursor-pointer shadow-2xs touch-target-44-expanded"
+          >
+            <span className="h-[23px] leading-[23px] inline-flex items-center">
+              {dir === 'rtl' ? 'التواصل مع الدعم المالي' : 'Contact Financial Support'}
+            </span>
+            <ArrowRight size={14} className={dir === 'rtl' ? 'rotate-180' : ''} />
+          </button>
+        </div>
+      </div>
+
       <ModalPortal>
         {confirmingPlan && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -770,39 +875,39 @@ export const SubscriptionPage: React.FC = () => {
                 className="absolute inset-0 bg-[var(--surface-overlay)] backdrop-blur-md"
               />
               <div 
-                className="relative w-full max-w-md rounded-shape-lg shadow-2xl overflow-hidden border bg-[var(--surface-card)] border-[var(--border-main)]"
+                className="relative w-full max-w-md rounded-shape-md shadow-2xl overflow-hidden border bg-[var(--surface-card)] border-[var(--border-main)]"
               >
-                <div className="p-5 md:p-6 border-b border-[var(--border-main)] flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-shape-sm bg-[var(--surface-subtle)] text-[var(--fg-accent)]">
-                      <Wallet size={20} />
+                <div className="p-4 md:p-5 border-b border-[var(--border-main)] flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-shape-sm bg-[var(--surface-subtle)] flex items-center justify-center text-[var(--fg-accent)] border border-[var(--border-main)]">
+                      <Wallet size={16} />
                     </div>
-                    <h3 className="text-lg font-bold text-[var(--text-primary)]">{t('confirmSubscription')}</h3>
+                    <h3 className="text-base font-bold text-[var(--text-primary)]">{t('confirmSubscription')}</h3>
                   </div>
                   <button 
                     onClick={() => setConfirmingPlan(null)} 
                     disabled={loading !== null} 
-                    className="p-1.5 rounded-shape-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] transition-colors cursor-pointer"
+                    className="w-8 h-8 min-w-[32px] min-h-[32px] rounded-shape-sm btn-square-primary flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] transition-colors cursor-pointer touch-target-44-expanded"
                   >
-                    <X size={18} />
+                    <X size={16} />
                   </button>
                 </div>
-                <div className="p-5 md:p-6 space-y-5">
-                  <p className="text-xs md:text-sm text-[var(--text-secondary)] leading-relaxed">
+                <div className="p-4 md:p-5 space-y-4">
+                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
                     {t('confirmSubscriptionDesc').replace('{plan}', dir === 'rtl' ? confirmingPlan.nameAr : confirmingPlan.nameEn)}
                   </p>
-                  <div className="p-4 rounded-shape-md space-y-3 bg-[var(--surface-subtle)] border border-[var(--border-main)]">
-                    <div className="flex justify-between items-center text-xs md:text-sm">
+                  <div className="p-3.5 rounded-shape-sm space-y-2.5 bg-[var(--surface-subtle)] border border-[var(--border-main)]">
+                    <div className="flex justify-between items-center text-xs">
                       <span className="text-[var(--text-muted)]">{t('currentBalance')}</span>
                       <span className="font-bold text-[var(--text-primary)]">${Number(balanceUSD || 0).toFixed(2)}</span>
                     </div>
-                    <div className="flex justify-between items-center text-xs md:text-sm">
+                    <div className="flex justify-between items-center text-xs">
                       <span className="text-[var(--text-muted)]">
                         {t('planPrice')} ({getCycleLabel(confirmingCycle, confirmingPlan)})
                       </span>
                       <span className="font-bold text-[var(--fg-accent)]">-${getDisplayPrice(confirmingPlan, confirmingCycle).toFixed(2)}</span>
                     </div>
-                    <div className="pt-2.5 border-t border-[var(--border-main)] flex justify-between items-center text-xs md:text-sm">
+                    <div className="pt-2 border-t border-[var(--border-main)] flex justify-between items-center text-xs">
                       <span className="font-medium text-[var(--text-primary)]">{t('remainingBalance')}</span>
                       <span className={`font-bold ${balanceUSD - getDisplayPrice(confirmingPlan, confirmingCycle) < 0 ? 'text-rose-500' : 'text-[var(--text-primary)]'}`}>
                         ${(Number(balanceUSD || 0) - getDisplayPrice(confirmingPlan, confirmingCycle)).toFixed(2)}
@@ -810,27 +915,31 @@ export const SubscriptionPage: React.FC = () => {
                     </div>
                   </div>
                   {balanceUSD - getDisplayPrice(confirmingPlan, confirmingCycle) < 0 && (
-                    <div className="flex items-start gap-2.5 p-3.5 rounded-shape-sm bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400">
-                      <AlertCircle size={18} className="shrink-0 mt-0.5" />
+                    <div className="flex items-start gap-2 p-3 rounded-shape-sm bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400">
+                      <AlertCircle size={16} className="shrink-0 mt-0.5" />
                       <p className="text-xs font-semibold leading-relaxed">{t('insufficientBalance')}</p>
                     </div>
                   )}
                 </div>
-                <div className="p-4 md:p-6 bg-[var(--surface-subtle)] border-t border-[var(--border-main)] flex gap-3">
+                <div className="p-4 bg-[var(--surface-subtle)] border-t border-[var(--border-main)] flex gap-2.5">
                   <button 
                     onClick={() => setConfirmingPlan(null)} 
                     disabled={loading !== null}
-                    className="flex-1 py-2.5 min-h-[44px] rounded-shape-sm font-bold text-xs md:text-sm transition-all duration-150 border bg-[var(--surface-card)] border-[var(--border-main)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer touch-target-44"
+                    className="flex-1 h-8 px-4 rounded-shape-sm btn-long-standard font-bold text-xs transition-theme border bg-[var(--surface-card)] border-[var(--border-main)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] cursor-pointer flex items-center justify-center"
                   >
-                    {t('cancel')}
+                    <span className="h-[23px] leading-[23px] inline-flex items-center">
+                      {t('cancel')}
+                    </span>
                   </button>
                   <button 
                     onClick={executePayment}
                     disabled={loading !== null || balanceUSD - getDisplayPrice(confirmingPlan, confirmingCycle) < 0}
-                    className="flex-1 py-2.5 min-h-[44px] rounded-shape-sm bg-[var(--fg-accent)] hover:opacity-90 text-[var(--comp-button-primary-fg,#ffffff)] font-bold text-xs md:text-sm transition-all duration-150 shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer touch-target-44 active:scale-95"
+                    className="flex-1 h-8 px-4 rounded-shape-sm btn-long-standard bg-[var(--fg-accent)] hover:opacity-90 text-[var(--comp-button-primary-fg,#ffffff)] font-bold text-xs transition-theme shadow-2xs flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-95"
                   >
-                    {loading ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
-                    {t('confirmAndActivate')}
+                    <span className="h-[23px] leading-[23px] flex items-center justify-center gap-1.5">
+                      {loading ? <Loader2 size={13} className="animate-spin" /> : <CheckCircle2 size={13} />}
+                      <span>{t('confirmAndActivate')}</span>
+                    </span>
                   </button>
                 </div>
               </div>
@@ -853,10 +962,10 @@ export const SubscriptionPage: React.FC = () => {
                 className="absolute inset-0 bg-[var(--surface-overlay)] backdrop-blur-md"
               />
               <div 
-                className="relative w-full max-w-md rounded-shape-lg shadow-2xl overflow-hidden border p-5 md:p-7 text-center bg-[var(--surface-card)] border-[var(--border-main)]"
+                className="relative w-full max-w-md rounded-shape-md shadow-2xl overflow-hidden border p-5 md:p-6 text-center bg-[var(--surface-card)] border-[var(--border-main)]"
               >
                 {/* Admin Defined Plan Color Stripe */}
-                <div className="absolute top-0 left-0 right-0 h-1.5" style={{ backgroundColor: selectedPlanForModal?.color || 'var(--fg-accent)' }} />
+                <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: selectedPlanForModal?.color || 'var(--fg-accent)' }} />
                 
                 <button 
                   onClick={() => {
@@ -867,43 +976,43 @@ export const SubscriptionPage: React.FC = () => {
                       setResultModal(null);
                     }
                   }} 
-                  className="absolute top-4 right-4 md:top-5 md:right-5 p-1.5 rounded-shape-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] transition-colors cursor-pointer"
+                  className="absolute top-3.5 right-3.5 w-8 h-8 min-w-[32px] min-h-[32px] rounded-shape-sm btn-square-primary flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] transition-colors cursor-pointer touch-target-44-expanded"
                 >
-                  <X size={18} />
+                  <X size={16} />
                 </button>
                 
-                <div className="flex justify-center mb-5 md:mb-6 mt-2">
+                <div className="flex justify-center mb-4 mt-2">
                   <div 
-                    className="w-16 h-16 md:w-18 md:h-18 rounded-shape-md flex items-center justify-center"
+                    className="w-12 h-12 rounded-shape-md flex items-center justify-center"
                     style={{ 
                       backgroundColor: `${selectedPlanForModal?.color || 'var(--fg-accent)'}18`, 
                       color: selectedPlanForModal?.color || 'var(--fg-accent)' 
                     }}
                   >
                     {resultModal === 'success' ? (
-                      <CheckCircle2 size={32} className="md:w-9 md:h-9" style={{ filter: `drop-shadow(0 0 10px ${selectedPlanForModal?.color || '#0969da'}50)` }} />
+                      <CheckCircle2 size={24} style={{ filter: `drop-shadow(0 0 8px ${selectedPlanForModal?.color || '#0969da'}50)` }} />
                     ) : (
-                      <AlertCircle size={32} className="md:w-9 md:h-9 text-amber-500" />
+                      <AlertCircle size={24} className="text-amber-500" />
                     )}
                   </div>
                 </div>
 
-                <h2 className="text-lg md:text-xl font-black mb-2 text-[var(--text-primary)]">
+                <h2 className="text-base md:text-lg font-bold mb-1.5 text-[var(--text-primary)]">
                   {resultModal === 'success' ? t('subscriptionSuccess') : t('insufficientBalanceTitle')}
                 </h2>
-                <p className="text-[var(--text-secondary)] text-xs md:text-sm leading-relaxed mb-5 md:mb-6 px-2">
+                <p className="text-[var(--text-secondary)] text-xs leading-relaxed mb-4 px-2">
                   {resultModal === 'success' ? t('subscriptionSuccessDesc') : t('insufficientBalanceDesc')}
                 </p>
 
                 {resultModal === 'success' && redirectCountdown !== null && (
                   <div 
-                    className="mb-5 p-3.5 rounded-shape-sm border flex flex-col items-center justify-center bg-[var(--surface-subtle)] border-[var(--border-main)]"
+                    className="mb-4 p-3 rounded-shape-sm border flex flex-col items-center justify-center bg-[var(--surface-subtle)] border-[var(--border-main)]"
                   >
                     <div 
-                      className="flex items-center gap-2 text-xs font-bold mb-2"
+                      className="flex items-center gap-1.5 text-xs font-bold mb-1.5"
                       style={{ color: selectedPlanForModal?.color || 'var(--fg-accent)' }}
                     >
-                      <Loader2 size={14} className="animate-spin" />
+                      <Loader2 size={13} className="animate-spin" />
                       <span>
                         {dir === 'rtl' 
                           ? `جاري تفعيل الاشتراك وتوجيهك إلى المنصة خلال ${redirectCountdown} ثوانٍ...` 
@@ -911,7 +1020,7 @@ export const SubscriptionPage: React.FC = () => {
                         }
                       </span>
                     </div>
-                    <div className="w-full bg-[var(--border-main)] h-1.5 rounded-shape-full overflow-hidden">
+                    <div className="w-full bg-[var(--border-main)] h-1 rounded-shape-full overflow-hidden">
                       <div 
                         className="h-full transition-all duration-1000"
                         style={{ width: `${(redirectCountdown / 5) * 100}%`, backgroundColor: selectedPlanForModal?.color || 'var(--fg-accent)' }}
@@ -921,45 +1030,47 @@ export const SubscriptionPage: React.FC = () => {
                 )}
 
                 {resultModal === 'insufficient' && (
-                  <div className="p-3.5 rounded-shape-sm mb-5 flex items-center justify-between bg-[var(--surface-subtle)] border border-[var(--border-main)]">
-                    <div className="flex items-center gap-2 text-[var(--text-secondary)] text-xs font-medium">
-                      <Wallet size={15} />
+                  <div className="h-8 px-3 rounded-shape-sm mb-4 flex items-center justify-between bg-[var(--surface-subtle)] border border-[var(--border-main)]">
+                    <div className="flex items-center gap-1.5 text-[var(--text-secondary)] text-xs font-medium">
+                      <Wallet size={14} />
                       <span>{t('currentBalance')}</span>
                     </div>
-                    <span className="text-base font-bold text-[var(--text-primary)]">${Number(balanceUSD || 0).toFixed(2)}</span>
+                    <span className="text-xs font-bold text-[var(--text-primary)]">${Number(balanceUSD || 0).toFixed(2)}</span>
                   </div>
                 )}
 
-                <div className="p-4 rounded-shape-md mb-5 md:mb-6 border bg-[var(--surface-subtle)] border-[var(--border-main)] text-start">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2">
+                <div className="p-3.5 rounded-shape-sm mb-4 border bg-[var(--surface-subtle)] border-[var(--border-main)] text-start">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">
                     {t('yourReferralLink')}
                   </p>
-                  <div className="flex items-center gap-2 p-1.5 rounded-shape-sm border bg-[var(--surface-card)] border-[var(--border-main)]">
+                  <div className="h-8 flex items-center gap-2 px-1.5 rounded-shape-sm border bg-[var(--surface-card)] border-[var(--border-main)]">
                     <button 
                       onClick={handleCopyLink}
-                      className="shrink-0 w-8 h-8 rounded-shape-xs flex items-center justify-center transition-all text-white cursor-pointer active:scale-95"
+                      className="shrink-0 w-6 h-6 rounded-shape-xs flex items-center justify-center transition-all text-white cursor-pointer active:scale-95"
                       style={{ backgroundColor: copied ? '#059669' : selectedPlanForModal?.color || 'var(--fg-accent)' }}
                       title={copied ? 'Copied' : 'Copy link'}
                     >
-                      {copied ? <CheckCircle2 size={15} /> : <Copy size={15} />}
+                      {copied ? <CheckCircle2 size={13} /> : <Copy size={13} />}
                     </button>
                     <div className="flex-1 overflow-hidden">
-                      <p className="text-[11px] font-mono text-[var(--text-secondary)] truncate px-1.5">{referralLink}</p>
+                      <p className="text-[11px] font-mono text-[var(--text-secondary)] truncate px-1">{referralLink}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2.5">
                   <button 
                     onClick={handleShare}
-                    className="flex-1 py-2.5 min-h-[44px] rounded-shape-sm text-white font-bold text-xs md:text-sm transition-all duration-150 shadow-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95 touch-target-44"
+                    className="h-8 px-4 rounded-shape-sm btn-long-standard text-white font-bold text-xs transition-theme shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
                     style={{ 
                       backgroundColor: selectedPlanForModal?.color || 'var(--fg-accent)', 
-                      boxShadow: `0 4px 14px -2px ${(selectedPlanForModal?.color || '#0969da')}40` 
+                      boxShadow: `0 2px 8px -2px ${(selectedPlanForModal?.color || '#0969da')}40` 
                     }}
                   >
-                    <Share2 size={16} />
-                    <span>{t('shareWithFriends')}</span>
+                    <span className="h-[23px] leading-[23px] flex items-center justify-center gap-1.5">
+                      <Share2 size={13} />
+                      <span>{t('shareWithFriends')}</span>
+                    </span>
                   </button>
                   <button 
                     onClick={() => {
@@ -968,16 +1079,18 @@ export const SubscriptionPage: React.FC = () => {
                         navigate('/');
                       }
                     }}
-                    className="flex-1 py-2.5 min-h-[44px] rounded-shape-sm font-bold text-xs md:text-sm transition-all duration-150 border bg-[var(--surface-subtle)] border-[var(--border-main)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-card)] flex items-center justify-center gap-2 cursor-pointer active:scale-95 touch-target-44"
+                    className="h-8 px-4 rounded-shape-sm btn-long-standard font-bold text-xs transition-theme border bg-[var(--surface-subtle)] border-[var(--border-main)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-card)] flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
                   >
-                    {resultModal === 'success' ? (
-                      <>
-                        <CheckCircle2 size={16} style={{ color: selectedPlanForModal?.color || 'var(--fg-accent)' }} />
-                        <span>{dir === 'rtl' ? 'الانتقال للرئيسية' : 'Go to Homepage'}</span>
-                      </>
-                    ) : (
-                      <span>{t('close')}</span>
-                    )}
+                    <span className="h-[23px] leading-[23px] flex items-center justify-center gap-1.5">
+                      {resultModal === 'success' ? (
+                        <>
+                          <CheckCircle2 size={13} style={{ color: selectedPlanForModal?.color || 'var(--fg-accent)' }} />
+                          <span>{dir === 'rtl' ? 'الرئيسية' : 'Homepage'}</span>
+                        </>
+                      ) : (
+                        <span>{t('close')}</span>
+                      )}
+                    </span>
                   </button>
                 </div>
               </div>

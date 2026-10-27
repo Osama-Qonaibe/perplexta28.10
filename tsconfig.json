@@ -15,9 +15,13 @@
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "moduleDetection": "force",
-    "allowJs": true,
+    "allowJs": false,
     "jsx": "react-jsx",
+    "types": ["vite/client", "node"],
     "paths": {
+      "@/data/importedTemplates": [
+        "./src/types/importedTemplates.d.ts"
+      ],
       "@/*": [
         "./src/*"
       ]
@@ -26,18 +30,21 @@
     "noEmit": true
   },
   "include": [
-    "src/**/*",
-    "server/**/*",
-    "scripts/**/*",
-    "vite.config.ts",
-    "tailwind.config.ts"
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",
     "dist",
+    "dist-app",
     "android",
     "ios",
     "public",
-    "uploads"
+    "uploads",
+    "scripts",
+    "server",
+    "src/data/importedTemplates.ts",
+    "src/data/rataqTemplates.ts",
+    "src/data/templates.ts",
+    "src/data/publicTemplatesData.ts"
   ]
 }

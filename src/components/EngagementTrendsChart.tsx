@@ -272,35 +272,34 @@ export const EngagementTrendsChart: React.FC<EngagementTrendsChartProps> = ({
       {/* Header Controls & Metric Tabs */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-[var(--border-default)]">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-[var(--radius-sm)] bg-[var(--bg-accent-muted)] border border-[var(--accent)]/30 flex items-center justify-center text-[var(--accent)]">
+          <div className="w-8 h-8 rounded-shape-sm bg-[var(--bg-accent-muted)] border border-[var(--border-accent)]/20 flex items-center justify-center text-[var(--fg-accent)] shrink-0">
             <TrendingUp size={16} />
           </div>
           <div>
-            <h3 className="text-xs sm:text-sm font-extrabold text-[var(--text-primary)] flex items-center gap-1">
-              <span>{isRtl ? 'تحليلات اتجاهات التفاعل والدقة' : 'Engagement & Accuracy Trends'}</span>
-              <span className="ide-badge-info shrink-0">
-                D3 Visualizer
-              </span>
+            <h3 className="text-xs sm:text-sm font-extrabold text-[var(--text-primary)]">
+              {isRtl ? 'مؤشرات التفاعل ومعدلات الدقة' : 'Engagement & Precision Trends'}
             </h3>
             <p className="text-[10px] sm:text-xs text-[var(--text-muted)]">
-              {isRtl ? 'مخطط بياني زمني يوضح سرعة التفاعل ودقة مطابقة التوصيات الحقيقية' : 'Real-time timeline tracking recommendation velocity and match precision'}
+              {isRtl ? 'مخطط بياني زمني يوضح وتيرة التفاعل ومعدل مطابقة التوصيات' : 'Timeline tracking recommendation activity and match rates'}
             </p>
           </div>
         </div>
 
-        {/* Timeframe selector */}
-        <div className="flex items-center gap-1 bg-[var(--surface-subtle)] p-1 rounded-[var(--radius-sm)] border border-[var(--border-default)] self-end sm:self-auto">
+        {/* Timeframe selector (Standard 32px height container) */}
+        <div className="h-8 p-0.5 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] flex items-center gap-0.5 self-end sm:self-auto">
           {(['7d', '30d', '90d'] as const).map(tf => (
             <button
               key={tf}
               onClick={() => setTimeframe(tf)}
-              className={`px-2.5 py-1 rounded-[var(--radius-xs)] text-xs font-bold transition-colors cursor-pointer ${
+              className={`h-7 px-2.5 rounded-shape-xs text-xs font-bold transition-colors cursor-pointer flex items-center justify-center ${
                 timeframe === tf
                   ? 'bg-[var(--accent)] text-white shadow-2xs font-extrabold'
                   : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
               }`}
             >
-              {tf === '7d' ? (isRtl ? '7 أيام' : '7 Days') : tf === '30d' ? (isRtl ? '30 يوم' : '30 Days') : (isRtl ? '90 يوم' : '90 Days')}
+              <span className="h-[23px] leading-[23px]">
+                {tf === '7d' ? (isRtl ? '7 أيام' : '7 Days') : tf === '30d' ? (isRtl ? '30 يوم' : '30 Days') : (isRtl ? '90 يوم' : '90 Days')}
+              </span>
             </button>
           ))}
         </div>
@@ -310,7 +309,7 @@ export const EngagementTrendsChart: React.FC<EngagementTrendsChartProps> = ({
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         <button
           onClick={() => setActiveMetric('clicks')}
-          className={`p-2.5 sm:p-3 rounded-[var(--radius-sm)] border text-start transition-colors cursor-pointer ${
+          className={`p-2.5 sm:p-3 rounded-shape-sm border text-start transition-colors cursor-pointer ${
             activeMetric === 'clicks'
               ? 'border-[var(--accent)] bg-[var(--bg-accent-muted)] shadow-2xs'
               : 'border-[var(--border-default)] bg-[var(--surface-card)] hover:border-[var(--border-strong)]'
@@ -326,7 +325,7 @@ export const EngagementTrendsChart: React.FC<EngagementTrendsChartProps> = ({
 
         <button
           onClick={() => setActiveMetric('matchScore')}
-          className={`p-2.5 sm:p-3 rounded-[var(--radius-sm)] border text-start transition-colors cursor-pointer ${
+          className={`p-2.5 sm:p-3 rounded-shape-sm border text-start transition-colors cursor-pointer ${
             activeMetric === 'matchScore'
               ? 'border-[var(--accent)] bg-[var(--bg-accent-muted)] shadow-2xs'
               : 'border-[var(--border-default)] bg-[var(--surface-card)] hover:border-[var(--border-strong)]'
@@ -337,7 +336,7 @@ export const EngagementTrendsChart: React.FC<EngagementTrendsChartProps> = ({
             <Sparkles size={12} className="text-[var(--accent)] shrink-0 ms-1" />
           </p>
           <p className="text-sm sm:text-base font-black text-[var(--text-primary)] mt-1">{avgMatch}%</p>
-          <p className="text-[10px] font-bold text-[var(--accent)] mt-0.5">{isRtl ? 'دقة فائقة' : 'High Precision'}</p>
+          <p className="text-[10px] font-bold text-[var(--accent)] mt-0.5">{isRtl ? 'دقة مرتفعة' : 'High Precision'}</p>
         </button>
 
         <button

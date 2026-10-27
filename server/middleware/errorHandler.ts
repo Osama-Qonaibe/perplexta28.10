@@ -92,7 +92,7 @@ export function errorHandler(
 }
 
 export function notFoundHandler(req: Request, res: Response, next: NextFunction) {
-  if (req.path.startsWith('/api')) {
+  if (req.path.startsWith('/api') || req.originalUrl.startsWith('/api')) {
     const err = new AppError(
       `Route not found ${req.method} ${req.path}`,
       404,

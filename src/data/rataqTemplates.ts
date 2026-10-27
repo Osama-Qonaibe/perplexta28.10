@@ -1,5 +1,5 @@
 import { CanvasElement } from '../components/chat/artifacts/ArtifactImageEditor';
-import { IMPORTED_TEMPLATES } from './importedTemplates';
+import { IMPORTED_TEMPLATES } from '@/data/importedTemplates';
 
 export interface StudioTemplate {
   id: string;

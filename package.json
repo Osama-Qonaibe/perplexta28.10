@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "NODE_OPTIONS=\"--max-old-space-size=512\" tsx server.ts",
-    "build": "NODE_OPTIONS=\"--max-old-space-size=2048\" vite build && cp -rlf public/. dist/ && NODE_OPTIONS=\"--max-old-space-size=512\" npx esbuild server/index.ts --bundle --platform=node --format=cjs --packages=external --minify --outfile=dist/server.cjs",
+    "build": "NODE_OPTIONS=\"--max-old-space-size=2048\" vite build && cp -rlf public/. dist/ && NODE_OPTIONS=\"--max-old-space-size=1024\" npx esbuild server/index.ts --bundle --platform=node --format=cjs --packages=external --minify --outfile=dist/server.cjs",
+    "build:app": "NODE_OPTIONS=\"--max-old-space-size=2048\" vite build --config vite.app.config.ts && cp -rlf public/. dist-app/ && cp -f dist-app/app.html dist-app/index.html",
     "build:all": "bash scripts/build-all.sh",
     "start": "node server.ts",
     "preview": "vite preview",
@@ -20,7 +21,7 @@
     "validate:pwa": "tsx scripts/validate-pwa.ts",
     "validate:manifest": "tsx scripts/validate-pwa.ts",
     "db:verify": "tsx scripts/verify_distributed_dbs.ts",
-    "lint": "NODE_OPTIONS=\"--max-old-space-size=2048\" tsc --noEmit"
+    "lint": "NODE_OPTIONS=\"--max-old-space-size=896\" tsc -p tsconfig.json --noEmit --skipLibCheck && NODE_OPTIONS=\"--max-old-space-size=896\" tsc -p tsconfig.server.json --noEmit --skipLibCheck"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

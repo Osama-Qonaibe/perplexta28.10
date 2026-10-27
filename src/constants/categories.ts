@@ -991,6 +991,178 @@ export const MASTER_PLATFORM_CATEGORIES: PlatformCategory[] = [
   }
 ];
 
+
+export interface DetailedTargetingPillarItem {
+  id: string;
+  pillar: 'interests' | 'demographics' | 'behaviors';
+  categoryAr: string;
+  categoryEn: string;
+  titleAr: string;
+  titleEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  audienceReach: number;
+  discoveryEngineScore?: number;
+  iconName?: string;
+  keywords: string[];
+}
+
+export const DEMOGRAPHIC_TARGETS: DetailedTargetingPillarItem[] = [
+  {
+    id: 'demo_college_grads',
+    pillar: 'demographics',
+    categoryAr: 'المستوى التعليمي',
+    categoryEn: 'Education Level',
+    titleAr: 'خريجو الجامعات والدراسات العليا',
+    titleEn: 'College Graduates & Advanced Degrees',
+    descriptionAr: 'حاملو الشهادات الجامعية والدراسات العليا المتخصصون',
+    descriptionEn: 'University degree holders and postgraduate specialists',
+    audienceReach: 680000,
+    keywords: ['جامعة', 'دراسات عليا', 'ماجستير', 'دكتوراه', 'خريجين']
+  },
+  {
+    id: 'demo_business_owners',
+    pillar: 'demographics',
+    categoryAr: 'المنصب الوظيفي والأعمال',
+    categoryEn: 'Job Titles & Business',
+    titleAr: 'أصحاب الأعمال والمدراء التنفيذيون',
+    titleEn: 'Business Owners & C-Level Executives',
+    descriptionAr: 'مؤسسو الشركات، المدراء العامون، وأصحاب القرار التجاري',
+    descriptionEn: 'Company founders, general managers, and corporate decision makers',
+    audienceReach: 420000,
+    keywords: ['مدير', 'رئيس تنفيذي', 'صاحب شركة', 'مؤسس', 'أعمال']
+  },
+  {
+    id: 'demo_married_families',
+    pillar: 'demographics',
+    categoryAr: 'الحالة الاجتماعية والأسرية',
+    categoryEn: 'Relationship & Family',
+    titleAr: 'المتزوجون والعائلات الحديثة',
+    titleEn: 'Married Couples & Young Families',
+    descriptionAr: 'العائلات والأزواج ممن لديهم أبناء وتدبير منزلي',
+    descriptionEn: 'Married couples and families with household purchasing needs',
+    audienceReach: 890000,
+    keywords: ['متزوج', 'عائلة', 'أسرة', 'أطفال', 'منزل']
+  },
+  {
+    id: 'demo_high_income',
+    pillar: 'demographics',
+    categoryAr: 'المستوى الاقتصادي',
+    categoryEn: 'Economic Tier',
+    titleAr: 'أصحاب الدخل المرتفع والمتوسط الفاخر',
+    titleEn: 'High & Upper-Middle Income Tier',
+    descriptionAr: 'شرائح المستهلكين ذوي القوة الشرائية المرتفعة',
+    descriptionEn: 'Consumers with high purchasing power and luxury affinity',
+    audienceReach: 510000,
+    keywords: ['دخل مرتفع', 'فاخر', 'استثمار', 'قوة شرائية']
+  },
+  {
+    id: 'demo_entrepreneurs',
+    pillar: 'demographics',
+    categoryAr: 'الأنشطة الاستثمارية',
+    categoryEn: 'Investment Activity',
+    titleAr: 'رواد الأعمال وأصحاب المشاريع الناشئة',
+    titleEn: 'Entrepreneurs & Startup Founders',
+    descriptionAr: 'القائمون على المشاريع والمتاجر الناشئة والخدمات الإبداعية',
+    descriptionEn: 'Startup founders, ecommerce creators, and digital project owners',
+    audienceReach: 380000,
+    keywords: ['ريادة أعمال', 'مشروع جديد', 'ستارت اب', 'متجر جديد']
+  },
+  {
+    id: 'demo_medical_eng_pros',
+    pillar: 'demographics',
+    categoryAr: 'المهن التخصصية',
+    categoryEn: 'Specialized Professions',
+    titleAr: 'الأطباء والمهندسون والاستشاريون',
+    titleEn: 'Doctors, Engineers & Consultants',
+    descriptionAr: 'الكوادر الطبية والهندسية والاستشارية المعتمدة',
+    descriptionEn: 'Certified medical staff, engineers, and corporate consultants',
+    audienceReach: 340000,
+    keywords: ['طبيب', 'مهندس', 'استشاري', 'دكتور', 'عيادة']
+  }
+];
+
+export const BEHAVIORAL_TARGETS: DetailedTargetingPillarItem[] = [
+  {
+    id: 'beh_engaged_buyers',
+    pillar: 'behaviors',
+    categoryAr: 'سلوكيات الشراء والتسوق',
+    categoryEn: 'Purchase Behaviors',
+    titleAr: 'المتسوقون المتفاعلون بالشراء المباشر',
+    titleEn: 'Engaged Buyers (Direct Purchase)',
+    descriptionAr: 'المستخدمون الذين نقروا على أزرار "تسوق الآن" أو "أطلب عبر الواتساب" في آخر 7 أيام',
+    descriptionEn: 'Users who clicked "Shop Now" or "Order via WhatsApp" in the last 7 days',
+    audienceReach: 940000,
+    discoveryEngineScore: 98.4,
+    keywords: ['شراء', 'طلب', 'تسوق', 'واتساب', 'متجر']
+  },
+  {
+    id: 'beh_page_store_admins',
+    pillar: 'behaviors',
+    categoryAr: 'إدارة الصفحات والتجارة',
+    categoryEn: 'Page & Business Management',
+    titleAr: 'مديرو الصفحات والمتاجر الرقمية',
+    titleEn: 'Page & Digital Store Admins',
+    descriptionAr: 'المسؤولون عن إدارة صفحة تجارية أو متجر إلكتروني نشط',
+    descriptionEn: 'Admins managing active business pages, stores, or advertising accounts',
+    audienceReach: 460000,
+    discoveryEngineScore: 96.2,
+    keywords: ['مدير صفحة', 'إدارة متجر', 'تسويق', 'إعلانات']
+  },
+  {
+    id: 'beh_heavy_reels_viewers',
+    pillar: 'behaviors',
+    categoryAr: 'استهلاك المحتوى المائي والفيديو',
+    categoryEn: 'Media & Video Consumption',
+    titleAr: 'متابعو الفيديوهات القصيرة وReels المكثف',
+    titleEn: 'Heavy Short Video & Reels Consumers',
+    descriptionAr: 'المستخدمون الأكثر إكمالاً وإعجاباً بمقاطع الفيديو الترويجية',
+    descriptionEn: 'Users with high completion rate and interaction on promotional short reels',
+    audienceReach: 870000,
+    discoveryEngineScore: 94.8,
+    keywords: ['ريلز', 'فيديو', 'مشاهدة', 'تفاعل', 'reels']
+  },
+  {
+    id: 'beh_high_value_spenders',
+    pillar: 'behaviors',
+    categoryAr: 'أنماط الإنفاق',
+    categoryEn: 'Spending Patterns',
+    titleAr: 'المشترون عالي القيمة وسلوك الإنفاق المرتفع',
+    titleEn: 'High-Value Spenders & Frequent Buyers',
+    descriptionAr: 'المستهلكون الذين يفضلون المنتجات ذات القيمة المرتفعة والخدمات الممتازة',
+    descriptionEn: 'Consumers making high-ticket orders and premium service purchases',
+    audienceReach: 520000,
+    discoveryEngineScore: 92.6,
+    keywords: ['إنفاق مرتفع', 'منتجات فاخرة', 'طلب متكرر', 'VIP']
+  },
+  {
+    id: 'beh_flagship_device_users',
+    pillar: 'behaviors',
+    categoryAr: 'نوع الأجهزة والشبكات',
+    categoryEn: 'Device & Network Usage',
+    titleAr: 'مستخدمو الأجهزة الحديثة الفاخرة (iPhone & Galaxy S)',
+    titleEn: 'High-End Flagship Device Users',
+    descriptionAr: 'مستخدمو أحدث إصدارات آيفون وسلسلة سامسونج جالكسي الفاخرة',
+    descriptionEn: 'Users connected via latest iPhone flagship and Samsung Galaxy S series',
+    audienceReach: 680000,
+    discoveryEngineScore: 91.0,
+    keywords: ['آيفون', 'سامسونج', 'جوال فاخر', 'iphone', 'galaxy']
+  },
+  {
+    id: 'beh_frequent_travelers',
+    pillar: 'behaviors',
+    categoryAr: 'التنقل والسفر',
+    categoryEn: 'Travel & Mobility',
+    titleAr: 'المسافرون دائمو السفر والرحلات الدولية',
+    titleEn: 'Frequent Travelers & Expats',
+    descriptionAr: 'المستخدمون الذين يتنقلون بين المدن والدول بشكل منتظم',
+    descriptionEn: 'Users who travel frequently between cities and international destinations',
+    audienceReach: 430000,
+    discoveryEngineScore: 89.5,
+    keywords: ['سفر', 'طيران', 'رحلات', 'سياحة', 'فنادق']
+  }
+];
+
 export function searchCategories(query: string = '', groupId?: string, limit: number = 50): PlatformCategory[] {
   let list = MASTER_PLATFORM_CATEGORIES;
   if (groupId && groupId !== 'all') {
@@ -1014,3 +1186,5 @@ export function searchCategories(query: string = '', groupId?: string, limit: nu
     })
     .slice(0, limit);
 }
+
+

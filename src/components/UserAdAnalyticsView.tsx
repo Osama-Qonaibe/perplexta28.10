@@ -119,10 +119,10 @@ export const UserAdAnalyticsView: React.FC = () => {
 
           <button
             onClick={fetchAnalytics}
-            className="flex items-center justify-center gap-2 px-3 py-1.5 rounded-[var(--radius-xs)] bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--fg-accent)] font-bold text-xs hover:bg-[var(--surface-inset)] transition-theme shrink-0 cursor-pointer"
+            className="h-8 min-h-[32px] max-h-[32px] px-3 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-main)] text-[var(--fg-accent)] font-bold text-xs hover:bg-[var(--surface-card)] transition-theme inline-flex items-center gap-2 shrink-0 cursor-pointer"
           >
             <RefreshCw size={14} />
-            <span>{isRtl ? 'تحديث البيانات' : 'Refresh Data'}</span>
+            <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'تحديث البيانات' : 'Refresh Data'}</span>
           </button>
         </div>
       </div>

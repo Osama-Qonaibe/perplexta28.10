@@ -68,22 +68,22 @@ export const StoriesBar: React.FC<StoriesBarProps> = ({
           <button
             type="button"
             onClick={() => setActiveTab('board')}
-            className={`h-6.5 sm:h-7 px-2 sm:px-2.5 rounded-shape-sm text-[11px] sm:text-xs font-bold transition-colors duration-fast flex items-center gap-1 sm:gap-1.5 cursor-pointer shadow-2xs shrink-0 ${
+            className={`h-8 px-3 rounded-shape-sm text-xs font-bold transition-colors duration-fast flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0 touch-target-44-expanded ${
               activeTab === 'board' ? 'bg-accent/10 text-accent border border-accent/25' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] border border-transparent'
             }`}
           >
-            <Camera size={12} className="sm:size-[13px]" />
-            <span>{isRtl ? 'قصص' : 'Stories'}</span>
+            <Camera size={13} />
+            <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'قصص' : 'Stories'}</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('reels')}
-            className={`h-6.5 sm:h-7 px-2 sm:px-2.5 rounded-shape-sm text-[11px] sm:text-xs font-bold transition-colors duration-fast flex items-center gap-1 sm:gap-1.5 cursor-pointer shadow-2xs shrink-0 ${
+            className={`h-8 px-3 rounded-shape-sm text-xs font-bold transition-colors duration-fast flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0 touch-target-44-expanded ${
               activeTab === 'reels' ? 'bg-accent/10 text-accent border border-accent/25' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] border border-transparent'
             }`}
           >
-            <Clapperboard size={12} className="sm:size-[13px]" />
-            <span>{isRtl ? 'ريلز' : 'Reels'}</span>
+            <Clapperboard size={13} />
+            <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'ريلز' : 'Reels'}</span>
           </button>
 
           {/* Location Selector Button placed directly beside Reels button with matching size and professional alignment */}
@@ -91,12 +91,12 @@ export const StoriesBar: React.FC<StoriesBarProps> = ({
             <button
               type="button"
               onClick={() => setIsLocationFlyoutOpen(true)}
-              className="h-6.5 sm:h-7 px-2 sm:px-2.5 rounded-shape-sm text-[11px] sm:text-xs font-bold transition-[color,background-color,border-color,transform] duration-fast flex items-center gap-1 sm:gap-1.5 cursor-pointer shadow-2xs bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] text-[var(--text-primary)] hover:text-accent border border-[var(--border-default)] hover:border-accent/40 max-w-[140px] xs:max-w-[180px] sm:max-w-[220px] truncate shrink-0 active:scale-95"
+              className="h-8 px-3 rounded-shape-sm text-xs font-bold transition-[color,background-color,border-color,transform] duration-fast flex items-center gap-1.5 cursor-pointer shadow-2xs bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] text-[var(--text-primary)] hover:text-accent border border-[var(--border-default)] hover:border-accent/40 max-w-[140px] xs:max-w-[180px] sm:max-w-[220px] truncate shrink-0 active:scale-95 touch-target-44-expanded"
               title={isRtl ? 'تصفية حسب المدينة والمنطقة' : 'Filter by City/Region'}
             >
-              <MapPin size={11} className="sm:size-[12px] text-accent shrink-0" />
-              <span className="truncate">{cityLabel}</span>
-              <ChevronDown size={10} className="sm:size-[11px] text-[var(--text-muted)] shrink-0" />
+              <MapPin size={12} className="text-accent shrink-0" />
+              <span className="h-[23px] leading-[23px] inline-flex items-center truncate">{cityLabel}</span>
+              <ChevronDown size={11} className="text-[var(--text-muted)] shrink-0" />
             </button>
           )}
         </div>

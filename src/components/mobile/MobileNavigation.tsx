@@ -129,7 +129,7 @@ export const MobileNavigation: React.FC = () => {
       id: 'account',
       labelAr: 'الحساب',
       labelEn: 'Account',
-      path: '/settings',
+      path: '/profile',
       isMenuTrigger: true,
       icon: User,
       badge: unreadCount > 0 ? unreadCount : undefined,
@@ -167,9 +167,13 @@ export const MobileNavigation: React.FC = () => {
       id: 'account',
       labelAr: 'الحساب',
       labelEn: 'Account',
-      path: '/settings',
+      path: '/profile',
       isMenuTrigger: true,
-      icon: User,
+      icon: user?.avatar ? ({ className }: { className?: string }) => (
+        <div className={`w-5 h-5 rounded-full overflow-hidden border border-[var(--border-main)] shadow-2xs ${className}`}>
+          <img src={resolveImageUrl(user.avatar, 'avatar')} alt="" className="w-full h-full object-cover" />
+        </div>
+      ) : User,
       badge: unreadCount > 0 ? unreadCount : undefined,
     },
   ];
@@ -180,7 +184,7 @@ export const MobileNavigation: React.FC = () => {
     if (id === 'discover') return currentPath.startsWith('/discover');
     if (id === 'studio') return false;
     if (id === 'viralbook') return (currentPath.startsWith('/bulletin') || currentPath.startsWith('/viralbook') || currentPath.startsWith('/reels')) && !currentPath.includes('/inquiries') && !location.search.includes('tab=inquiries');
-    if (id === 'account') return currentPath.startsWith('/settings');
+    if (id === 'account') return currentPath.startsWith('/profile') || currentPath.startsWith('/settings');
     return path ? currentPath === path : false;
   };
 
@@ -213,10 +217,10 @@ export const MobileNavigation: React.FC = () => {
         setIsAuthModalOpen(true);
         return;
       }
-      if (currentPath.startsWith('/settings')) {
+      if (currentPath.startsWith('/profile')) {
         setIsDrawerOpen((prev) => !prev);
       } else {
-        navigate('/settings');
+        navigate('/profile');
       }
     } else if (item.path) {
       navigate(item.path);

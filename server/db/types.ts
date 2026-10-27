@@ -716,6 +716,9 @@ export interface BulletinAd {
   page_cover?: string | null;
   page_is_verified?: boolean;
   location_city?: string | null;
+  location_country?: string | null;
+  location_scope?: 'entire_country' | 'specific_cities' | string | null;
+  target_country?: string | null;
   author_name?: string;
   author_avatar?: string;
   title: string;

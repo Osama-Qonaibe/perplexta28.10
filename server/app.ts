@@ -198,7 +198,7 @@ app.use((req, res, next) => {
     });
   }
 
-  const isApi = req.path.startsWith('/api/') || req.originalUrl.startsWith('/api');
+  const isApi = req.path.startsWith('/api') || req.originalUrl.startsWith('/api');
   const startHr = process.hrtime.bigint();
 
   // Intercept writeHead to inject response timing headers before flushing to socket
@@ -362,7 +362,7 @@ app.use((req: any, res: any, next: any) => {
 });
 
 app.use((req, res, next) => {
-  if (!req.path.startsWith('/api/')) {
+  if (!req.path.startsWith('/api')) {
     return next();
   }
 
@@ -498,7 +498,7 @@ app.use((req, res, next) => {
 });
 
 app.use((req, res, next) => {
-  const isApiOrUploads = req.path.startsWith('/api/') || req.path.startsWith('/uploads/');
+  const isApiOrUploads = req.path.startsWith('/api') || req.path.startsWith('/uploads');
   const hasStaticExtension = /\.((js|css|json|webmanifest|ico|png|jpg|jpeg|gif|svg|woff2?|ttf|otf|mp4|webm|mp3|wav))$/i.test(req.path);
   
   if (!isApiOrUploads && !hasStaticExtension) {
@@ -657,7 +657,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 app.use((req, res, next) => {
-  if (process.env.NODE_ENV !== 'production' && req.path.startsWith('/api/')) {
+  if (process.env.NODE_ENV !== 'production' && req.path.startsWith('/api')) {
     console.log(`[API Request] ${req.method} ${req.path}`);
   }
   next();
@@ -748,12 +748,15 @@ app.get(['/manifest.webmanifest', '/manifest.json'], async (req, res) => {
     const themeColor = isDarkMode ? '#0d1117' : '#ffffff';
     const bgColor = isDarkMode ? '#0d1117' : '#ffffff';
 
+    // Mobile shortcut capabilities
+    const isMobile = !!(req.headers['user-agent']?.match(/Android|iPhone|iPad|iPod/i));
+
     const manifestObj = {
       name: localizedName,
       short_name: localizedName,
       description,
       id: '/',
-      start_url: '/',
+      start_url: isMobile ? '/?mode=app' : '/',
       scope: '/',
       display: 'standalone',
       display_override: ['window-controls-overlay', 'standalone', 'minimal-ui'],
@@ -761,6 +764,26 @@ app.get(['/manifest.webmanifest', '/manifest.json'], async (req, res) => {
       theme_color: themeColor,
       orientation: 'any',
       categories: ['productivity', 'utilities', 'artificial intelligence', 'finance', 'business'],
+      shortcuts: [
+        {
+          name: isArabic ? 'دردشة الذكاء الاصطناعي' : 'AI Chat',
+          short_name: isArabic ? 'دردشة' : 'Chat',
+          url: '/chat?mode=app',
+          icons: [{ src: '/favicon.ico', sizes: '48x48' }]
+        },
+        {
+          name: isArabic ? 'فايرال بوك' : 'ViralBook',
+          short_name: 'Viral',
+          url: '/viralbook?mode=app',
+          icons: [{ src: '/favicon.ico', sizes: '48x48' }]
+        },
+        {
+          name: isArabic ? 'المحفظة' : 'Wallet',
+          short_name: isArabic ? 'محفظة' : 'Wallet',
+          url: '/wallet?mode=app',
+          icons: [{ src: '/favicon.ico', sizes: '48x48' }]
+        }
+      ],
       icons: [
         {
           src: '/uploads/brand/pwa-192x192.png',
@@ -788,7 +811,7 @@ app.get(['/manifest.webmanifest', '/manifest.json'], async (req, res) => {
     return res.json({
       name: 'Perplexta',
       short_name: 'Perplexta',
-      start_url: '/',
+      start_url: '/?mode=app',
       display: 'standalone',
       background_color: '#ffffff',
       theme_color: '#ffffff',
@@ -1880,6 +1903,19 @@ app.use('/api/google-integrations', googleIntegrationsRoutes);
 app.use('/api/ownership', ownershipRoutes);
 app.use('/api/studio', studioRoutes);
 app.use('/api/rinex', rinexRoutes);
+app.use('/api/tools', toolRoutes);
+app.use('/api/memory', memoryRoutes);
+app.use('/api/kyc', kycRoutes);
+app.use('/api/email', emailRoutes);
+app.use('/api/video-resources', videoResourcesRoutes);
+app.use('/api/ads', adsRoutes);
+app.use('/api/bulletin', bulletinRoutes);
+app.use('/api/metrics', metricsRoutes);
+app.use('/api/recommendations', recommendationsRoutes);
+app.use('/api/google-chat', googleChatRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/push', pushRoutes);
+app.use('/api/scene-architect', sceneArchitectRoutes);
 
 app.post('/api/activity/log', async (req, res) => {
   try {
@@ -2150,17 +2186,10 @@ app.get('/sitemap.xml', async (req, res) => {
   }
 });
 
-app.use('/api/settings', (req, res, next) => {
-  req.url = '/settings';
-  systemRoutes(req, res, next);
-});
-app.use('/api/economy', (req, res, next) => {
-  req.url = '/economy';
-  systemRoutes(req, res, next);
-});
+
 
 app.use('/api/memories', memoryRoutes);
-app.use('/api/memory', memoryRoutes);
+
 app.use('/api/kyc', kycRoutes);
 app.use('/api/mail-services-v3', emailRoutes);
 app.use('/api/email', emailRoutes);
@@ -2168,14 +2197,14 @@ app.use('/api/video-resources', videoResourcesRoutes);
 app.use('/api/tools', toolRoutes);
 app.use('/api/ads', adsRoutes);
 app.use('/api/viralbook', bulletinRoutes);
-app.use('/api/bulletin', bulletinRoutes);
+
 app.use('/api/metrics', metricsRoutes);
 app.use('/api/recommendations', recommendationsRoutes);
 app.use('/api/google-chat', googleChatRoutes);
 app.use('/api/ai', aiRoutes);
 app.use("/api/push", pushRoutes);
 app.use('/api/v1/scene-architect', sceneArchitectRoutes);
-app.use('/api/scene-architect', sceneArchitectRoutes);
+
 
 // Public Landing CMS endpoint for visitors (reads hero showcase video and content)
 app.get('/api/cms/landing', async (_req, res) => {
@@ -2911,7 +2940,7 @@ app.use(async (req: express.Request, res: express.Response, next: express.NextFu
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     return next();
   }
-  const isApiOrUploads = req.path.startsWith('/api/') || req.path.startsWith('/uploads/');
+  const isApiOrUploads = req.path.startsWith('/api') || req.path.startsWith('/uploads') || req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/uploads');
   const hasStaticExtension = /\.((js|css|json|webmanifest|ico|png|jpg|jpeg|gif|svg|woff2?|ttf|otf|mp4|webm|mp3|wav))$/i.test(req.path);
   
   const isDevVitePath = process.env.NODE_ENV !== 'production' && (
@@ -2954,25 +2983,45 @@ app.use(async (req: express.Request, res: express.Response, next: express.NextFu
   try {
     let baseHtml = '';
     const isProduction = process.env.NODE_ENV === 'production';
+    const isMobileUser = !!(req.headers['user-agent']?.match(/Android|iPhone|iPad|iPod/i));
+    const isAppMode = req.query.mode === 'app';
+    const forceDesktop = req.query.force_desktop === 'true';
+    const serveMobileApp = (isMobileUser || isAppMode) && !forceDesktop;
 
     if (isProduction) {
-      baseHtml = cachedIndexHtml || (fs.existsSync(indexPath) ? fs.readFileSync(indexPath, 'utf8') : '');
+      const targetHtmlPath = serveMobileApp ? path.resolve(process.cwd(), 'dist-app', 'app.html') : indexPath;
+      baseHtml = fs.existsSync(targetHtmlPath) ? fs.readFileSync(targetHtmlPath, 'utf8') : '';
+      
+      if (!baseHtml && serveMobileApp) {
+        // Fallback if dist-app/app.html is missing but dist/index.html exists
+        baseHtml = cachedIndexHtml || (fs.existsSync(indexPath) ? fs.readFileSync(indexPath, 'utf8') : '');
+      }
+      
       if (!baseHtml && fs.existsSync(fallbackPath)) {
         baseHtml = fs.readFileSync(fallbackPath, 'utf8');
       }
       if (!baseHtml) {
-        throw new Error('Production index.html not found in dist or root');
+        throw new Error('Production HTML entry point not found');
       }
     } else {
-      const devIndexPath = fs.existsSync(fallbackPath) ? fallbackPath : path.join(process.cwd(), 'index.html');
+      const devHtmlFileName = serveMobileApp ? 'app.html' : 'index.html';
+      const devIndexPath = path.join(process.cwd(), devHtmlFileName);
+      
       if (fs.existsSync(devIndexPath)) {
         baseHtml = fs.readFileSync(devIndexPath, 'utf8');
         const viteInstance = req.app.locals.vite;
         if (viteInstance) {
           baseHtml = await viteInstance.transformIndexHtml('/', baseHtml);
         }
-      } else {
+      } else if (!serveMobileApp) {
         throw new Error('Development index.html not found at ' + devIndexPath);
+      } else {
+        // Fallback for dev if app.html is missing
+        baseHtml = fs.readFileSync(fallbackPath, 'utf8');
+        const viteInstance = req.app.locals.vite;
+        if (viteInstance) {
+          baseHtml = await viteInstance.transformIndexHtml('/', baseHtml);
+        }
       }
     }
 

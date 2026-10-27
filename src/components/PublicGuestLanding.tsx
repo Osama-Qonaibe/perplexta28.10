@@ -616,23 +616,23 @@ export const PublicGuestLanding: React.FC = () => {
               }
             </p>
 
-            {/* CTA Buttons (Aligned to Perplexta Visual Identity: 40px height, rounded-shape-sm, centered inline-flex) */}
+            {/* CTA Buttons (Standardized 32px height, rounded-shape-sm, centered inline-flex) */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-3">
               <button
                 type="button"
                 onClick={() => setIsAuthModalOpen(true)}
-                className="relative h-10 px-5 rounded-shape-sm bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs leading-none inline-flex items-center justify-center gap-2 shadow-2xs hover:opacity-90 transition-all active:scale-95 cursor-pointer w-full sm:w-auto before:absolute before:-inset-1 before:content-['']"
+                className="relative h-8 px-4 rounded-shape-sm btn-long-standard bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs leading-[23px] inline-flex items-center justify-center gap-2 shadow-2xs hover:opacity-90 transition-all active:scale-95 cursor-pointer w-full sm:w-auto before:absolute before:-inset-1 before:content-['']"
               >
-                <UserPlus size={15} className="shrink-0" />
-                <span>{isAr ? 'ابدأ مجاناً الآن' : 'Start Free Now'}</span>
+                <UserPlus size={14} className="shrink-0" />
+                <span className="h-[23px] leading-[23px] inline-flex items-center">{isAr ? 'ابدأ مجاناً الآن' : 'Start Free Now'}</span>
               </button>
 
               <a
                 href="#templates-showcase"
-                className="relative h-10 px-5 rounded-shape-sm bg-[var(--surface-card)] hover:bg-[var(--surface-subtle)] border border-[var(--border-main)] hover:border-[var(--border-accent)] text-[var(--text-primary)] font-bold text-xs leading-none inline-flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer w-full sm:w-auto shadow-2xs before:absolute before:-inset-1 before:content-['']"
+                className="relative h-8 px-4 rounded-shape-sm btn-long-standard bg-[var(--surface-card)] hover:bg-[var(--surface-subtle)] border border-[var(--border-main)] hover:border-[var(--border-accent)] text-[var(--text-primary)] font-bold text-xs leading-[23px] inline-flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer w-full sm:w-auto shadow-2xs before:absolute before:-inset-1 before:content-['']"
               >
-                <Palette size={15} className="text-[var(--accent)] shrink-0" />
-                <span>{isAr ? 'استكشف القوالب' : 'Explore Templates'}</span>
+                <Palette size={14} className="text-[var(--accent)] shrink-0" />
+                <span className="h-[23px] leading-[23px] inline-flex items-center">{isAr ? 'استكشف القوالب' : 'Explore Templates'}</span>
               </a>
             </div>
 
@@ -1186,14 +1186,14 @@ export const PublicGuestLanding: React.FC = () => {
               key={cat.id}
               type="button"
               onClick={() => setActiveCategory(cat.id as any)}
-              className={`relative h-9 px-3.5 rounded-shape-sm text-xs font-bold leading-none inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer border shadow-2xs active:scale-95 before:absolute before:-inset-1 before:content-[''] ${
+              className={`relative h-8 px-3 rounded-shape-sm btn-long-standard text-xs font-bold leading-[23px] inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer border shadow-2xs active:scale-95 before:absolute before:-inset-1 before:content-[''] ${
                 activeCategory === cat.id
                   ? 'bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] border-transparent'
                   : 'bg-[var(--surface-card)] text-[var(--text-secondary)] border-[var(--border-main)] hover:border-[var(--accent)]/50 hover:text-[var(--text-primary)]'
               }`}
             >
               <span className="shrink-0 flex items-center">{cat.icon}</span>
-              <span>{isAr ? cat.labelAr : cat.labelEn}</span>
+              <span className="h-[23px] leading-[23px] inline-flex items-center">{isAr ? cat.labelAr : cat.labelEn}</span>
             </button>
           ))}
         </div>
@@ -1442,33 +1442,33 @@ export const PublicGuestLanding: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2.5 mb-5 relative z-10">
+                <div className="flex flex-col gap-2 mb-5 relative z-10">
                   {plan.monthlyPrice === 0 ? (
                     <button 
                       type="button"
                       onClick={() => handlePlanAction(plan.id, 'subscribe')}
-                      className="relative w-full h-10 px-4 rounded-shape-sm text-white font-bold text-xs leading-none transition-all duration-150 shadow-2xs inline-flex items-center justify-center hover:opacity-95 active:scale-[0.98] cursor-pointer before:absolute before:-inset-1 before:content-['']"
+                      className="relative w-full h-8 min-h-[32px] max-h-[32px] px-4 rounded-shape-sm btn-long-standard text-white font-bold text-xs leading-[23px] transition-all duration-150 shadow-2xs inline-flex items-center justify-center hover:opacity-95 active:scale-[0.98] cursor-pointer before:absolute before:-inset-1 before:content-['']"
                       style={{ backgroundColor: planColor, boxShadow: `0 2px 10px 0 ${planColor}35` }}
                     >
-                      {isAr ? 'تفعيل الخطة المجانية' : 'Activate Free Plan'}
+                      <span className="h-[23px] leading-[23px] inline-flex items-center">{isAr ? 'تفعيل الخطة المجانية' : 'Activate Free Plan'}</span>
                     </button>
                   ) : (
                     <>
                       <button 
                         type="button"
                         onClick={() => handlePlanAction(plan.id, 'subscribe')}
-                        className="relative w-full h-10 px-4 rounded-shape-sm text-white font-bold text-xs leading-none transition-all duration-150 shadow-2xs inline-flex items-center justify-center hover:opacity-95 active:scale-[0.98] cursor-pointer before:absolute before:-inset-1 before:content-['']"
+                        className="relative w-full h-8 min-h-[32px] max-h-[32px] px-4 rounded-shape-sm btn-long-standard text-white font-bold text-xs leading-[23px] transition-all duration-150 shadow-2xs inline-flex items-center justify-center hover:opacity-95 active:scale-[0.98] cursor-pointer before:absolute before:-inset-1 before:content-['']"
                         style={{ backgroundColor: planColor, boxShadow: `0 2px 10px 0 ${planColor}35` }}
                       >
-                        {isAr ? 'اشتراك' : 'Subscribe'}
+                        <span className="h-[23px] leading-[23px] inline-flex items-center">{isAr ? 'اشتراك' : 'Subscribe'}</span>
                       </button>
                       <button 
                         type="button"
                         onClick={() => handlePlanAction(plan.id, 'balance')}
-                        className="relative w-full h-10 px-4 rounded-shape-sm font-bold text-xs leading-none transition-all duration-150 border bg-transparent hover:bg-[var(--surface-subtle)] inline-flex items-center justify-center active:scale-[0.98] cursor-pointer before:absolute before:-inset-1 before:content-['']"
+                        className="relative w-full h-8 min-h-[32px] max-h-[32px] px-4 rounded-shape-sm btn-long-standard font-bold text-xs leading-[23px] transition-all duration-150 border bg-transparent hover:bg-[var(--surface-subtle)] inline-flex items-center justify-center active:scale-[0.98] cursor-pointer before:absolute before:-inset-1 before:content-['']"
                         style={{ borderColor: planColor, color: planColor }}
                       >
-                        {isAr ? 'الدفع بالرصيد' : 'Pay with Balance'}
+                        <span className="h-[23px] leading-[23px] inline-flex items-center">{isAr ? 'الدفع بالرصيد' : 'Pay with Balance'}</span>
                       </button>
                     </>
                   )}
@@ -2039,17 +2039,17 @@ export const PublicGuestLanding: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsReviewModalOpen(false)}
-                  className="relative h-9 px-4 rounded-shape-sm text-xs font-bold leading-none inline-flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] transition-colors cursor-pointer before:absolute before:-inset-1 before:content-['']"
+                  className="relative h-8 px-3.5 rounded-shape-sm btn-long-standard text-xs font-bold leading-[23px] inline-flex items-center justify-center text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)] transition-colors cursor-pointer before:absolute before:-inset-1 before:content-['']"
                 >
-                  {isAr ? 'إلغاء' : 'Cancel'}
+                  <span className="h-[23px] leading-[23px] inline-flex items-center">{isAr ? 'إلغاء' : 'Cancel'}</span>
                 </button>
 
                 <button
                   type="submit"
-                  className="relative h-9 px-5 rounded-shape-sm bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs leading-none cursor-pointer shadow-2xs hover:opacity-90 active:scale-95 inline-flex items-center justify-center gap-1.5 before:absolute before:-inset-1 before:content-['']"
+                  className="relative h-8 px-4 rounded-shape-sm btn-long-standard bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs leading-[23px] cursor-pointer shadow-2xs hover:opacity-90 active:scale-95 inline-flex items-center justify-center gap-1.5 before:absolute before:-inset-1 before:content-['']"
                 >
-                  <Send size={14} className="shrink-0" />
-                  <span>{isAr ? 'نشر التجربة' : 'Submit Review'}</span>
+                  <Send size={13} className="shrink-0" />
+                  <span className="h-[23px] leading-[23px] inline-flex items-center">{isAr ? 'نشر التجربة' : 'Submit Review'}</span>
                 </button>
               </div>
             </form>

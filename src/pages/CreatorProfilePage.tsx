@@ -463,10 +463,10 @@ export const CreatorProfilePage: React.FC = () => {
                   <div className="pt-3 border-t border-[var(--border-main)]/80 w-full">
                     <button
                       onClick={() => navigate('/settings/creators-hub')}
-                      className="w-full h-10 rounded-shape-sm bg-[color-mix(in_oklab,var(--accent)_12%,transparent)] border border-[color-mix(in_oklab,var(--accent)_25%,transparent)] text-[var(--accent)] font-bold text-xs flex items-center justify-center gap-2 hover:bg-[var(--accent)] hover:text-slate-950 transition-colors cursor-pointer shadow-2xs"
+                      className="w-full h-8 min-h-[32px] max-h-[32px] rounded-shape-sm btn-long-standard bg-[color-mix(in_oklab,var(--accent)_12%,transparent)] border border-[color-mix(in_oklab,var(--accent)_25%,transparent)] text-[var(--accent)] font-bold text-xs flex items-center justify-center gap-2 hover:bg-[var(--accent)] hover:text-slate-950 transition-colors cursor-pointer shadow-2xs"
                     >
                       <Award size={14} />
-                      <span>{isAr ? 'لوحة تحكم أرباحي' : 'My Earnings Dashboard'}</span>
+                      <span className="h-[23px] leading-[23px] inline-flex items-center">{isAr ? 'لوحة تحكم أرباحي' : 'My Earnings Dashboard'}</span>
                     </button>
                   </div>
                 )}

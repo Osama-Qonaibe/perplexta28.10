@@ -532,7 +532,7 @@ export const Header: React.FC<{ activeLanguage?: string }> = ({ activeLanguage }
           />
         </NavLink>
       )}
-      {!isPathBlocked('/studio', siteSettings?.blocked_paths, isMobileView) && (
+      {!isMobileView && !isPathBlocked('/studio', siteSettings?.blocked_paths, isMobileView) && (
         <div className="relative group/workspace">
           <NavLink
             to="/studio"

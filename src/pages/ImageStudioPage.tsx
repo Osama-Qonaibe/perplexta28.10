@@ -13,7 +13,7 @@ import {
 import { ArtifactImageEditor, CanvasElement, EditorFilters, auditAndPreloadTemplateImages, safeSvgDataUrl } from '../components/chat/artifacts/ArtifactImageEditor';
 import { ThemeToggleButton } from '../components/ThemeToggleButton';
 import { resolveImageUrl, DEFAULT_AVATAR } from '../utils/imageResolver';
-import { toast } from '@/design-system';
+import { toast, UnifiedCloudSyncBadge } from '@/design-system';
 import { 
   StudioProject, 
   getUserStudioProjects, 
@@ -923,18 +923,24 @@ export const ImageStudioPage: React.FC = () => {
 
             {/* Clean Studio Title & Subtitle Badge */}
             <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded-shape-xs bg-[color-mix(in_oklab,var(--accent)_12%,transparent)] border border-[color-mix(in_oklab,var(--accent)_25%,transparent)] text-[var(--accent)] text-[10px] font-bold font-mono">
-                {isAr ? 'استوديو التصميم السحابي' : 'Cloud Design Studio'}
+              <span className="hidden sm:inline-flex h-8 px-2.5 items-center rounded-shape-sm bg-[color-mix(in_oklab,var(--accent)_12%,transparent)] border border-[color-mix(in_oklab,var(--accent)_25%,transparent)] text-[var(--accent)] text-[11px] font-bold font-mono">
+                {isAr ? 'استوديو التصميم والموشن' : 'Motion Design Studio'}
               </span>
+              <UnifiedCloudSyncBadge
+                status={user ? 'synced' : 'draft'}
+                onClick={user ? () => toast.success(isAr ? 'جميع مشاريعك وتصاميمك محفوظة ومؤمنة سحابياً' : 'All designs cloud-synced') : () => setIsAuthModalOpen(true)}
+                language={language}
+                className="hidden md:inline-flex"
+              />
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             {!user && (
               <button
                 type="button"
                 onClick={() => setIsAuthModalOpen(true)}
-                className="relative h-7 px-3 rounded-shape-xs bg-[var(--comp-button-primary-bg)] hover:opacity-90 text-[var(--comp-button-primary-fg)] font-bold text-[11px] leading-none inline-flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
+                className="relative h-8 px-3 rounded-shape-sm bg-[var(--comp-button-primary-bg)] hover:opacity-90 text-[var(--comp-button-primary-fg)] font-bold text-xs leading-none inline-flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95 touch-target-44-expanded"
               >
                 {isAr ? 'تسجيل الدخول' : 'Sign In'}
               </button>
@@ -944,9 +950,9 @@ export const ImageStudioPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsRegistrationModalOpen(true)}
-                className="h-7 px-3 rounded-shape-xs bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-[11px] font-black uppercase tracking-tighter flex items-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 transition-all cursor-pointer"
+                className="h-8 px-3 rounded-shape-sm bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-xs font-black uppercase tracking-tight flex items-center gap-1.5 shadow-xs active:scale-95 transition-all cursor-pointer touch-target-44-expanded"
               >
-                <Award size={13} className="animate-bounce" />
+                <Award size={14} className="animate-bounce" />
                 <span>{isAr ? 'احصل على 50$ مكافأة' : '$50 Welcome Bonus'}</span>
               </button>
             )}
@@ -961,15 +967,15 @@ export const ImageStudioPage: React.FC = () => {
                   navigate('/image-studio?mode=video');
                 }
               }}
-              className="h-7 px-3 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:border-accent/40 text-[var(--text-primary)] text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs"
+              className="h-8 px-3 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:border-accent/40 text-[var(--text-primary)] text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shadow-2xs touch-target-44-expanded"
             >
-              <Video size={13} className="text-accent" />
+              <Video size={14} className="text-accent" />
               <span>{isAr ? 'فيديو وريلز' : 'Video & Reels'}</span>
             </button>
             <button
               type="button"
               onClick={() => setLanguage(language === 'ar' ? 'en' : 'ar')}
-              className="relative w-8 h-8 rounded-shape-sm border border-[var(--border-main)] hover:border-[var(--border-accent)] bg-transparent hover:bg-[var(--surface-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center transition-all duration-150 active:scale-95 cursor-pointer before:absolute before:-inset-1.5 before:content-['']"
+              className="relative w-8 h-8 rounded-shape-sm border border-[var(--border-main)] hover:border-[var(--border-accent)] bg-transparent hover:bg-[var(--surface-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center transition-all duration-150 active:scale-95 cursor-pointer touch-target-44-expanded"
               title={language === 'ar' ? 'English' : 'العربية'}
               aria-label={language === 'ar' ? 'Switch to English' : 'التبديل إلى العربية'}
             >
@@ -978,7 +984,7 @@ export const ImageStudioPage: React.FC = () => {
             <ThemeToggleButton 
               variant="icon-button" 
               size="sm" 
-              className="relative !w-8 !h-8 !rounded-shape-sm !border-[var(--border-main)] hover:!border-[var(--border-accent)] !bg-transparent hover:!bg-[var(--surface-subtle)] !text-[var(--text-secondary)] hover:!text-[var(--text-primary)] transition-all duration-150 before:absolute before:-inset-1.5 before:content-['']" 
+              className="relative !w-8 !h-8 !rounded-shape-sm !border-[var(--border-main)] hover:!border-[var(--border-accent)] !bg-transparent hover:!bg-[var(--surface-subtle)] !text-[var(--text-secondary)] hover:!text-[var(--text-primary)] transition-all duration-150 touch-target-44-expanded" 
             />
 
           </div>

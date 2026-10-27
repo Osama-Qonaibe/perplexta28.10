@@ -8,7 +8,7 @@ import {
   HelpCircle, Sparkle, RefreshCw
 } from 'lucide-react';
 import { resolveImageUrl } from '../utils/imageResolver';
-import { SelectDropdown } from '@/design-system';
+import { SelectDropdown, UnifiedCloudSyncBadge } from '@/design-system';
 
 type AudioTab = 'tts' | 'stt' | 'music' | 'orchestra';
 
@@ -202,43 +202,47 @@ export const AudioStudioPage: React.FC = () => {
   return (
     <div className="h-screen-safe bg-[var(--surface-page)] text-[var(--text-primary)] font-sans flex flex-col overflow-hidden select-none">
       <header className="sticky top-0 z-40 backdrop-blur-xl bg-[var(--surface-page)]/90 border-b border-[var(--border-default)] pt-[env(safe-area-inset-top,0px)]">
-        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="max-w-5xl mx-auto px-4 h-12 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
             <button 
               onClick={() => navigate(user || token ? '/chat' : '/')} 
-              className="h-7 px-3 flex items-center gap-1.5 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--text-primary)] hover:text-accent transition-theme active:scale-95 cursor-pointer text-[11px] font-bold shadow-2xs"
+              className="h-8 px-3 flex items-center gap-1.5 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:border-accent text-[var(--text-primary)] hover:text-accent transition-theme active:scale-95 cursor-pointer text-xs font-bold shadow-2xs touch-target-44-expanded"
             >
-              {isAr ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+              <ChevronLeft size={14} className="rtl:rotate-180" />
               <span>{isAr ? 'الرئيسية' : 'Home'}</span>
             </button>
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-[var(--radius-sm)] bg-[var(--surface-subtle)] border border-[var(--border-accent)] flex items-center justify-center text-[var(--fg-accent)]">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-accent)] flex items-center justify-center text-[var(--fg-accent)]">
                 <Music className="w-4 h-4 animate-pulse" />
               </div>
               <div className="flex items-center">
-                <h1 className="text-sm font-black tracking-wide uppercase leading-tight">
-                  {isAr ? 'استوديو الصوت' : 'AUDIO STUDIO'}
+                <h1 className="text-xs sm:text-sm font-black tracking-wide uppercase leading-tight">
+                  {isAr ? 'استوديو الصوتيات' : 'AUDIO STUDIO'}
                 </h1>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
+            <UnifiedCloudSyncBadge
+              status={user ? 'synced' : 'draft'}
+              onClick={user ? undefined : () => navigate('/chat')}
+              language={language}
+              className="hidden sm:inline-flex"
+            />
             {logo ? (
-              <div className="w-7 h-7 max-w-7 max-h-7 rounded-[var(--radius-xs)] overflow-hidden flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-shape-sm overflow-hidden flex items-center justify-center shrink-0 border border-[var(--border-default)] bg-[var(--surface-subtle)]">
                 <img 
                   src={resolveImageUrl(logo, 'general')} 
                   alt={siteName} 
-                  className="w-full h-full max-w-full max-h-full object-cover block" 
-                  style={{ maxWidth: '28px', maxHeight: '28px' }}
+                  className="w-full h-full max-w-full max-h-full object-contain block p-0.5" 
                 />
               </div>
             ) : (
-              <div className="w-7 h-7 rounded-[var(--radius-xs)] bg-[var(--surface-subtle)] border border-[var(--border-default)] flex items-center justify-center">
-                <Cpu className="w-3.5 h-3.5 text-[var(--fg-accent)]" />
+              <div className="w-8 h-8 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] flex items-center justify-center">
+                <Cpu className="w-4 h-4 text-[var(--fg-accent)]" />
               </div>
             )}
-
           </div>
         </div>
       </header>

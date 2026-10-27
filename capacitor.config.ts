@@ -3,7 +3,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.perplexta.app',
   appName: 'Perplexta',
-  webDir: 'dist',
+  webDir: 'dist-app',
   server: {
     androidScheme: 'https',
     cleartext: false,

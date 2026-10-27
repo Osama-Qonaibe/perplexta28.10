@@ -292,16 +292,16 @@ router.get('/admin/analytics', authenticateAdmin, async (req, res) => {
       d.setDate(d.getDate() - i);
       const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       
-      const factor = 1 + Math.sin(i * 0.5) * 0.3;
-      const baseImp = Math.round((totalImpressions / (days * 1.2)) * factor) + Math.floor(Math.random() * 20);
-      const baseClick = Math.round(baseImp * (parseFloat(overallCTR) / 100 || 0.035)) + Math.floor(Math.random() * 5);
-      const baseRev = Number(((totalRevenue / days) * factor).toFixed(2));
+      const factor = 1 + Math.sin(i * 0.5) * 0.25;
+      const baseImp = totalImpressions > 0 ? Math.round((totalImpressions / days) * factor) : 0;
+      const baseClick = totalClicks > 0 ? Math.round((totalClicks / days) * factor) : 0;
+      const baseRev = totalRevenue > 0 ? Number(((totalRevenue / days) * factor).toFixed(2)) : 0;
       const ctr = baseImp > 0 ? Number(((baseClick / baseImp) * 100).toFixed(2)) : 0;
 
       timeSeriesData.push({
         date: dateStr,
-        impressions: Math.max(12, baseImp),
-        clicks: Math.max(1, baseClick),
+        impressions: Math.max(0, baseImp),
+        clicks: Math.max(0, baseClick),
         revenue: Math.max(0, baseRev),
         ctr
       });

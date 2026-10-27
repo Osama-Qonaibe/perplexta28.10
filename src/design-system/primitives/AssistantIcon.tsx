@@ -63,9 +63,10 @@ export const AssistantIcon: React.FC<AssistantIconProps> = ({
   const { siteSettings, theme, language } = useAppContext();
   const isRtl = language === 'ar';
 
+  const settingsAny = siteSettings as any;
   const rawLogo = (theme === 'light' && siteSettings?.logoLightBase64) 
     ? siteSettings?.logoLightBase64 
-    : (siteSettings?.logoBase64 || siteSettings?.logoUrl || siteSettings?.siteLogo || siteSettings?.appLogo || siteSettings?.seoImageUrl);
+    : (siteSettings?.logoBase64 || settingsAny?.logoUrl || settingsAny?.siteLogo || settingsAny?.appLogo || siteSettings?.seoImageUrl);
   const logoUrl = rawLogo ? resolveImageUrl(rawLogo, 'general') : null;
   const displayName = isRtl 
     ? (siteSettings?.siteNameAr || siteSettings?.siteName || 'بيربليكستا') 

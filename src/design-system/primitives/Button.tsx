@@ -12,7 +12,7 @@ import React from 'react';
 import { Loader2 } from 'lucide-react';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'icon' | 'destructive' | 'danger' | 'outline' | 'ghost' | 'admin';
+  variant?: 'primary' | 'secondary' | 'icon' | 'icon-sub' | 'destructive' | 'danger' | 'outline' | 'ghost' | 'admin';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   children?: React.ReactNode;
@@ -40,8 +40,18 @@ const VARIANT_STYLES: Record<string, string> = {
     transition-all duration-150 ease-out
   `,
   icon: `
-    w-8 h-8 flex items-center justify-center bg-[var(--muted)] text-[var(--foreground)]
-    border border-[var(--border)] rounded-lg
+    w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center bg-[var(--muted)] text-[var(--foreground)]
+    border border-[var(--border)] rounded-lg shrink-0
+    hover:bg-[color-mix(in_oklab,var(--muted)_80%,transparent)]
+    hover:border-[color-mix(in_oklab,var(--border)_70%,var(--foreground)_30%)] hover:-translate-y-px
+    active:translate-y-0
+    focus-visible:outline-none focus-visible:border-[var(--github-blue)]
+    focus-visible:shadow-[0_0_0_3px_color-mix(in_oklab,var(--github-blue)_18%,transparent)]
+    transition-all duration-150 ease-out
+  `,
+  'icon-sub': `
+    w-[30px] h-[30px] min-w-[30px] min-h-[30px] flex items-center justify-center bg-[var(--muted)] text-[var(--foreground)]
+    border border-[var(--border)] rounded-sm shrink-0
     hover:bg-[color-mix(in_oklab,var(--muted)_80%,transparent)]
     hover:border-[color-mix(in_oklab,var(--border)_70%,var(--foreground)_30%)] hover:-translate-y-px
     active:translate-y-0
@@ -100,30 +110,36 @@ const VARIANT_STYLES: Record<string, string> = {
 };
 
 const SIZE_OVERRIDES: Record<string, string> = {
-  sm: 'h-7 px-2 text-[11px]',
-  md: '', // Default h-8
-  lg: 'h-10 px-4 text-sm',
+  sm: 'h-8 px-2.5 text-xs',
+  md: 'h-8 px-3.5 text-xs',
+  lg: 'h-8 px-4 text-xs',
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'primary', size = 'md', isLoading = false, disabled, className = '', children, ...props }, ref) => {
-    const isIconOnly = variant === 'icon';
+    const isIconOnly = variant === 'icon' || variant === 'icon-sub';
 
     return (
       <button
         ref={ref}
         disabled={disabled || isLoading}
         className={`
-          inline-flex items-center justify-center gap-2 select-none
+          inline-flex items-center justify-center gap-1.5 select-none shrink-0
           disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none
           ${VARIANT_STYLES[variant] || VARIANT_STYLES.primary}
-          ${size !== 'md' && !isIconOnly ? SIZE_OVERRIDES[size] : ''}
+          ${!isIconOnly ? (SIZE_OVERRIDES[size] || 'h-8 px-3.5 text-xs') : ''}
           ${className}
         `}
         {...props}
       >
         {isLoading && <Loader2 size={14} className="animate-spin shrink-0" />}
-        {children}
+        {isIconOnly ? (
+          children
+        ) : (
+          <span className="h-[23px] leading-[23px] inline-flex items-center justify-center gap-1.5">
+            {children}
+          </span>
+        )}
       </button>
     );
   }

@@ -10,7 +10,7 @@ import {
   Copy, ChevronDown, ShieldCheck, Lock, User, LogOut, Activity, Wallet, BrainCircuit
 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
-import { toast, PopCard, Button, ActionItem, Badge, AssistantIcon } from '@/design-system';
+import { toast, PopCard, Button, ActionItem, Badge, AssistantIcon, UnifiedCloudSyncBadge } from '@/design-system';
 import initSqlJs from 'sql.js';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
@@ -2530,9 +2530,10 @@ export const AppStudioPage: React.FC = () => {
   };
 
   const activeFile = files[activeFilePath] || files['index.html'];
+  const settingsAny = siteSettings as any;
   const logoSrc = (theme === 'light' && siteSettings?.logoLightBase64) 
     ? siteSettings?.logoLightBase64 
-    : (siteSettings?.logoBase64 || siteSettings?.logoUrl || siteSettings?.siteLogo || siteSettings?.appLogo || siteSettings?.seoImageUrl);
+    : (siteSettings?.logoBase64 || settingsAny?.logoUrl || settingsAny?.siteLogo || settingsAny?.appLogo || siteSettings?.seoImageUrl);
 
   // Pre-warm primary destination chunks (ChatPage & ProjectOverviewPage) so Back button navigation has 0ms Suspense delay
   useEffect(() => {
@@ -2553,54 +2554,27 @@ export const AppStudioPage: React.FC = () => {
               saveProjectToDb();
               navigate(user || token ? '/chat' : '/');
             }}
-            className="inline-flex items-center justify-center w-7 h-7 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-[var(--surface-card)] hover:border-accent text-[var(--text-primary)] transition-all cursor-pointer shrink-0 relative before:absolute before:-inset-1.5"
+            className="inline-flex items-center justify-center w-8 h-8 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-[var(--surface-card)] hover:border-accent text-[var(--text-primary)] transition-all cursor-pointer shrink-0 relative touch-target-44-expanded"
             title={language === 'ar' ? 'الرجوع للبداية' : 'Back to start'}
           >
-            <ArrowLeft size={13} className={language === 'ar' ? 'rotate-180' : ''} />
+            <ArrowLeft size={14} className="rtl:rotate-180" />
           </button>
 
           {/* Project Title & Cloud Sync Radar */}
           <div className="flex items-center gap-2 min-w-0">
-
-            <span
+            <UnifiedCloudSyncBadge
+              status={syncStatus}
               onClick={() => saveProjectToDb()}
-              className={`hidden sm:inline-flex items-center justify-center gap-1.5 h-7 px-2.5 rounded-shape-xs text-[10px] font-bold leading-none border transition-all cursor-pointer shrink-0 ${
-                syncStatus === 'saving'
-                  ? 'bg-amber-500/10 text-amber-500 border-amber-500/25'
-                  : syncStatus === 'synced'
-                  ? 'bg-[var(--bg-success-muted)] text-[var(--fg-success)] border-[color-mix(in_srgb,var(--fg-success)_25%,transparent)]'
-                  : syncStatus === 'error'
-                  ? 'bg-rose-500/10 text-rose-500 border-rose-500/25'
-                  : 'bg-[var(--surface-subtle)] text-[var(--text-muted)] border-[var(--border-default)]'
-              }`}
-              title={language === 'ar' ? 'حالة المزامنة السحابية (اضغط للحفظ الآن)' : 'Cloud Sync Status (Click to save now)'}
-            >
-              <span className={`w-1.5 h-1.5 rounded-shape-full ${
-                syncStatus === 'saving'
-                  ? 'bg-amber-500 animate-ping'
-                  : syncStatus === 'synced'
-                  ? 'bg-[var(--fg-success)]'
-                  : syncStatus === 'error'
-                  ? 'bg-rose-500'
-                  : 'bg-slate-400'
-              }`} />
-              <span>
-                {syncStatus === 'saving'
-                  ? (language === 'ar' ? 'جاري الحفظ...' : 'Saving...')
-                  : syncStatus === 'synced'
-                  ? (language === 'ar' ? 'محفوظ سحابياً' : 'Cloud Synced')
-                  : syncStatus === 'error'
-                  ? (language === 'ar' ? 'تعذر الحفظ' : 'Sync Error')
-                  : (language === 'ar' ? 'مسودة محلية' : 'Local Draft')}
-              </span>
-            </span>
+              language={language}
+              className="hidden sm:inline-flex"
+            />
           </div>
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
           {studioUsage && typeof (studioUsage.projectCount ?? studioUsage.usedProjects) === 'number' && (
-            <span className="hidden lg:inline-flex items-center justify-center gap-1.5 h-7 px-2.5 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[11px] font-mono font-bold leading-none text-[var(--text-muted)] shrink-0" title={language === 'ar' ? 'عدد المشاريع السحابية المستخدمة' : 'Cloud Projects Quota'}>
-              <Layers size={12} className="text-accent shrink-0" />
+            <span className="hidden lg:inline-flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[11px] font-mono font-bold leading-none text-[var(--text-muted)] shrink-0" title={language === 'ar' ? 'عدد المشاريع السحابية المستخدمة' : 'Cloud Projects Quota'}>
+              <Layers size={13} className="text-accent shrink-0" />
               <span>{studioUsage.projectCount ?? studioUsage.usedProjects}/{(studioUsage.maxProjects === 'unlimited' || !studioUsage.maxProjects) ? '∞' : studioUsage.maxProjects}</span>
             </span>
           )}
@@ -2608,28 +2582,28 @@ export const AppStudioPage: React.FC = () => {
           <button
             onClick={handleAiFix}
             disabled={isGenerating}
-            className="h-7 px-2.5 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:border-accent/50 hover:text-accent text-[var(--text-secondary)] text-[11px] font-bold leading-none inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 disabled:opacity-40 relative before:absolute before:-inset-1.5"
+            className="h-8 px-3 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:border-accent/50 hover:text-accent text-[var(--text-secondary)] text-[11px] font-bold leading-none inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer shrink-0 disabled:opacity-40 relative touch-target-44-expanded"
             title={language === 'ar' ? 'فحص وإصلاح الأخطاء ذكياً' : 'AI Diagnose & Fix'}
           >
-            <Wand2 size={12} className="text-accent shrink-0" />
+            <Wand2 size={13} className="text-accent shrink-0" />
             <span className="hidden md:inline">{language === 'ar' ? 'إصلاح ذكي' : 'AI Fix'}</span>
           </button>
 
           <button
             onClick={handleDownloadZip}
-            className="w-7 h-7 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-[var(--surface-card)] hover:border-accent text-[var(--text-muted)] hover:text-[var(--text-primary)] inline-flex items-center justify-center transition-all cursor-pointer shrink-0 relative before:absolute before:-inset-1.5"
+            className="w-8 h-8 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-[var(--surface-card)] hover:border-accent text-[var(--text-muted)] hover:text-[var(--text-primary)] inline-flex items-center justify-center transition-all cursor-pointer shrink-0 relative touch-target-44-expanded"
             title={language === 'ar' ? 'تنزيل المشروع ZIP' : 'Download ZIP'}
           >
-            <Download size={13} />
+            <Download size={14} />
           </button>
 
           <div className="relative flex items-center">
             <button
               onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-              className={`w-7 h-7 rounded-shape-xs bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-[var(--surface-card)] hover:border-accent text-[var(--text-muted)] hover:text-[var(--text-primary)] inline-flex items-center justify-center transition-all cursor-pointer shrink-0 relative before:absolute before:-inset-1.5 ${isMoreMenuOpen ? 'bg-[var(--surface-subtle)] text-accent border-accent/60' : ''}`}
+              className={`w-8 h-8 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-[var(--surface-card)] hover:border-accent text-[var(--text-muted)] hover:text-[var(--text-primary)] inline-flex items-center justify-center transition-all cursor-pointer shrink-0 relative touch-target-44-expanded ${isMoreMenuOpen ? 'bg-[var(--surface-subtle)] text-accent border-accent/60' : ''}`}
               title={language === 'ar' ? 'خيارات إضافية' : 'More Options'}
             >
-              <Sliders size={13} />
+              <Sliders size={14} />
             </button>
 
             <AnimatePresence>
@@ -2727,11 +2701,11 @@ export const AppStudioPage: React.FC = () => {
               setSideNavActiveTab('chat');
               setMobileActiveTab('chat');
             }}
-            className={`w-9 h-9 flex items-center justify-center transition-all cursor-pointer relative group shrink-0 border before:absolute before:-inset-1.5 ${
+            className={`w-8 h-8 min-w-[32px] min-h-[32px] max-w-[32px] max-h-[32px] btn-square-primary flex items-center justify-center transition-all cursor-pointer relative group shrink-0 border before:absolute before:-inset-1.5 ${
               sideNavActiveTab === 'chat'
                 ? 'bg-[var(--surface-subtle)] border-transparent text-[var(--fg-accent)] shadow-2xs'
                 : 'bg-transparent border-[var(--border-default)] hover:border-transparent hover:bg-[var(--surface-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-            } rounded-shape-md rtl:rounded-es-2xs ltr:rounded-ee-2xs`}
+            } rounded-shape-sm`}
             title={language === 'ar' ? 'المساعد الذكي' : 'AI Assistant'}
           >
             {/* Ambient Soft Glow Layer */}
@@ -2774,7 +2748,7 @@ export const AppStudioPage: React.FC = () => {
                 <AssistantIcon size={22} fallbackType="sparkles" className="text-accent relative z-10" />
               )}
             </div>
-            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-default)] shadow-md text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
               {language === 'ar' ? 'المساعد الذكي' : 'AI Assistant'}
             </span>
           </button>
@@ -2790,7 +2764,7 @@ export const AppStudioPage: React.FC = () => {
             title={language === 'ar' ? 'ملفات المشروع' : 'Project Files'}
           >
             <Folder size={16} />
-            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-default)] shadow-md text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
               {language === 'ar' ? 'ملفات المشروع' : 'Project Files'}
             </span>
           </button>
@@ -2808,7 +2782,7 @@ export const AppStudioPage: React.FC = () => {
             title={language === 'ar' ? 'كل المشاريع' : 'All Projects'}
           >
             <Layers size={16} />
-            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-default)] shadow-md text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
               {language === 'ar' ? 'كل المشاريع' : 'All Projects'}
             </span>
           </button>
@@ -2826,7 +2800,7 @@ export const AppStudioPage: React.FC = () => {
             title={language === 'ar' ? 'إصدارات التطوير' : 'History'}
           >
             <History size={16} />
-            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-default)] shadow-md text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
               {language === 'ar' ? 'إصدارات التطوير' : 'History'}
             </span>
           </button>
@@ -2842,7 +2816,7 @@ export const AppStudioPage: React.FC = () => {
             title={language === 'ar' ? 'قاعدة البيانات' : 'Database'}
           >
             <Database size={16} />
-            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+            <span className="absolute start-12 sm:start-14 px-2 py-1 bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-default)] shadow-md text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
               {language === 'ar' ? 'قاعدة البيانات' : 'Database'}
             </span>
           </button>
@@ -2862,7 +2836,7 @@ export const AppStudioPage: React.FC = () => {
               {terminalLogs.some(l => l.type === 'error') && (
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
               )}
-              <span className="absolute start-12 sm:start-14 px-2 py-1 bg-slate-900 text-white text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
+              <span className="absolute start-12 sm:start-14 px-2 py-1 bg-[var(--surface-card)] text-[var(--text-primary)] border border-[var(--border-default)] shadow-md text-[10px] rounded-shape-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-50">
                 {language === 'ar' ? 'منفذ الأوامر' : 'Terminal'}
               </span>
             </button>
@@ -3620,9 +3594,9 @@ export const AppStudioPage: React.FC = () => {
                       <button 
                         key={tbl} 
                         onClick={() => { setSelectedTable(tbl); setIsDbModalOpen(true); }} 
-                        className={`w-full px-3 h-9 rounded-shape-sm border flex items-center justify-between text-start text-[11px] font-mono transition-all cursor-pointer ${selectedTable === tbl ? 'bg-accent/10 border-accent/30 text-accent font-bold' : 'bg-[var(--surface-card)] border-[var(--border-default)] hover:border-accent/30'}`}
+                        className={`w-full px-3 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm border flex items-center justify-between text-start text-xs font-mono leading-[23px] transition-all cursor-pointer ${selectedTable === tbl ? 'bg-accent/10 border-accent/30 text-accent font-bold' : 'bg-[var(--surface-card)] border-[var(--border-default)] hover:border-accent/30'}`}
                       >
-                        <span className="truncate">{tbl}</span>
+                        <span className="truncate h-[23px] leading-[23px] flex items-center">{tbl}</span>
                         <ChevronRight size={12} className={language === 'ar' ? 'rotate-180' : ''} />
                       </button>
                     )) : (

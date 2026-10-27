@@ -121,8 +121,9 @@ export const ChatComposer: React.FC<ChatComposerProps> = ({
 
   const sortedAdvancedTools = React.useMemo(() => {
     const sorted = [...advancedTools].sort((a, b) => (a.label || '').trim().length - (b.label || '').trim().length);
+    // [Professional Elite] Filter out heavy studios from mobile chat input to maintain focus & performance
     if (isMobile) {
-      return sorted.filter(t => t.id !== 'code' && t.id !== 'audio_studio');
+      return sorted.filter(t => !['code', 'audio_studio', 'video_studio', 'image_studio'].includes(t.id));
     }
     return sorted;
   }, [advancedTools, isMobile]);

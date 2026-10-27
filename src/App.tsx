@@ -189,16 +189,9 @@ const PWAWrapper = ({ children }: { children: React.ReactNode }) => {
     let isCurrent = true;
     let loaded = false;
 
-    const cleanupSeoListeners = () => {
-      ['pointerdown', 'keydown', 'touchstart', 'scroll'].forEach((evt) =>
-        window.removeEventListener(evt, triggerSeoFetch)
-      );
-    };
-
     const triggerSeoFetch = () => {
       if (loaded) return;
       loaded = true;
-      cleanupSeoListeners();
       fetchSeoRoutesListWithCache().then((routes) => {
         if (isCurrent && routes && routes.length > 0) {
           setDbRouteSeo(routes);
@@ -206,14 +199,19 @@ const PWAWrapper = ({ children }: { children: React.ReactNode }) => {
       });
     };
 
-    ['pointerdown', 'keydown', 'touchstart', 'scroll'].forEach((evt) =>
-      window.addEventListener(evt, triggerSeoFetch, { once: true, passive: true })
-    );
+    // Passive listener for high-performance lazy loading
+    const events = ['pointerdown', 'keydown', 'touchstart'];
+    const handler = () => {
+      triggerSeoFetch();
+      events.forEach(evt => window.removeEventListener(evt, handler));
+    };
 
-    const timer = setTimeout(triggerSeoFetch, 12000);
+    events.forEach(evt => window.addEventListener(evt, handler, { once: true, passive: true }));
+    const timer = setTimeout(triggerSeoFetch, 10000);
+
     return () => {
       isCurrent = false;
-      cleanupSeoListeners();
+      events.forEach(evt => window.removeEventListener(evt, handler));
       clearTimeout(timer);
     };
   }, []);

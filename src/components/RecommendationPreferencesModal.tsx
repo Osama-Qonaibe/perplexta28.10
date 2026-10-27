@@ -137,22 +137,22 @@ export const RecommendationPreferencesModal: React.FC<RecommendationPreferencesM
           {/* Top Bar */}
           <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[var(--border-default)]">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-shape-md bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shrink-0">
-                <Sliders size={18} />
+              <div className="w-8 h-8 rounded-shape-sm bg-[var(--bg-accent-muted)] border border-[var(--border-accent)]/20 flex items-center justify-center text-[var(--fg-accent)] shrink-0">
+                <Sliders size={16} />
               </div>
               <div>
-                <h3 className="text-sm sm:text-base font-extrabold text-[var(--text-primary)]">
+                <h3 className="text-sm font-extrabold text-[var(--text-primary)]">
                   {isRtl ? 'تخصيص تفضيلات التوصيات' : 'Customize Recommendations'}
                 </h3>
                 <p className="text-[11px] text-[var(--text-muted)] font-medium">
-                  {isRtl ? 'حدّد المجالات والنطاق السعري لضبط المقترحات بدقة' : 'Select categories & budget limits to tune your recommendations'}
+                  {isRtl ? 'تحديد المجالات والميزانية لضبط المقترحات بدقة' : 'Select categories & budget limits to tune your recommendations'}
                 </p>
               </div>
             </div>
 
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-shape-sm border border-[var(--border-default)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] active:scale-95 transition-theme cursor-pointer"
+              className="w-8 h-8 rounded-shape-sm btn-square-primary border border-[var(--border-default)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] active:scale-95 transition-theme cursor-pointer relative touch-target-44-expanded"
               title={isRtl ? 'إغلاق' : 'Close'}
             >
               <X size={15} />
@@ -233,22 +233,26 @@ export const RecommendationPreferencesModal: React.FC<RecommendationPreferencesM
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 min-h-[38px] rounded-shape-sm border border-[var(--border-default)] hover:bg-[var(--surface-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] font-bold text-xs transition-theme cursor-pointer"
+                  className="h-8 px-4 rounded-shape-sm btn-long-standard border border-[var(--border-default)] hover:bg-[var(--surface-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] font-bold text-xs transition-theme cursor-pointer"
                 >
-                  {isRtl ? 'إلغاء' : 'Cancel'}
+                  <span className="h-[23px] leading-[23px] flex items-center">
+                    {isRtl ? 'إلغاء' : 'Cancel'}
+                  </span>
                 </button>
                 <button
                   type="button"
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="px-4 py-2 min-h-[38px] rounded-shape-sm bg-accent text-white hover:opacity-90 font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                  className="h-8 px-4 rounded-shape-sm btn-long-standard bg-[var(--accent)] text-white hover:opacity-90 font-bold text-xs flex items-center transition-all cursor-pointer disabled:opacity-50"
                 >
-                  {isSaving ? (
-                    <RefreshCw size={13} className="animate-spin" />
-                  ) : (
-                    <Save size={13} />
-                  )}
-                  <span>{isRtl ? 'حفظ التفضيلات' : 'Save Preferences'}</span>
+                  <span className="h-[23px] leading-[23px] flex items-center gap-1.5">
+                    {isSaving ? (
+                      <RefreshCw size={13} className="animate-spin" />
+                    ) : (
+                      <Save size={13} />
+                    )}
+                    <span>{isRtl ? 'حفظ التفضيلات' : 'Save Preferences'}</span>
+                  </span>
                 </button>
               </div>
             </div>

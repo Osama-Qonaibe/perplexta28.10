@@ -14,13 +14,14 @@ import {
   Radio, Clapperboard, Bell, Menu, SlidersHorizontal, Trash2, Ban, Volume2, VolumeX,
   Smile, Users, Compass, ChevronDown, Check, Navigation, Lock, Scissors, Edit2, Upload,
   AtSign, Hash, Settings, Cpu, ArrowUpDown, Languages, MessageSquareText, Copy, Briefcase, Link, ExternalLink, CheckCircle, Target, Crosshair,
-  Music, HelpCircle
+  Music, HelpCircle, Clock, Zap, TrendingUp, Edit3
 } from 'lucide-react';
 import { resolveImageUrl } from '../utils/imageResolver';
 import { NotificationIconRenderer } from '../utils/imageProcessor';
 import { motion, AnimatePresence } from 'motion/react';
 import { BulletinAd, BulletinAdComment, BulletinPage, MediaGalleryItem } from '../../server/db/types';
 import { UserAdAnalyticsView } from '../components/UserAdAnalyticsView';
+import { AdInsightsTab } from '../components/AdInsightsTab';
 import { PostFeed } from '../components/PostFeed';
 import { BoardFeed } from '../components/bulletin/BoardFeed';
 import { SavedPostsTab } from '../components/bulletin/SavedPostsTab';
@@ -1253,7 +1254,63 @@ export const BulletinBoardPage: React.FC = () => {
     }
     setBoostingAd(ad);
     setIsBoostModalOpen(true);
+    try {
+      sessionStorage.setItem('perplexta_active_boosting_ad', JSON.stringify(ad));
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.set('boost_ad_id', String(ad.id));
+        window.history.pushState({}, '', url.toString());
+      }
+    } catch (_) {}
   };
+
+  const handleCloseBoostStudio = () => {
+    setBoostingAd(null);
+    setIsBoostModalOpen(false);
+    try {
+      sessionStorage.removeItem('perplexta_active_boosting_ad');
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        if (url.searchParams.has('boost_ad_id')) {
+          url.searchParams.delete('boost_ad_id');
+          const cleanUrl = url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '');
+          window.history.replaceState({}, '', cleanUrl);
+        }
+      }
+    } catch (_) {}
+  };
+
+  useEffect(() => {
+    try {
+      const savedBoostRaw = sessionStorage.getItem('perplexta_active_boosting_ad');
+      if (savedBoostRaw) {
+        const parsed = JSON.parse(savedBoostRaw);
+        if (parsed && parsed.id) {
+          setBoostingAd(parsed);
+          setIsBoostModalOpen(true);
+          return;
+        }
+      }
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const boostAdId = params.get('boost_ad_id');
+        if (boostAdId && !isNaN(Number(boostAdId))) {
+          fetch(`/api/bulletin/ads/${boostAdId}`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {}
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data && data.success && data.ad) {
+                setBoostingAd(data.ad);
+                setIsBoostModalOpen(true);
+                sessionStorage.setItem('perplexta_active_boosting_ad', JSON.stringify(data.ad));
+              }
+            })
+            .catch(() => {});
+        }
+      }
+    } catch (_) {}
+  }, [token]);
 
   const handleBoostSuccess = (updatedAd: BulletinAd) => {
     triggerSuccessConfetti();
@@ -3739,7 +3796,7 @@ export const BulletinBoardPage: React.FC = () => {
                   title={isRtl ? 'تصفية حسب الفئة' : 'Filter by Category'}
                 >
                   <Tag size={13} className="text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors duration-150" />
-                  <span className="truncate max-w-[85px]">{currentCategoryLabel}</span>
+                  <span className="h-[23px] leading-[23px] inline-flex items-center truncate max-w-[85px]">{currentCategoryLabel}</span>
                   <ChevronDown size={11} className={`transition-transform duration-150 shrink-0 text-[var(--text-muted)] group-hover:text-[var(--text-primary)] ${isCategoryDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
@@ -3807,7 +3864,7 @@ export const BulletinBoardPage: React.FC = () => {
                   title={isRtl ? 'ترتيب المنشورات' : 'Sort Posts'}
                 >
                   <ArrowUpDown size={13} className="text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors duration-150" />
-                  <span className="truncate max-w-[80px]">{currentSortLabel}</span>
+                  <span className="h-[23px] leading-[23px] inline-flex items-center truncate max-w-[80px]">{currentSortLabel}</span>
                   <ChevronDown size={11} className={`transition-transform duration-150 shrink-0 text-[var(--text-muted)] group-hover:text-[var(--text-primary)] ${isSortDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
@@ -3898,7 +3955,7 @@ export const BulletinBoardPage: React.FC = () => {
                   if (selectedPageDetail) setSelectedPageDetail(null);
                   setActiveTab('inquiries');
                 }}
-                className="group hidden sm:flex w-8 h-8 rounded-shape-sm border border-[var(--border-default)] hover:border-[var(--border-accent)] bg-transparent hover:bg-[var(--surface-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] items-center justify-center transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs relative"
+                className="group hidden sm:flex w-8 h-8 rounded-shape-sm border border-[var(--border-default)] hover:border-[var(--border-accent)] bg-transparent hover:bg-[var(--surface-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] items-center justify-center transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs relative touch-target-44-expanded"
                 title={isRtl ? 'الرسائل والاستفسارات' : 'Inquiries & Messages'}
               >
                 <MessageSquare size={14} className="text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors duration-150" />
@@ -3917,14 +3974,14 @@ export const BulletinBoardPage: React.FC = () => {
                 triggerHaptic('light');
                 setLanguage(language === 'ar' ? 'en' : 'ar');
               }}
-              className="group w-8 h-8 rounded-shape-sm border border-[var(--border-default)] hover:border-[var(--border-accent)] bg-transparent hover:bg-[var(--surface-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs"
+              className="group w-8 h-8 rounded-shape-sm border border-[var(--border-default)] hover:border-[var(--border-accent)] bg-transparent hover:bg-[var(--surface-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center transition-all duration-150 active:scale-95 cursor-pointer shadow-2xs touch-target-44-expanded"
               title={language === 'ar' ? 'English' : 'العربية'}
             >
               <Languages size={14} className="text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-colors duration-150" />
             </button>
 
             {/* Theme Toggle */}
-            <ThemeToggleButton variant="icon-button" size="sm" className="!w-8 !h-8 !rounded-shape-sm !border-[var(--border-default)] hover:!border-[var(--border-accent)] !bg-transparent hover:!bg-[var(--surface-subtle)] !text-[var(--text-muted)] hover:!text-[var(--text-primary)] shadow-2xs transition-all duration-150" />
+            <ThemeToggleButton variant="icon-button" size="sm" className="!w-8 !h-8 !rounded-shape-sm !border-[var(--border-default)] hover:!border-[var(--border-accent)] !bg-transparent hover:!bg-[var(--surface-subtle)] !text-[var(--text-muted)] hover:!text-[var(--text-primary)] shadow-2xs transition-all duration-150 touch-target-44-expanded" />
 
             <div className="w-px h-5 bg-[var(--border-default)] shrink-0 hidden xs:block" />
 
@@ -3939,7 +3996,7 @@ export const BulletinBoardPage: React.FC = () => {
                 }
                 navigate('/chat');
               }}
-              className="group h-8 px-2.5 sm:px-3 rounded-shape-sm border border-[var(--border-default)] hover:border-[var(--border-accent)] bg-transparent hover:bg-[var(--surface-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-bold text-xs flex items-center gap-1.5 transition-all duration-150 active:scale-95 shadow-2xs cursor-pointer shrink-0"
+              className="group h-8 px-2.5 sm:px-3 rounded-shape-sm border border-[var(--border-default)] hover:border-[var(--border-accent)] bg-transparent hover:bg-[var(--surface-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-bold text-xs flex items-center gap-1.5 transition-all duration-150 active:scale-95 shadow-2xs cursor-pointer shrink-0 touch-target-44-expanded"
               title={selectedPageDetail ? (isRtl ? 'رجوع إلى الخلاصة' : 'Back to Feed') : (isRtl ? 'العودة إلى الصفحة الرئيسية' : 'Back to Home')}
             >
               {isRtl ? (
@@ -3947,7 +4004,7 @@ export const BulletinBoardPage: React.FC = () => {
               ) : (
                 <ArrowRight size={13} className="text-[var(--text-muted)] group-hover:text-[var(--text-primary)] transition-transform duration-150 group-hover:translate-x-0.5" />
               )}
-              <span className="hidden xs:inline font-sans text-xs font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
+              <span className="hidden xs:inline-flex h-[23px] leading-[23px] items-center font-sans text-xs font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
                 {selectedPageDetail ? (isRtl ? 'رجوع' : 'Back') : (isRtl ? 'الرئيسية' : 'Home')}
               </span>
             </button>
@@ -4047,61 +4104,61 @@ export const BulletinBoardPage: React.FC = () => {
                 transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
                 className={`absolute top-0 bottom-0 ${isRtl ? 'end-0' : 'start-0'} w-80 max-w-[85%] bg-[var(--surface-card)] shadow-2xl z-10 flex flex-col`}
               >
-                <div className="p-4 border-b border-[var(--border-default)] flex items-center justify-between">
+                <div className="p-3 sm:p-4 border-b border-[var(--border-default)] flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-shape-sm bg-accent/10 flex items-center justify-center text-accent font-bold">
                       <SlidersHorizontal size={14} />
                     </div>
-                    <h3 className="text-xs font-extrabold">{isRtl ? 'قائمة بيربليكستا بورد والتحكم' : 'Perplexta Board Menu & Controls'}</h3>
+                    <h3 className="text-xs font-extrabold">{isRtl ? 'قائمة فيرال بوك' : 'ViralBook Menu'}</h3>
                   </div>
                   <button
                     onClick={() => setIsMobileSidebarOpen(false)}
-                    className="w-8 h-8 rounded-shape-sm border border-[var(--border-default)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] active:scale-95 transition-theme"
+                    className="w-8 h-8 rounded-shape-sm border border-[var(--border-default)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] active:scale-95 transition-theme cursor-pointer touch-target-44-expanded"
                   >
                     <X size={14} />
                   </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-4 space-y-5">
-                  {}
-                  <div className="space-y-1.5 pb-2 border-b border-[var(--border-default)]">
+                <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4">
+                  {/* Platform Sections */}
+                  <div className="space-y-1 pb-2 border-b border-[var(--border-default)]">
                     <h4 className="text-[11px] font-extrabold text-[var(--text-muted)] uppercase tracking-wider mb-2">{isRtl ? 'أقسام المنصة' : 'Platform Sections'}</h4>
                     <button
                       onClick={() => { setSelectedPageDetail(null); setActiveTab('board'); setIsMobileSidebarOpen(false); }}
-                      className={`group w-full px-3 py-2.5 rounded-[var(--radius-md)] text-xs font-bold flex items-center gap-2.5 transition-theme ${
+                      className={`group w-full h-8 px-2.5 rounded-shape-sm text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
                         activeTab === 'board' && !selectedPageDetail
-                          ? 'bg-accent/10 text-accent shadow-sm border border-accent/20'
+                          ? 'bg-accent/10 text-accent border border-accent/20'
                           : 'bg-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]'
                       }`}
                     >
-                      <Megaphone size={16} className={`transition-theme ${activeTab === 'board' && !selectedPageDetail ? 'text-accent' : 'text-[var(--text-muted)] group-hover:text-accent'}`} />
-                      <span>{isRtl ? 'الإعلانات والمنشورات' : 'Ads & Posts'}</span>
+                      <Megaphone size={15} className={`transition-theme ${activeTab === 'board' && !selectedPageDetail ? 'text-accent' : 'text-[var(--text-muted)] group-hover:text-accent'}`} />
+                      <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'الإعلانات والمنشورات' : 'Ads & Posts'}</span>
                     </button>
 
                     <button
                       onClick={() => { setSelectedPageDetail(null); setActiveTab('pages'); setIsMobileSidebarOpen(false); }}
-                      className={`group w-full px-3 py-2.5 rounded-[var(--radius-md)] text-xs font-bold flex items-center gap-2.5 transition-theme ${
+                      className={`group w-full h-8 px-2.5 rounded-shape-sm text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
                         activeTab === 'pages' && !selectedPageDetail
-                          ? 'bg-accent/10 text-accent shadow-sm border border-accent/20'
+                          ? 'bg-accent/10 text-accent border border-accent/20'
                           : 'bg-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]'
                       }`}
                     >
-                      <Building2 size={16} className={`transition-theme ${activeTab === 'pages' && !selectedPageDetail ? 'text-accent' : 'text-[var(--text-muted)] group-hover:text-accent'}`} />
-                      <span>{isRtl ? 'الصفحات التجارية' : 'Merchant Pages'}</span>
+                      <Building2 size={15} className={`transition-theme ${activeTab === 'pages' && !selectedPageDetail ? 'text-accent' : 'text-[var(--text-muted)] group-hover:text-accent'}`} />
+                      <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'الصفحات التجارية' : 'Merchant Pages'}</span>
                     </button>
 
                     {user && (
                       <button
                         onClick={() => { setSelectedPageDetail(null); setActiveTab('inquiries'); setIsMobileSidebarOpen(false); }}
-                        className={`group w-full px-3 py-2.5 rounded-[var(--radius-md)] text-xs font-bold flex items-center justify-between transition-theme ${
+                        className={`group w-full h-8 px-2.5 rounded-shape-sm text-xs font-bold flex items-center justify-between transition-all cursor-pointer ${
                           activeTab === 'inquiries' && !selectedPageDetail
-                            ? 'bg-accent/10 text-accent shadow-sm border border-accent/20'
+                            ? 'bg-accent/10 text-accent border border-accent/20'
                             : 'bg-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]'
                         }`}
                       >
-                        <div className="flex items-center gap-2.5">
-                          <Inbox size={16} className={`transition-theme ${activeTab === 'inquiries' && !selectedPageDetail ? 'text-accent' : 'text-[var(--text-muted)] group-hover:text-accent'}`} />
-                          <span>{isRtl ? 'الرسائل والاستفسارات' : 'Inquiries & Messages'}</span>
+                        <div className="flex items-center gap-2">
+                          <Inbox size={15} className={`transition-theme ${activeTab === 'inquiries' && !selectedPageDetail ? 'text-accent' : 'text-[var(--text-muted)] group-hover:text-accent'}`} />
+                          <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'الرسائل والاستفسارات' : 'Inquiries & Messages'}</span>
                         </div>
                         {inquiriesList.length > 0 && (
                           <span className="px-2 py-0.5 rounded-shape-xs bg-accent/10 text-accent text-[10px] font-black">
@@ -4114,27 +4171,27 @@ export const BulletinBoardPage: React.FC = () => {
                     {user && (
                       <button
                         onClick={() => { setSelectedPageDetail(null); setActiveTab('my_ads'); setIsMobileSidebarOpen(false); }}
-                        className={`group w-full px-3 py-2.5 rounded-[var(--radius-md)] text-xs font-bold flex items-center gap-2.5 transition-theme ${
+                        className={`group w-full h-8 px-2.5 rounded-shape-sm text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
                           activeTab === 'my_ads' && !selectedPageDetail
-                            ? 'bg-accent/10 text-accent shadow-sm border border-accent/20'
+                            ? 'bg-accent/10 text-accent border border-accent/20'
                             : 'bg-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]'
                         }`}
                       >
-                        <Tag size={16} className={`transition-theme ${activeTab === 'my_ads' && !selectedPageDetail ? 'text-accent' : 'text-[var(--text-muted)] group-hover:text-accent'}`} />
-                        <span>{isRtl ? 'إعلاناتي وإدارتها' : 'My Advertisements'}</span>
+                        <Tag size={15} className={`transition-theme ${activeTab === 'my_ads' && !selectedPageDetail ? 'text-accent' : 'text-[var(--text-muted)] group-hover:text-accent'}`} />
+                        <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'إعلاناتي وإدارتها' : 'My Advertisements'}</span>
                       </button>
                     )}
 
                     <button
                       onClick={() => { setSelectedPageDetail(null); setActiveTab('analytics'); setIsMobileSidebarOpen(false); }}
-                      className={`group w-full px-3 py-2.5 rounded-[var(--radius-md)] text-xs font-bold flex items-center gap-2.5 transition-theme ${
+                      className={`group w-full h-8 px-2.5 rounded-shape-sm text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
                         activeTab === 'analytics' && !selectedPageDetail
-                          ? 'bg-accent/10 text-accent shadow-sm border border-accent/20'
+                          ? 'bg-accent/10 text-accent border border-accent/20'
                           : 'bg-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]'
                       }`}
                     >
-                      <BarChart2 size={16} className={`transition-theme ${activeTab === 'analytics' && !selectedPageDetail ? 'text-accent' : 'text-[var(--text-muted)] group-hover:text-accent'}`} />
-                      <span>{isRtl ? 'تحليلات الأداء' : 'Performance Analytics'}</span>
+                      <BarChart2 size={15} className={`transition-theme ${activeTab === 'analytics' && !selectedPageDetail ? 'text-accent' : 'text-[var(--text-muted)] group-hover:text-accent'}`} />
+                      <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'تحليلات الأداء' : 'Performance Analytics'}</span>
                     </button>
 
                     <button
@@ -4145,18 +4202,18 @@ export const BulletinBoardPage: React.FC = () => {
                         setIsMobileSidebarOpen(false);
                         fetchSavedAds();
                       }}
-                      className={`group w-full px-3 py-2.5 rounded-[var(--radius-md)] text-xs font-bold flex items-center gap-2.5 transition-theme ${
+                      className={`group w-full h-8 px-2.5 rounded-shape-sm text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
                         activeTab === 'saved' && !selectedPageDetail
-                          ? 'bg-accent/10 text-accent shadow-sm border border-accent/20'
+                          ? 'bg-accent/10 text-accent border border-accent/20'
                           : 'bg-transparent text-[var(--text-secondary)] hover:bg-[var(--surface-subtle)]'
                       }`}
                     >
-                      <Bookmark size={16} className={`transition-theme ${activeTab === 'saved' && !selectedPageDetail ? 'text-accent' : 'text-[var(--text-muted)] group-hover:text-accent'}`} />
-                      <span>{isRtl ? 'المحفوظات' : 'Saved Items'}</span>
+                      <Bookmark size={15} className={`transition-theme ${activeTab === 'saved' && !selectedPageDetail ? 'text-accent' : 'text-[var(--text-muted)] group-hover:text-accent'}`} />
+                      <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'المحفوظات' : 'Saved Items'}</span>
                     </button>
                   </div>
 
-                  {}
+                  {/* Actions */}
                   <div className="grid grid-cols-2 gap-2 pt-1">
                     <button
                       onClick={() => {
@@ -4164,10 +4221,10 @@ export const BulletinBoardPage: React.FC = () => {
                         setIsPageModalOpen(true);
                         setIsMobileSidebarOpen(false);
                       }}
-                      className="p-2.5 rounded-[var(--radius-md)] bg-[var(--surface-subtle)] text-[var(--text-primary)] font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm"
+                      className="h-8 px-2.5 rounded-shape-sm bg-[var(--surface-subtle)] text-[var(--text-primary)] font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 cursor-pointer touch-target-44-expanded"
                     >
-                      <Building2 size={14} className="text-accent" />
-                      <span>{isRtl ? 'إنشاء صفحة' : 'Create Page'}</span>
+                      <Building2 size={13} className="text-accent" />
+                      <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'إنشاء صفحة' : 'Create Page'}</span>
                     </button>
                     <button
                       onClick={() => {
@@ -4175,10 +4232,10 @@ export const BulletinBoardPage: React.FC = () => {
                         setIsAdModalOpen(true);
                         setIsMobileSidebarOpen(false);
                       }}
-                      className="p-2.5 rounded-[var(--radius-md)] bg-accent text-[var(--text-primary)] font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-none"
+                      className="h-8 px-2.5 rounded-shape-sm bg-accent text-[var(--text-primary)] font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs active:scale-95 cursor-pointer touch-target-44-expanded"
                     >
-                      <Plus size={14} />
-                      <span>{isRtl ? 'نشر إعلان' : 'Publish Ad'}</span>
+                      <Plus size={13} />
+                      <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'نشر إعلان' : 'Publish Ad'}</span>
                     </button>
                   </div>
                 </div>
@@ -4193,11 +4250,11 @@ export const BulletinBoardPage: React.FC = () => {
             walletBalance={walletBalance}
             token={token}
             isRtl={isRtl}
-            onBack={() => {
-              setBoostingAd(null);
-              setIsBoostModalOpen(false);
+            onBack={handleCloseBoostStudio}
+            onSuccess={(updatedAd) => {
+              handleBoostSuccess(updatedAd);
+              handleCloseBoostStudio();
             }}
-            onSuccess={handleBoostSuccess}
             onNavigateToWallet={() => { window.location.href = '/wallet'; }}
             onRequestDepositModal={() => { window.location.href = '/wallet'; }}
           />
@@ -4207,10 +4264,10 @@ export const BulletinBoardPage: React.FC = () => {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setActiveTab('board')}
-                  className="px-4 py-2 rounded-[var(--radius-md)] bg-accent hover:bg-accent text-[var(--text-primary)] font-bold text-xs flex items-center gap-2 shadow transition-theme active:scale-95"
+                  className="h-8 min-h-[32px] max-h-[32px] px-3 rounded-shape-sm touch-target-44-expanded bg-accent hover:bg-accent text-[var(--text-primary)] font-bold text-xs flex items-center gap-2 shadow transition-theme active:scale-95 cursor-pointer"
                 >
-                  {isRtl ? <ArrowRight size={16} /> : <ArrowLeft size={16} />}
-                  <span>{isRtl ? 'رجوع إلى خلاصة الإعلانات' : 'Back to Feed'}</span>
+                  {isRtl ? <ArrowRight size={15} /> : <ArrowLeft size={15} />}
+                  <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'رجوع إلى الخلاصة' : 'Back to Feed'}</span>
                 </button>
                 <div>
                   <h2 className="text-sm sm:text-base font-extrabold flex items-center gap-2">
@@ -4276,10 +4333,10 @@ export const BulletinBoardPage: React.FC = () => {
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
                 <button
                   onClick={() => setActiveTab('board')}
-                  className="ui-btn-secondary text-xs shrink-0 cursor-pointer"
+                  className="h-8 min-h-[32px] max-h-[32px] px-3 rounded-shape-sm touch-target-44-expanded ui-btn-secondary text-xs shrink-0 cursor-pointer inline-flex items-center gap-1.5"
                 >
                   {isRtl ? <ArrowRight size={15} /> : <ArrowLeft size={15} />}
-                  <span>{isRtl ? 'رجوع إلى خلاصة الإعلانات' : 'Back to Feed'}</span>
+                  <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'رجوع إلى الخلاصة' : 'Back to Feed'}</span>
                 </button>
                 <div className="min-w-0">
                   <h2 className="text-sm sm:text-base font-extrabold flex items-center gap-2 text-[var(--text-primary)]">
@@ -4300,10 +4357,10 @@ export const BulletinBoardPage: React.FC = () => {
                   }
                   setIsPageModalOpen(true);
                 }}
-                className="ui-btn-primary text-xs w-full sm:w-auto shrink-0 cursor-pointer"
+                className="h-8 min-h-[32px] max-h-[32px] px-3.5 rounded-shape-sm touch-target-44-expanded ui-btn-primary text-xs w-full sm:w-auto shrink-0 cursor-pointer inline-flex items-center justify-center gap-1.5"
               >
                 <Plus size={15} />
-                <span>{isRtl ? 'أنشئ صفحتك التجارية' : 'Create Merchant Page'}</span>
+                <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'أنشئ صفحتك التجارية' : 'Create Merchant Page'}</span>
               </button>
             </div>
 
@@ -4320,10 +4377,10 @@ export const BulletinBoardPage: React.FC = () => {
                 <h3 className="text-sm font-bold text-[var(--text-primary)]">{isRtl ? 'لا توجد صفحات تجارية مطابقة' : 'No Merchant Pages Found'}</h3>
                 <button
                   onClick={() => setIsPageModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[var(--text-primary)] hover:text-accent transition-theme cursor-pointer border border-[var(--border-default)] rounded-[var(--radius-full)] bg-[var(--surface-subtle)] hover:bg-[var(--surface-card)]"
+                  className="h-8 min-h-[32px] max-h-[32px] px-3.5 rounded-shape-sm touch-target-44-expanded inline-flex items-center justify-center gap-1.5 text-xs font-bold text-[var(--text-primary)] hover:text-accent transition-theme cursor-pointer border border-[var(--border-default)] bg-[var(--surface-subtle)] hover:bg-[var(--surface-card)] shadow-2xs"
                 >
                   <Plus size={14} className="stroke-[2.5]" />
-                  <span>{isRtl ? 'إنشاء صفحة تجارية' : 'Create Merchant Page'}</span>
+                  <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'إنشاء صفحة تجارية' : 'Create Merchant Page'}</span>
                 </button>
               </div>
             ) : (
@@ -4371,22 +4428,22 @@ export const BulletinBoardPage: React.FC = () => {
                         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 pt-1 sm:pt-0 overflow-x-auto pb-1 sm:pb-0">
                           <button
                             onClick={() => handleToggleFollowPage(page.id)}
-                            className={`px-3 py-2 rounded-[var(--radius-md)] text-xs font-bold transition-theme flex items-center gap-1 shadow shrink-0 ${
+                            className={`h-8 min-h-[32px] max-h-[32px] px-3 rounded-shape-sm touch-target-44-expanded text-xs font-bold transition-theme flex items-center gap-1.5 shadow shrink-0 cursor-pointer ${
                               page.user_is_following
-                                ? 'bg-[var(--surface-subtle)] text-[var(--text-secondary)]'
+                                ? 'bg-[var(--surface-subtle)] text-[var(--text-secondary)] border border-[var(--border-default)]'
                                 : 'bg-accent text-[var(--text-primary)] hover:bg-accent'
                             }`}
                           >
                             {page.user_is_following ? <UserCheck size={14} /> : <UserPlus size={14} />}
-                            <span>{page.user_is_following ? (isRtl ? 'متابع' : 'Following') : (isRtl ? 'متابعة' : '+ Follow')}</span>
+                            <span className="h-[23px] leading-[23px] inline-flex items-center">{page.user_is_following ? (isRtl ? 'متابع' : 'Following') : (isRtl ? 'متابعة' : '+ Follow')}</span>
                           </button>
 
                           <button
                             onClick={() => handleOpenPageDetail(page.id)}
-                            className="px-3 py-2 rounded-[var(--radius-md)] bg-[var(--text-primary)] text-[var(--surface-page)] font-black text-xs flex items-center gap-1 shadow shrink-0"
+                            className="h-8 min-h-[32px] max-h-[32px] px-3 rounded-shape-sm touch-target-44-expanded bg-[var(--text-primary)] text-[var(--surface-page)] font-bold text-xs flex items-center gap-1.5 shadow shrink-0 cursor-pointer"
                           >
                             <Globe size={14} />
-                            <span>{isRtl ? 'زيارة' : 'Visit'}</span>
+                            <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'زيارة' : 'Visit'}</span>
                           </button>
 
                           {page.whatsapp_number && (
@@ -4394,11 +4451,11 @@ export const BulletinBoardPage: React.FC = () => {
                               href={`https://wa.me/${page.whatsapp_number.replace(/[^0-9]/g, '')}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="w-9 h-9 rounded-[var(--radius-xs)] bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 flex items-center justify-center transition-theme shadow-2xs shrink-0 cursor-pointer" style={{ color: SOCIAL_COLORS.whatsapp.base }}
+                              className="w-8 h-8 rounded-shape-sm touch-target-44-expanded bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 flex items-center justify-center transition-theme shadow-2xs shrink-0 cursor-pointer" style={{ color: SOCIAL_COLORS.whatsapp.base }}
                               title={isRtl ? 'تواصل عبر واتساب' : 'WhatsApp'}
                               aria-label={isRtl ? 'تواصل عبر واتساب' : 'WhatsApp'}
                             >
-                              <Phone size={15} />
+                              <Phone size={14} />
                             </a>
                           )}
                         </div>
@@ -4491,9 +4548,9 @@ export const BulletinBoardPage: React.FC = () => {
                   </p>
                   <button
                     onClick={() => setIsAuthModalOpen(true)}
-                    className="platform-action-btn w-full py-2"
+                    className="platform-action-btn w-full h-8 min-h-[32px] max-h-[32px] rounded-shape-sm touch-target-44-expanded inline-flex items-center justify-center font-bold text-xs"
                   >
-                    {isRtl ? 'تسجيل الدخول / حساب جديد' : 'Sign In'}
+                    <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'تسجيل الدخول / حساب جديد' : 'Sign In'}</span>
                   </button>
                 </div>
               )}
@@ -4641,9 +4698,9 @@ export const BulletinBoardPage: React.FC = () => {
                     <p>{isRtl ? 'لم تقم بإعداد ملفك التجاري بعد. افصل هويتك الشخصية عن الإعلانات.' : 'No commercial profile setup yet. Separate your personal identity from your ads.'}</p>
                     <button
                       onClick={() => setIsPageModalOpen(true)}
-                      className="platform-action-btn px-3.5 py-1.5 text-[11px]"
+                      className="platform-action-btn px-3.5 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm touch-target-44-expanded inline-flex items-center justify-center font-bold text-xs"
                     >
-                      {isRtl ? 'إعداد الملف التجاري الآن' : 'Setup Commercial Profile'}
+                      <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'إعداد الملف التجاري الآن' : 'Setup Commercial Profile'}</span>
                     </button>
                   </div>
                 ) : (
@@ -5224,14 +5281,14 @@ export const BulletinBoardPage: React.FC = () => {
                     <div className="flex flex-wrap items-center gap-2 pt-1 sm:pt-0">
                       <button
                         onClick={() => handleToggleFollowPage(selectedPageDetail.page.id)}
-                        className={`px-4 py-2.5 min-h-[44px] rounded-[var(--radius-md)] text-xs font-extrabold transition-theme flex items-center gap-2 shadow-sm ${
+                        className={`h-8 min-h-[32px] max-h-[32px] px-3 rounded-shape-sm touch-target-44-expanded text-xs font-bold transition-theme flex items-center gap-1.5 shadow-sm cursor-pointer ${
                           selectedPageDetail.page.user_is_following
                             ? 'bg-[var(--surface-subtle)] text-[var(--text-secondary)] border border-[var(--border-default)] hover:bg-[var(--surface-inset)]'
                             : 'bg-accent text-[var(--text-primary)] hover:opacity-90'
                         }`}
                       >
-                        {selectedPageDetail.page.user_is_following ? <UserCheck size={16} /> : <UserPlus size={16} />}
-                        <span>{selectedPageDetail.page.user_is_following ? (isRtl ? 'تتابعها' : 'Following') : (isRtl ? '+ متابعة الصفحة' : '+ Follow Page')}</span>
+                        {selectedPageDetail.page.user_is_following ? <UserCheck size={14} /> : <UserPlus size={14} />}
+                        <span className="h-[23px] leading-[23px] inline-flex items-center">{selectedPageDetail.page.user_is_following ? (isRtl ? 'تتابعها' : 'Following') : (isRtl ? '+ متابعة الصفحة' : '+ Follow Page')}</span>
                       </button>
 
                       <button
@@ -5255,11 +5312,11 @@ export const BulletinBoardPage: React.FC = () => {
                             toast.success(isRtl ? 'تم نسخ رابط الصفحة بنجاح' : 'Page link copied!');
                           }
                         }}
-                        className="px-4 py-2.5 min-h-[44px] rounded-[var(--radius-md)] text-xs font-extrabold transition-theme flex items-center gap-2 bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] text-[var(--text-primary)] shadow-sm cursor-pointer border border-[var(--border-default)]"
+                        className="h-8 min-h-[32px] max-h-[32px] px-3 rounded-shape-sm touch-target-44-expanded text-xs font-bold transition-theme flex items-center gap-1.5 bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] text-[var(--text-primary)] shadow-sm cursor-pointer border border-[var(--border-default)]"
                         title={isRtl ? 'مشاركة رابط هذه الصفحة' : 'Share Page Link'}
                       >
-                        <Share2 size={16} className="text-accent" />
-                        <span>{isRtl ? 'مشاركة الصفحة' : 'Share Page'}</span>
+                        <Share2 size={14} className="text-accent" />
+                        <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'مشاركة الصفحة' : 'Share Page'}</span>
                       </button>
 
                       {(() => {
@@ -5287,10 +5344,10 @@ export const BulletinBoardPage: React.FC = () => {
                               setEditingPageData(selectedPageDetail.page);
                               setIsEditPageModalOpen(true);
                             }}
-                            className="px-4 py-2.5 min-h-[44px] rounded-[var(--radius-md)] text-xs font-extrabold transition-theme flex items-center gap-2 bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] text-[var(--text-secondary)] shadow-sm cursor-pointer border border-[var(--border-default)]"
+                            className="h-8 min-h-[32px] max-h-[32px] px-3 rounded-shape-sm touch-target-44-expanded text-xs font-bold transition-theme flex items-center gap-1.5 bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] text-[var(--text-secondary)] shadow-sm cursor-pointer border border-[var(--border-default)]"
                           >
-                            <Settings size={16} />
-                            <span>{isRtl ? 'إدارة وتعديل الصفحة' : 'Manage & Edit Page'}</span>
+                            <Settings size={14} />
+                            <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'إدارة وتعديل الصفحة' : 'Manage & Edit Page'}</span>
                           </button>
                         );
                       })()}
@@ -5300,12 +5357,12 @@ export const BulletinBoardPage: React.FC = () => {
                           href={`https://wa.me/${selectedPageDetail.page.whatsapp_number.replace(/[^0-9]/g, '')}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="px-3.5 py-2.5 min-h-[44px] rounded-[var(--radius-md)] bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 flex items-center justify-center gap-1.5 transition-theme shadow-2xs cursor-pointer font-extrabold text-xs" style={{ color: SOCIAL_COLORS.whatsapp.base }}
+                          className="h-8 min-h-[32px] max-h-[32px] px-3 rounded-shape-sm touch-target-44-expanded bg-[#25D366]/10 hover:bg-[#25D366]/20 border border-[#25D366]/30 flex items-center justify-center gap-1.5 transition-theme shadow-2xs cursor-pointer font-bold text-xs" style={{ color: SOCIAL_COLORS.whatsapp.base }}
                           title={isRtl ? 'تواصل عبر واتساب' : 'WhatsApp'}
                           aria-label={isRtl ? 'تواصل عبر واتساب' : 'WhatsApp'}
                         >
-                          <Phone size={16} />
-                          <span className="hidden sm:inline">{isRtl ? 'واتساب' : 'WhatsApp'}</span>
+                          <Phone size={14} />
+                          <span className="h-[23px] leading-[23px] inline-flex items-center hidden sm:inline">{isRtl ? 'واتساب' : 'WhatsApp'}</span>
                         </a>
                       )}
                     </div>
@@ -5672,9 +5729,243 @@ export const BulletinBoardPage: React.FC = () => {
                   />
                 )}
 
-                {}
-                {}
-                {}
+                {activeTab === 'my_ads' && (
+                  <div className="space-y-6 pb-20">
+                    {/* Header Banner */}
+                    <div className="bg-[var(--surface-card)] border border-[var(--border-main)] rounded-[var(--radius-lg)] p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 text-accent text-xs font-extrabold uppercase tracking-wider mb-1">
+                          <Rocket size={16} />
+                          <span>{isRtl ? 'مركز إدارة الإعلانات والحملات الممولة' : 'Ad Campaigns & Promotions Hub'}</span>
+                        </div>
+                        <h2 className="text-xl font-black text-[var(--text-primary)]">
+                          {isRtl ? 'حملاتي وإعلاناتي المنشورة' : 'My Published Ads & Campaigns'}
+                        </h2>
+                        <p className="text-xs text-[var(--text-muted)] mt-1">
+                          {isRtl
+                            ? 'تتبع حالة حملاتك الممولة والمجدولة، عدّل الجدول الزمني والميزانية اليومية، أو روّج لأي منشور بضغطة زر.'
+                            : 'Track your active and scheduled ad campaigns, adjust schedule & daily budget, or boost any post.'}
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                        <button
+                          onClick={() => setActiveTab('analytics')}
+                          className="px-4 py-2.5 min-h-[44px] rounded-shape-sm bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] text-[var(--text-primary)] border border-[var(--border-main)] font-bold text-xs flex items-center gap-2 transition-theme cursor-pointer"
+                        >
+                          <BarChart2 size={16} className="text-accent" />
+                          <span>{isRtl ? 'التحليلات التفصيلية' : 'Detailed Analytics'}</span>
+                        </button>
+                        <button
+                          onClick={() => setIsAdModalOpen(true)}
+                          className="px-4 py-2.5 min-h-[44px] rounded-shape-sm bg-accent text-white font-black text-xs hover:opacity-90 transition-theme flex items-center gap-2 shadow-sm cursor-pointer"
+                        >
+                          <Plus size={16} />
+                          <span>{isRtl ? 'إنشاء إعلان / منشور جديد' : 'Create New Ad / Post'}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Quick Summary KPIs */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div className="bg-[var(--surface-card)] border border-[var(--border-main)] rounded-[var(--radius-md)] p-4">
+                        <div className="text-[11px] font-bold text-[var(--text-muted)]">{isRtl ? 'إجمالي إعلاناتي' : 'Total Posts & Ads'}</div>
+                        <div className="text-2xl font-black text-[var(--text-primary)] mt-1 font-mono">{myAds.length}</div>
+                      </div>
+                      <div className="bg-[var(--surface-card)] border border-[var(--border-main)] rounded-[var(--radius-md)] p-4">
+                        <div className="text-[11px] font-bold text-emerald-500">{isRtl ? 'حملات ممولة نشطة' : 'Active Boosted'}</div>
+                        <div className="text-2xl font-black text-emerald-500 mt-1 font-mono">
+                          {myAds.filter((a: any) => a.is_boosted && !(a.is_scheduled && a.scheduled_start_at && new Date(a.scheduled_start_at) > new Date())).length}
+                        </div>
+                      </div>
+                      <div className="bg-[var(--surface-card)] border border-[var(--border-main)] rounded-[var(--radius-md)] p-4">
+                        <div className="text-[11px] font-bold text-blue-500">{isRtl ? 'حملات مجدولة' : 'Scheduled Campaigns'}</div>
+                        <div className="text-2xl font-black text-blue-500 mt-1 font-mono">
+                          {myAds.filter((a: any) => (a.is_scheduled || a.boost_status === 'scheduled') && a.scheduled_start_at && new Date(a.scheduled_start_at) > new Date()).length}
+                        </div>
+                      </div>
+                      <div className="bg-[var(--surface-card)] border border-[var(--border-main)] rounded-[var(--radius-md)] p-4">
+                        <div className="text-[11px] font-bold text-amber-500">{isRtl ? 'إجمالي المشاهدات' : 'Total Impressions'}</div>
+                        <div className="text-2xl font-black text-[var(--text-primary)] mt-1 font-mono">
+                          {myAds.reduce((acc, a) => acc + Number(a.impressions_count || 0), 0).toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Campaigns & Ads List */}
+                    {myAds.length === 0 ? (
+                      <div className="bg-[var(--surface-card)] border border-[var(--border-main)] rounded-[var(--radius-lg)] p-12 text-center space-y-3">
+                        <Megaphone size={40} className="mx-auto text-[var(--text-muted)] opacity-40" />
+                        <h3 className="text-base font-black text-[var(--text-primary)]">
+                          {isRtl ? 'لا توجد حملات أو منشورات حتى الآن' : 'No campaigns or posts yet'}
+                        </h3>
+                        <p className="text-xs text-[var(--text-muted)] max-w-md mx-auto">
+                          {isRtl
+                            ? 'ابدأ بنشر أول منشور أو منتج لك، ثم افتح استوديو الترويج لتحديد الجدول الزمني والميزانية اليومية.'
+                            : 'Start by publishing your first post or product, then open the Promotion Studio to set your schedule and daily budget.'}
+                        </p>
+                        <button
+                          onClick={() => setIsAdModalOpen(true)}
+                          className="mt-2 px-5 py-2.5 min-h-[44px] rounded-shape-sm bg-accent text-white font-black text-xs hover:opacity-90 transition-theme inline-flex items-center gap-2 cursor-pointer"
+                        >
+                          <Plus size={16} />
+                          <span>{isRtl ? 'نشر إعلان جديد الآن' : 'Publish New Ad Now'}</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 gap-4">
+                        {myAds.map((ad: any) => {
+                          const isFutureScheduled = Boolean(
+                            (ad.is_scheduled || ad.boost_status === 'scheduled') &&
+                            ad.scheduled_start_at &&
+                            new Date(ad.scheduled_start_at) > new Date()
+                          );
+                          const isBoostActive = Boolean(
+                            ad.is_boosted &&
+                            !isFutureScheduled &&
+                            (!ad.boosted_until || new Date(ad.boosted_until) > new Date())
+                          );
+                          const imp = Number(ad.impressions_count || 0);
+                          const clk = Number(ad.clicks_count || 0);
+                          const ctrVal = imp > 0 ? ((clk / imp) * 100).toFixed(2) : '0.00';
+
+                          return (
+                            <div key={`my-campaign-card-${ad.id}`} className="space-y-2">
+                            <div
+                              className="bg-[var(--surface-card)] border border-[var(--border-main)] hover:border-accent/40 rounded-[var(--radius-lg)] p-4 sm:p-5 transition-theme flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-2xs"
+                            >
+                              <div className="flex items-start gap-4 min-w-0 flex-1">
+                                <img
+                                  src={getMediaUrl(ad.image_url)}
+                                  alt={ad.title}
+                                  className="w-20 h-20 rounded-shape-md object-cover border border-[var(--border-main)] shrink-0 bg-[var(--surface-subtle)]"
+                                />
+                                <div className="min-w-0 flex-1 space-y-1.5">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    {isFutureScheduled ? (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-blue-500/15 text-blue-500 border border-blue-500/30 inline-flex items-center gap-1">
+                                        <Clock size={11} />
+                                        <span>
+                                          {isRtl ? 'حملة مجدولة' : 'Scheduled'}:{' '}
+                                          {new Date(ad.scheduled_start_at).toLocaleString(isRtl ? 'ar-EG' : 'en-US', {
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                          })}
+                                        </span>
+                                      </span>
+                                    ) : isBoostActive ? (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 inline-flex items-center gap-1">
+                                        <Zap size={11} />
+                                        <span>{isRtl ? 'حملة ممولة نشطة' : 'Active Boost'}</span>
+                                      </span>
+                                    ) : (
+                                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--surface-subtle)] text-[var(--text-muted)] border border-[var(--border-main)]">
+                                        {isRtl ? 'منشور عادي (غير ممول)' : 'Standard Post'}
+                                      </span>
+                                    )}
+
+                                    {ad.boost_daily_budget ? (
+                                      <span className="text-[11px] font-bold text-amber-500 font-mono">
+                                        ${Number(ad.boost_daily_budget).toFixed(2)}/{isRtl ? 'يوم' : 'day'}
+                                      </span>
+                                    ) : null}
+
+                                    {ad.boosted_until && (isBoostActive || isFutureScheduled) && (
+                                      <span className="text-[10px] text-[var(--text-muted)]">
+                                        {isRtl ? 'ينتهي:' : 'Ends:'}{' '}
+                                        {new Date(ad.boosted_until).toLocaleDateString(isRtl ? 'ar-EG' : 'en-US', {
+                                          year: 'numeric',
+                                          month: 'short',
+                                          day: 'numeric'
+                                        })}
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  <h3 className="text-sm sm:text-base font-black text-[var(--text-primary)] line-clamp-1">
+                                    {ad.title}
+                                  </h3>
+                                  <p className="text-xs text-[var(--text-secondary)] line-clamp-2">
+                                    {ad.description}
+                                  </p>
+
+                                  {/* Metrics Bar */}
+                                  <div className="flex flex-wrap items-center gap-4 pt-1 text-[11px] text-[var(--text-muted)] font-bold">
+                                    <span className="flex items-center gap-1">
+                                      <Eye size={13} className="text-blue-500" />
+                                      <strong className="text-[var(--text-primary)] font-mono">{imp.toLocaleString()}</strong> {isRtl ? 'مشاهدة' : 'Views'}
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                      <ExternalLink size={13} className="text-emerald-500" />
+                                      <strong className="text-[var(--text-primary)] font-mono">{clk.toLocaleString()}</strong> {isRtl ? 'نقرة' : 'Clicks'}
+                                    </span>
+                                    <span className="flex items-center gap-1">
+                                      <TrendingUp size={13} className="text-accent" />
+                                      <strong className="text-accent font-mono">{ctrVal}%</strong> CTR
+                                    </span>
+                                    {Number(ad.price_paid || 0) > 0 && (
+                                      <span className="text-amber-500 font-mono">
+                                        {isRtl ? 'الإنفاق:' : 'Spend:'} ${Number(ad.price_paid).toFixed(2)}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Action Buttons */}
+                              <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end shrink-0 border-t md:border-t-0 pt-3 md:pt-0 border-[var(--border-main)]">
+                                <button
+                                  onClick={() => handleOpenBoostModal(ad)}
+                                  className="px-3.5 py-2 min-h-[44px] rounded-shape-sm bg-[#2d88ff] hover:bg-[#1a73e8] text-white font-black text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                                >
+                                  <Rocket size={14} />
+                                  <span>
+                                    {isBoostActive || isFutureScheduled
+                                      ? (isRtl ? 'إدارة الحملة والجدولة' : 'Manage Campaign & Schedule')
+                                      : (isRtl ? 'ترويج وجدولة الإعلان' : 'Boost & Schedule Ad')}
+                                  </span>
+                                </button>
+                                <button
+                                  onClick={() => setInsightsAdId(insightsAdId === ad.id ? null : ad.id)}
+                                  className="px-3 py-2 min-h-[44px] rounded-shape-sm bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] text-[var(--text-primary)] border border-[var(--border-main)] font-bold text-xs flex items-center gap-1.5 transition-theme cursor-pointer"
+                                >
+                                  <BarChart2 size={14} className="text-accent" />
+                                  <span>{isRtl ? 'الرؤى' : 'Insights'}</span>
+                                </button>
+                                <button
+                                  onClick={() => handleEditAd(ad)}
+                                  className="p-2.5 min-h-[44px] min-w-[44px] rounded-shape-sm bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] text-[var(--text-secondary)] border border-[var(--border-main)] flex items-center justify-center transition-theme cursor-pointer"
+                                  title={isRtl ? 'تعديل المنشور' : 'Edit Post'}
+                                >
+                                  <Edit3 size={15} />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteAd(ad.id)}
+                                  className="p-2.5 min-h-[44px] min-w-[44px] rounded-shape-sm bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 flex items-center justify-center transition-theme cursor-pointer"
+                                  title={isRtl ? 'حذف المنشور' : 'Delete Post'}
+                                >
+                                  <Trash2 size={15} />
+                                </button>
+                              </div>
+                            </div>
+                            {insightsAdId === ad.id && (
+                              <AdInsightsTab
+                                adId={ad.id}
+                                isRtl={isRtl}
+                                token={token}
+                                onBoostClick={() => handleOpenBoostModal(ad)}
+                                onClose={() => setInsightsAdId(null)}
+                              />
+                            )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {activeTab === 'inquiries' && (
                   <InquiriesTab
                     isRtl={isRtl}
@@ -7032,12 +7323,12 @@ export const BulletinBoardPage: React.FC = () => {
             {/* 1. Photo / Video */}
             <label
               onClick={() => setIsAddToPostModalOpen(false)}
-              className="flex items-center gap-2 px-2 py-1.5 h-9 rounded-shape-xs bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs select-none"
+              className="flex items-center gap-2 px-2.5 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm touch-target-44-expanded bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs select-none"
             >
-              <div className="w-6 h-6 rounded-shape-xs shrink-0 flex items-center justify-center bg-[var(--status-success-subtle)] text-[var(--fg-success)] group-hover:scale-105 transition-transform">
-                <ImageIcon size={13} />
+              <div className="w-5 h-5 rounded-shape-xs shrink-0 flex items-center justify-center bg-[var(--status-success-subtle)] text-[var(--fg-success)] group-hover:scale-105 transition-transform">
+                <ImageIcon size={12} />
               </div>
-              <span className="text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
+              <span className="h-[23px] leading-[23px] inline-flex items-center text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
                 {isRtl ? 'صورة / فيديو' : 'Photo / Video'}
               </span>
               <input
@@ -7056,12 +7347,12 @@ export const BulletinBoardPage: React.FC = () => {
                 setComposerView('tagging');
                 setIsAddToPostModalOpen(false);
               }}
-              className="flex items-center gap-2 px-2 py-1.5 h-9 rounded-shape-xs bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
+              className="flex items-center gap-2 px-2.5 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm touch-target-44-expanded bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
             >
-              <div className="w-6 h-6 rounded-shape-xs shrink-0 flex items-center justify-center bg-blue-500/15 text-blue-500 group-hover:scale-105 transition-transform">
-                <Users size={13} />
+              <div className="w-5 h-5 rounded-shape-xs shrink-0 flex items-center justify-center bg-blue-500/15 text-blue-500 group-hover:scale-105 transition-transform">
+                <Users size={12} />
               </div>
-              <span className="text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
+              <span className="h-[23px] leading-[23px] inline-flex items-center text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
                 {isRtl ? 'إشارة لأشخاص' : 'Tag People'}
               </span>
             </button>
@@ -7073,12 +7364,12 @@ export const BulletinBoardPage: React.FC = () => {
                 setComposerView('feelings');
                 setIsAddToPostModalOpen(false);
               }}
-              className="flex items-center gap-2 px-2 py-1.5 h-9 rounded-shape-xs bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
+              className="flex items-center gap-2 px-2.5 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm touch-target-44-expanded bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
             >
-              <div className="w-6 h-6 rounded-shape-xs shrink-0 flex items-center justify-center bg-amber-500/15 text-amber-500 group-hover:scale-105 transition-transform">
-                <Smile size={13} />
+              <div className="w-5 h-5 rounded-shape-xs shrink-0 flex items-center justify-center bg-amber-500/15 text-amber-500 group-hover:scale-105 transition-transform">
+                <Smile size={12} />
               </div>
-              <span className="text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
+              <span className="h-[23px] leading-[23px] inline-flex items-center text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
                 {isRtl ? 'شعور / نشاط' : 'Feeling / Activity'}
               </span>
             </button>
@@ -7090,12 +7381,12 @@ export const BulletinBoardPage: React.FC = () => {
                 setComposerView('location');
                 setIsAddToPostModalOpen(false);
               }}
-              className="flex items-center gap-2 px-2 py-1.5 h-9 rounded-shape-xs bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
+              className="flex items-center gap-2 px-2.5 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm touch-target-44-expanded bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
             >
-              <div className="w-6 h-6 rounded-shape-xs shrink-0 flex items-center justify-center bg-rose-500/15 text-rose-500 group-hover:scale-105 transition-transform">
-                <MapPin size={13} />
+              <div className="w-5 h-5 rounded-shape-xs shrink-0 flex items-center justify-center bg-rose-500/15 text-rose-500 group-hover:scale-105 transition-transform">
+                <MapPin size={12} />
               </div>
-              <span className="text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
+              <span className="h-[23px] leading-[23px] inline-flex items-center text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
                 {isRtl ? 'تسجيل زيارة' : 'Check In'}
               </span>
             </button>
@@ -7108,12 +7399,12 @@ export const BulletinBoardPage: React.FC = () => {
                 setIsAddToPostModalOpen(false);
                 toast.success(isRtl ? 'تم تفعيل زر تلقي المكالمات/واتساب' : 'Call/WhatsApp button activated');
               }}
-              className="flex items-center gap-2 px-2 py-1.5 h-9 rounded-shape-xs bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
+              className="flex items-center gap-2 px-2.5 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm touch-target-44-expanded bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
             >
-              <div className="w-6 h-6 rounded-shape-xs shrink-0 flex items-center justify-center bg-[var(--comp-button-primary-bg)]/15 text-[var(--fg-success)] group-hover:scale-105 transition-transform">
-                <Phone size={13} />
+              <div className="w-5 h-5 rounded-shape-xs shrink-0 flex items-center justify-center bg-[var(--comp-button-primary-bg)]/15 text-[var(--fg-success)] group-hover:scale-105 transition-transform">
+                <Phone size={12} />
               </div>
-              <span className="text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
+              <span className="h-[23px] leading-[23px] inline-flex items-center text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
                 {isRtl ? 'تلقي مكالمات' : 'Get Calls'}
               </span>
             </button>
@@ -7137,12 +7428,12 @@ export const BulletinBoardPage: React.FC = () => {
                 }
                 setIsAddToPostModalOpen(false);
               }}
-              className="flex items-center gap-2 px-2 py-1.5 h-9 rounded-shape-xs bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
+              className="flex items-center gap-2 px-2.5 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm touch-target-44-expanded bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
             >
-              <div className="w-6 h-6 rounded-shape-xs shrink-0 flex items-center justify-center bg-purple-500/15 text-purple-500 font-black text-[9px] group-hover:scale-105 transition-transform">
+              <div className="w-5 h-5 rounded-shape-xs shrink-0 flex items-center justify-center bg-purple-500/15 text-purple-500 font-black text-[9px] group-hover:scale-105 transition-transform">
                 GIF
               </div>
-              <span className="text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
+              <span className="h-[23px] leading-[23px] inline-flex items-center text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
                 {isRtl ? 'صورة GIF' : 'GIF'}
               </span>
             </button>
@@ -7155,12 +7446,12 @@ export const BulletinBoardPage: React.FC = () => {
                 setIsAddToPostModalOpen(false);
                 toast.success(isRtl ? 'تمت إضافة علامة البث المباشر' : 'Live video badge added');
               }}
-              className="flex items-center gap-2 px-2 py-1.5 h-9 rounded-shape-xs bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
+              className="flex items-center gap-2 px-2.5 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm touch-target-44-expanded bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
             >
-              <div className="w-6 h-6 rounded-shape-xs shrink-0 flex items-center justify-center bg-red-600/15 text-red-500 group-hover:scale-105 transition-transform">
-                <Radio size={13} className="animate-pulse" />
+              <div className="w-5 h-5 rounded-shape-xs shrink-0 flex items-center justify-center bg-red-600/15 text-red-500 group-hover:scale-105 transition-transform">
+                <Radio size={12} className="animate-pulse" />
               </div>
-              <span className="text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
+              <span className="h-[23px] leading-[23px] inline-flex items-center text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
                 {isRtl ? 'بث مباشر' : 'Live Video'}
               </span>
             </button>
@@ -7173,12 +7464,12 @@ export const BulletinBoardPage: React.FC = () => {
                 setIsAddToPostModalOpen(false);
                 toast.success(isRtl ? 'تمت إضافة علامة المناسبة الشخصية' : 'Life event badge added');
               }}
-              className="flex items-center gap-2 px-2 py-1.5 h-9 rounded-shape-xs bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
+              className="flex items-center gap-2 px-2.5 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm touch-target-44-expanded bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
             >
-              <div className="w-6 h-6 rounded-shape-xs shrink-0 flex items-center justify-center bg-accent/15 text-accent group-hover:scale-105 transition-transform">
-                <Bookmark size={13} />
+              <div className="w-5 h-5 rounded-shape-xs shrink-0 flex items-center justify-center bg-accent/15 text-accent group-hover:scale-105 transition-transform">
+                <Bookmark size={12} />
               </div>
-              <span className="text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
+              <span className="h-[23px] leading-[23px] inline-flex items-center text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
                 {isRtl ? 'مناسبة شخصية' : 'Life Event'}
               </span>
             </button>
@@ -7190,12 +7481,12 @@ export const BulletinBoardPage: React.FC = () => {
                 setIsAddToPostModalOpen(false);
                 setIsAudioPickerOpen(true);
               }}
-              className="flex items-center gap-2 px-2 py-1.5 h-9 rounded-shape-xs bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
+              className="flex items-center gap-2 px-2.5 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm touch-target-44-expanded bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
             >
-              <div className="w-6 h-6 rounded-shape-xs shrink-0 flex items-center justify-center bg-purple-500/15 text-purple-400 group-hover:scale-105 transition-transform">
-                <Music size={13} />
+              <div className="w-5 h-5 rounded-shape-xs shrink-0 flex items-center justify-center bg-purple-500/15 text-purple-400 group-hover:scale-105 transition-transform">
+                <Music size={12} />
               </div>
-              <span className="text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
+              <span className="h-[23px] leading-[23px] inline-flex items-center text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
                 {isRtl ? 'موسيقى' : 'Music'}
               </span>
             </button>
@@ -7213,12 +7504,12 @@ export const BulletinBoardPage: React.FC = () => {
                 setIsAddToPostModalOpen(false);
                 toast.success(isRtl ? 'تم تفعيل خيارات الأسئلة السريعة' : 'Quick questions enabled');
               }}
-              className="flex items-center gap-2 px-2 py-1.5 h-9 rounded-shape-xs bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
+              className="flex items-center gap-2 px-2.5 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm touch-target-44-expanded bg-[var(--surface-subtle)]/70 hover:bg-[var(--surface-inset)] border border-[var(--border-default)]/60 hover:border-accent/40 transition-all cursor-pointer group shadow-2xs text-start select-none"
             >
-              <div className="w-6 h-6 rounded-shape-xs shrink-0 flex items-center justify-center bg-indigo-500/15 text-indigo-400 group-hover:scale-105 transition-transform">
-                <HelpCircle size={13} />
+              <div className="w-5 h-5 rounded-shape-xs shrink-0 flex items-center justify-center bg-indigo-500/15 text-indigo-400 group-hover:scale-105 transition-transform">
+                <HelpCircle size={12} />
               </div>
-              <span className="text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
+              <span className="h-[23px] leading-[23px] inline-flex items-center text-[11px] font-bold text-[var(--text-primary)] group-hover:text-accent transition-colors truncate">
                 {isRtl ? 'استطلاع / أسئلة' : 'Q&A / Poll'}
               </span>
             </button>
@@ -7641,12 +7932,12 @@ export const BulletinBoardPage: React.FC = () => {
                 document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
                 document.body.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="hidden md:flex fixed bottom-8 end-6 z-40 min-h-[44px] h-11 px-4 rounded-[var(--comp-button-radius,6px)] bg-[var(--surface-card)] hover:bg-[var(--surface-subtle)] text-[var(--text-primary)] border border-[var(--border-main)] hover:border-accent shadow-xl transition-all items-center gap-2 text-xs font-bold cursor-pointer active:scale-98 backdrop-blur-md"
+              className="hidden md:flex fixed bottom-8 end-6 z-40 h-8 min-h-[32px] max-h-[32px] px-3 rounded-shape-sm touch-target-44-expanded bg-[var(--surface-card)] hover:bg-[var(--surface-subtle)] text-[var(--text-primary)] border border-[var(--border-main)] hover:border-accent shadow-xl transition-all items-center gap-2 text-xs font-bold cursor-pointer active:scale-98 backdrop-blur-md"
               title={isRtl ? 'العودة لأعلى الصفحة' : 'Scroll to top'}
               aria-label={isRtl ? 'العودة لأعلى الصفحة' : 'Scroll to top'}
             >
-              <ArrowUp size={16} className="text-accent" />
-              <span>{isRtl ? 'أعلى الصفحة' : 'Top'}</span>
+              <ArrowUp size={14} className="text-accent" />
+              <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'أعلى الصفحة' : 'Top'}</span>
             </motion.button>
           )}
         </AnimatePresence>,

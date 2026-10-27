@@ -262,22 +262,19 @@ export const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
       {/* Header Bar */}
       <div className="flex items-center justify-between gap-2 pb-2.5 mb-1 border-b border-[var(--border-default)] w-full">
         <div className="flex items-center gap-2 min-w-0">
-          <div className="w-10 h-10 rounded-shape-md bg-accent/10 border border-accent/20 flex items-center justify-center text-accent shrink-0">
+          <div className="w-8 h-8 rounded-shape-sm bg-[var(--bg-accent-muted)] border border-[var(--border-accent)]/20 flex items-center justify-center text-[var(--fg-accent)] shrink-0">
             {isBulletinOnly ? (
-              <Megaphone size={18} />
+              <Megaphone size={16} />
             ) : (
-              <Sparkles size={18} />
+              <Sparkles size={16} />
             )}
           </div>
            <div className="min-w-0">
             <h3 className="text-xs sm:text-sm font-extrabold text-[var(--text-primary)] flex items-center gap-2 truncate">
               <span>
                 {title || (isBulletinOnly
-                  ? (language === 'ar' ? 'إعلانات موصى بها' : 'Recommended Ads')
+                  ? (language === 'ar' ? 'إعلانات موصى بها' : 'Recommended Listings')
                   : (language === 'ar' ? 'توصيات مخصصة لك' : 'Recommended For You'))}
-              </span>
-              <span title={language === 'ar' ? 'ذكاء اصطناعي' : 'AI Powered'}>
-                <Brain size={15} className="text-accent shrink-0" />
               </span>
             </h3>
           </div>
@@ -290,7 +287,7 @@ export const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
               if (onOpenPreferences) onOpenPreferences();
               else setIsPrefModalOpen(true);
             }}
-            className="w-8 h-8 rounded-shape-sm bg-transparent border border-[var(--border-default)] hover:bg-accent/10 hover:border-accent/20 text-[var(--text-muted)] hover:text-accent transition-all duration-fast active:scale-95 group shrink-0 cursor-pointer relative flex items-center justify-center"
+            className="w-8 h-8 rounded-shape-sm btn-square-primary bg-transparent border border-[var(--border-default)] hover:bg-[var(--bg-accent-muted)] hover:border-[var(--border-accent)]/30 text-[var(--text-muted)] hover:text-[var(--fg-accent)] transition-all duration-fast active:scale-95 group shrink-0 cursor-pointer relative flex items-center justify-center touch-target-44-expanded"
             title={language === 'ar' ? 'تعديل تفضيلات التوصيات' : 'Customize preferences'}
           >
             <Settings size={14} className="transition-transform group-hover:rotate-45" />
@@ -299,30 +296,36 @@ export const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
           <button
             onClick={() => { fetchRecommendations(); }}
             disabled={isLoading}
-            className="w-8 h-8 rounded-shape-sm bg-transparent border border-[var(--border-default)] hover:bg-accent/10 hover:border-accent/20 text-[var(--text-muted)] hover:text-accent transition-all duration-fast active:scale-95 group shrink-0 cursor-pointer relative flex items-center justify-center"
+            className="w-8 h-8 rounded-shape-sm btn-square-primary bg-transparent border border-[var(--border-default)] hover:bg-[var(--bg-accent-muted)] hover:border-[var(--border-accent)]/30 text-[var(--text-muted)] hover:text-[var(--fg-accent)] transition-all duration-fast active:scale-95 group shrink-0 cursor-pointer relative flex items-center justify-center touch-target-44-expanded"
             title={language === 'ar' ? 'تحديث التوصيات' : 'Refresh'}
           >
-            <RefreshCw size={14} className={isLoading ? 'animate-spin text-accent' : 'transition-transform group-hover:rotate-180'} />
+            <RefreshCw size={14} className={isLoading ? 'animate-spin text-[var(--fg-accent)]' : 'transition-transform group-hover:rotate-180'} />
           </button>
         </div>
       </div>
 
       {/* Category Tabs (only if full variant and not bulletin-only) */}
       {variant === 'full' && !isBulletinOnly && (
-        <div className="flex items-center gap-1 overflow-x-auto scrollbar-none pb-2 mb-3 text-xs font-semibold snap-x touch-pan-x">
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-2 mb-3 text-xs font-semibold snap-x touch-pan-x">
           {[
             { id: 'all', label_ar: 'الكل', label_en: 'All Picks', icon: <Compass size={13} /> },
-            { id: 'bulletin', label_ar: 'بيربليكستا بورد', label_en: 'Board & Ads', icon: <Megaphone size={13} /> },
-            { id: 'tool', label_ar: 'أدوات الذكاء الاصطناعي', label_en: 'AI Tools', icon: <Zap size={13} /> },
+            { id: 'bulletin', label_ar: 'عروض الأعمال', label_en: 'Business Board', icon: <Megaphone size={13} /> },
+            { id: 'tool', label_ar: 'أدوات العمل', label_en: 'Tools', icon: <Zap size={13} /> },
           ].map(tab => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveCategory(tab.id as any)}
-              className={`snap-start ide-chip ${activeCategory === tab.id ? 'ide-chip-active font-extrabold' : ''}`}
+              className={`snap-start h-8 px-3 rounded-shape-sm text-xs font-bold btn-long-standard flex items-center cursor-pointer transition-theme ${
+                activeCategory === tab.id
+                  ? 'bg-[var(--accent)] text-white shadow-2xs font-extrabold border border-transparent'
+                  : 'bg-[var(--surface-subtle)] text-[var(--text-secondary)] border border-[var(--border-default)] hover:text-[var(--text-primary)] hover:border-[var(--border-strong)]'
+              }`}
             >
-              {tab.icon}
-              <span>{language === 'ar' ? tab.label_ar : tab.label_en}</span>
+              <div className="h-[23px] leading-[23px] flex items-center gap-1.5">
+                {tab.icon}
+                <span>{language === 'ar' ? tab.label_ar : tab.label_en}</span>
+              </div>
             </button>
           ))}
         </div>
@@ -399,8 +402,8 @@ export const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
                 >
                   <div className="flex items-center gap-2 min-w-0 flex-1">
                     {isToolItem ? (
-                      <div className="w-7 h-7 rounded-shape-sm bg-[var(--bg-accent-muted)] border border-[var(--border-accent)]/30 text-[var(--fg-accent)] flex items-center justify-center shrink-0">
-                        <Zap size={14} />
+                      <div className="w-[30px] h-[30px] rounded-shape-xs bg-[var(--bg-accent-muted)] border border-[var(--border-accent)]/20 text-[var(--fg-accent)] flex items-center justify-center shrink-0">
+                        <Zap size={13} />
                       </div>
                     ) : (
                       <div className="relative shrink-0">
@@ -441,10 +444,10 @@ export const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
                   <div className="flex items-center gap-1 shrink-0">
                     <button
                       onClick={(e) => handleDismiss(item, e)}
-                      className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--fg-danger)] hover:bg-[var(--fg-danger)]/10 transition-colors opacity-0 group-hover:opacity-100"
+                      className="w-[30px] h-[30px] rounded-shape-xs text-[var(--text-muted)] hover:text-[var(--fg-danger)] hover:bg-[var(--fg-danger)]/10 transition-colors opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer"
                       title={language === 'ar' ? 'غير مهتم' : 'Not interested'}
                     >
-                      <X size={11} />
+                      <X size={12} />
                     </button>
                   </div>
                 </motion.div>
@@ -461,11 +464,11 @@ export const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.16 }}
                 onClick={() => handleItemClick(item)}
-                className="group relative rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--surface-card)] hover:border-[var(--border-accent)] transition-all p-3 flex flex-col justify-between cursor-pointer overflow-hidden shadow-xs hover:shadow-md"
+                className="group relative rounded-shape-md border border-[var(--border-default)] bg-[var(--surface-card)] hover:border-[var(--border-accent)] transition-all p-3 flex flex-col justify-between cursor-pointer overflow-hidden shadow-2xs hover:shadow-md"
               >
                 <div>
                   <div className="flex items-center justify-between gap-1 mb-2.5">
-                    <span className="flex items-center gap-1 text-[10px] font-bold text-[var(--text-muted)] bg-[var(--surface-subtle)] px-1.5 py-0.5 rounded-[var(--radius-xs)] border border-[var(--border-default)]">
+                    <span className="flex items-center gap-1 text-[10px] font-bold text-[var(--text-muted)] bg-[var(--surface-subtle)] px-2 py-0.5 rounded-shape-xs border border-[var(--border-default)]">
                       {getTypeIcon(item.item_type)}
                       <span>{getTypeBadgeText(item.item_type)}</span>
                     </span>
@@ -478,18 +481,18 @@ export const RecommendationWidget: React.FC<RecommendationWidgetProps> = ({
 
                       <button
                         onClick={(e) => handleDismiss(item, e)}
-                        className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--fg-danger)] hover:bg-[var(--fg-danger)]/10 transition-colors opacity-0 group-hover:opacity-100"
+                        className="w-6 h-6 rounded-shape-xs text-[var(--text-muted)] hover:text-[var(--fg-danger)] hover:bg-[var(--fg-danger)]/10 transition-colors opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer"
                         title={language === 'ar' ? 'غير مهتم' : 'Not interested'}
                       >
-                        <X size={12} />
+                        <X size={11} />
                       </button>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-2">
                     {isTool ? (
-                      <div className="w-9 h-9 rounded-[var(--radius-sm)] bg-[var(--bg-accent-muted)] border border-[var(--accent)]/30 text-[var(--accent)] flex items-center justify-center shrink-0">
-                        <Zap size={18} />
+                      <div className="w-8 h-8 rounded-shape-sm bg-[var(--bg-accent-muted)] border border-[var(--border-accent)]/20 text-[var(--fg-accent)] flex items-center justify-center shrink-0">
+                        <Zap size={16} />
                       </div>
                     ) : (
                       <BulletinAvatar

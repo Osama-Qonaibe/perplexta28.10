@@ -630,10 +630,10 @@ export const PostFeed: React.FC<PostFeedProps> = ({
         </div>
         <button
           onClick={onCreateAdClick}
-          className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-[var(--text-primary)] hover:text-accent transition-theme cursor-pointer border border-[var(--border-default)] rounded-[var(--radius-full)] bg-[var(--surface-subtle)] hover:bg-[var(--surface-card)]"
+          className="h-8 px-3.5 inline-flex items-center justify-center gap-1.5 text-xs font-bold text-[var(--text-primary)] hover:text-accent transition-all cursor-pointer border border-[var(--border-default)] rounded-shape-sm bg-[var(--surface-subtle)] hover:bg-[var(--surface-card)] shadow-2xs active:scale-95 touch-target-44-expanded"
         >
-          <Plus size={14} className="stroke-[2.5]" />
-          <span>{isRtl ? 'إنشاء منشور' : 'Create Post'}</span>
+          <Plus size={13} className="stroke-[2.5]" />
+          <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'إنشاء منشور' : 'Create Post'}</span>
         </button>
       </div>
     );
@@ -811,13 +811,13 @@ export const PostFeed: React.FC<PostFeedProps> = ({
                     title={ad.ad_format === 'reel' ? (isRtl ? 'عرض الريلز' : 'View Reel') : (isRtl ? 'عرض القصة' : 'View Story')}
                   >
                     {ad.ad_format === 'reel' ? <Clapperboard size={13} className="text-purple-500" /> : <Camera size={13} className="text-[var(--fg-accent)]" />}
-                    <span className="hidden sm:inline">{ad.ad_format === 'reel' ? (isRtl ? 'ريلز' : 'Reel') : (isRtl ? 'قصة' : 'Story')}</span>
+                    <span className="hidden sm:inline-flex h-[23px] leading-[23px] items-center">{ad.ad_format === 'reel' ? (isRtl ? 'ريلز' : 'Reel') : (isRtl ? 'قصة' : 'Story')}</span>
                   </button>
                 )}
                 {ad.category && !['عام', 'general', 'عام / general', 'عام / General'].includes(ad.category.trim().toLowerCase()) && (
                   <span className="hidden sm:inline-flex h-8 px-2.5 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--fg-accent)] text-xs font-bold items-center justify-center gap-1.5 shadow-2xs shrink-0">
                     <span className="w-1.5 h-1.5 rounded-full bg-[var(--fg-accent)] shrink-0" />
-                    <span>{ad.category}</span>
+                    <span className="h-[23px] leading-[23px] inline-flex items-center">{ad.category}</span>
                   </span>
                 )}
 
@@ -827,7 +827,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({
                     {onEditAd && (
                       <button
                         onClick={() => onEditAd(ad)}
-                        className="w-8 h-8 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-accent/10 hover:border-accent/40 text-[var(--text-muted)] hover:text-accent transition-all duration-fast active:scale-95 flex items-center justify-center cursor-pointer shrink-0 shadow-2xs"
+                        className="w-8 h-8 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-accent/10 hover:border-accent/40 text-[var(--text-muted)] hover:text-accent transition-all duration-fast active:scale-95 flex items-center justify-center cursor-pointer shrink-0 shadow-2xs touch-target-44-expanded"
                         title={isRtl ? 'تعديل المنشور' : 'Edit Post'}
                       >
                         <Edit size={14} />
@@ -836,7 +836,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({
                     {onDeleteAd && (
                       <button
                         onClick={() => onDeleteAd(ad)}
-                        className="w-8 h-8 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-rose-500/10 hover:border-rose-500/30 text-[var(--text-muted)] hover:text-rose-500 transition-all duration-fast active:scale-95 flex items-center justify-center cursor-pointer shrink-0 shadow-2xs"
+                        className="w-8 h-8 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] hover:bg-rose-500/10 hover:border-rose-500/30 text-[var(--text-muted)] hover:text-rose-500 transition-all duration-fast active:scale-95 flex items-center justify-center cursor-pointer shrink-0 shadow-2xs touch-target-44-expanded"
                         title={isRtl ? 'حذف المنشور' : 'Delete Post'}
                       >
                         <Trash2 size={14} />
@@ -853,7 +853,7 @@ export const PostFeed: React.FC<PostFeedProps> = ({
                       e.stopPropagation();
                       setActiveMoreMenuId(activeMoreMenuId === ad.id ? null : ad.id);
                     }}
-                    className={`w-8 h-8 rounded-shape-sm flex items-center justify-center border transition-all duration-fast active:scale-95 cursor-pointer shrink-0 shadow-2xs ${
+                    className={`w-8 h-8 rounded-shape-sm flex items-center justify-center border transition-all duration-fast active:scale-95 cursor-pointer shrink-0 shadow-2xs touch-target-44-expanded ${
                       activeMoreMenuId === ad.id
                         ? 'bg-accent/15 border-accent/40 text-accent font-bold'
                         : 'bg-[var(--surface-subtle)] border-[var(--border-default)] text-[var(--text-muted)] hover:text-accent hover:bg-accent/10 hover:border-accent/40'
@@ -1226,15 +1226,15 @@ export const PostFeed: React.FC<PostFeedProps> = ({
                 {onBoostAd ? (
                   <button
                     onClick={() => onBoostAd(ad)}
-                    className={`flex-1 min-w-0 min-h-[44px] flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-base active:scale-95 cursor-pointer py-2 font-bold text-[11px] sm:text-xs select-none ${
+                    className={`flex-1 min-w-0 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-base active:scale-95 cursor-pointer px-1 font-bold text-xs select-none touch-target-44-expanded ${
                       ad.is_boosted
                         ? 'text-[var(--fg-warning)] hover:opacity-90'
                         : 'text-[var(--text-muted)] hover:text-[var(--fg-warning)]'
                     }`}
                     title={isRtl ? 'ترويج الإعلان' : 'Boost Ad'}
                   >
-                    <Rocket size={14} className="shrink-0" />
-                    <span className="truncate">
+                    <Rocket size={13} className="shrink-0" />
+                    <span className="h-[23px] leading-[23px] inline-flex items-center truncate">
                       {ad.is_boosted ? (isRtl ? 'تمديد' : 'Extend') : (isRtl ? 'ترويج' : 'Boost')}
                     </span>
                   </button>
@@ -1243,50 +1243,71 @@ export const PostFeed: React.FC<PostFeedProps> = ({
                 {/* 2. Insights / Stats Button (الرؤى) */}
                 <button
                   onClick={() => setActiveInsightsAdId(activeInsightsAdId === ad.id ? null : ad.id)}
-                  className={`flex-1 min-w-0 min-h-[44px] flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-base active:scale-95 cursor-pointer py-2 font-bold text-[11px] sm:text-xs select-none ${
+                  className={`flex-1 min-w-0 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-base active:scale-95 cursor-pointer px-1 font-bold text-xs select-none touch-target-44-expanded ${
                     activeInsightsAdId === ad.id
                       ? 'text-[var(--fg-accent)]'
                       : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                   }`}
                   title={isRtl ? 'الرؤى والتحليلات' : 'Insights & Analytics'}
                 >
-                  <BarChart2 size={14} className="shrink-0" />
-                  <span className="truncate">{isRtl ? 'الرؤى' : 'Insights'}</span>
+                  <BarChart2 size={13} className="shrink-0" />
+                  <span className="h-[23px] leading-[23px] inline-flex items-center truncate">
+                    {isRtl ? 'الرؤى' : 'Insights'}
+                  </span>
                 </button>
 
                 {/* 3. Direct Message (Chat) Button */}
-                <button
-                  onClick={() => {
-                    setActiveChatAdId(activeChatAdId === ad.id ? null : ad.id);
-                    if (onMessageAdvertiser) onMessageAdvertiser(ad);
-                  }}
-                  disabled={messagingAdId === ad.id}
-                  className={`flex-1 min-w-0 min-h-[44px] flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-base active:scale-95 cursor-pointer py-2 font-bold text-[11px] sm:text-xs select-none ${
-                    activeChatAdId === ad.id
-                      ? 'text-[var(--fg-accent)] font-extrabold'
-                      : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-                  }`}
-                  title={isRtl ? 'مراسلة المعلن' : 'Message'}
-                >
-                  {messagingAdId === ad.id ? (
-                    <Loader2 size={14} className="animate-spin text-[var(--fg-accent)] shrink-0" />
-                  ) : (
-                    <>
-                      <MessageCircle size={14} className="shrink-0" />
-                      <span className="truncate">{isRtl ? 'مراسلة' : 'Message'}</span>
-                    </>
-                  )}
-                </button>
+                {(() => {
+                  const isOwnAd = user && (user.id === ad.user_id || (ad.page_id && user.id === ad.page_id));
+                  return (
+                    <button
+                      onClick={() => {
+                        if (isOwnAd) {
+                          toast.info(isRtl ? 'هذا إعلانك الخاص، لا يمكنك مراسلة نفسك' : 'This is your own ad, you cannot message yourself');
+                          return;
+                        }
+                        setActiveChatAdId(activeChatAdId === ad.id ? null : ad.id);
+                        if (onMessageAdvertiser) onMessageAdvertiser(ad);
+                      }}
+                      disabled={messagingAdId === ad.id || isOwnAd}
+                      className={`flex-1 min-w-0 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-base active:scale-95 px-1 font-bold text-xs select-none touch-target-44-expanded ${
+                        isOwnAd
+                          ? 'opacity-50 cursor-not-allowed text-[var(--text-muted)] bg-[var(--surface-subtle)]'
+                          : activeChatAdId === ad.id
+                          ? 'text-[var(--fg-accent)] font-extrabold cursor-pointer'
+                          : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] cursor-pointer'
+                      }`}
+                      title={
+                        isOwnAd
+                          ? (isRtl ? 'هذا إعلانك الخاص (غير قابل للمراسلة)' : 'This is your own ad (cannot message yourself)')
+                          : (isRtl ? 'مراسلة المعلن' : 'Message')
+                      }
+                    >
+                      {messagingAdId === ad.id ? (
+                        <Loader2 size={13} className="animate-spin text-[var(--fg-accent)] shrink-0" />
+                      ) : (
+                        <>
+                          <MessageCircle size={13} className="shrink-0" />
+                          <span className="h-[23px] leading-[23px] inline-flex items-center truncate">
+                            {isRtl ? 'مراسلة' : 'Message'}
+                          </span>
+                        </>
+                      )}
+                    </button>
+                  );
+                })()}
 
                 {/* 4. WhatsApp Button */}
                 {(ad.whatsapp_number || ad.has_whatsapp_button) && (
                   <button
                     onClick={(e) => onWhatsApp(ad, e)}
-                    className="flex-1 min-w-0 min-h-[44px] flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-base active:scale-95 cursor-pointer py-2 font-bold text-[11px] sm:text-xs select-none text-[#25D366]/80 hover:text-[#25D366]"
+                    className="flex-1 min-w-0 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-base active:scale-95 cursor-pointer px-1 font-bold text-xs select-none text-[#25D366]/80 hover:text-[#25D366] touch-target-44-expanded"
                     title={isRtl ? 'تواصل عبر واتساب' : 'WhatsApp'}
                   >
-                    <Phone size={14} className="shrink-0" />
-                    <span className="truncate">{isRtl ? 'واتساب' : 'WhatsApp'}</span>
+                    <Phone size={13} className="shrink-0" />
+                    <span className="h-[23px] leading-[23px] inline-flex items-center truncate">
+                      {isRtl ? 'واتساب' : 'WhatsApp'}
+                    </span>
                   </button>
                 )}
 
@@ -1295,11 +1316,13 @@ export const PostFeed: React.FC<PostFeedProps> = ({
                   <a
                     href={`tel:${ad.phone_number}`}
                     onClick={(e) => e.stopPropagation()}
-                    className="flex-1 min-w-0 min-h-[44px] flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-base active:scale-95 cursor-pointer py-2 font-bold text-[11px] sm:text-xs select-none text-[var(--fg-accent)]/80 hover:text-[var(--fg-accent)] decoration-none"
+                    className="flex-1 min-w-0 h-8 min-h-[32px] max-h-[32px] rounded-shape-sm flex items-center justify-center gap-1 sm:gap-1.5 transition-all duration-base active:scale-95 cursor-pointer px-1 font-bold text-xs select-none text-[var(--fg-accent)]/80 hover:text-[var(--fg-accent)] decoration-none touch-target-44-expanded"
                     title={isRtl ? `اتصال: ${ad.phone_number}` : `Call: ${ad.phone_number}`}
                   >
-                    <PhoneCall size={14} className="shrink-0" />
-                    <span className="truncate">{isRtl ? 'اتصال' : 'Call'}</span>
+                    <PhoneCall size={13} className="shrink-0" />
+                    <span className="h-[23px] leading-[23px] inline-flex items-center truncate">
+                      {isRtl ? 'اتصال' : 'Call'}
+                    </span>
                   </a>
                 )}
               </div>
@@ -1630,9 +1653,9 @@ export const PostFeed: React.FC<PostFeedProps> = ({
                       <button
                         onClick={() => onAddComment(ad.id, replyToCommentId || undefined)}
                         disabled={!newCommentText.trim()}
-                        className="h-8 px-3 rounded-shape-sm bg-accent text-[var(--text-primary)] hover:opacity-90 disabled:opacity-40 font-bold text-xs transition-all duration-fast shadow-2xs active:scale-95 cursor-pointer"
+                        className="h-8 min-h-[32px] max-h-[32px] px-3 rounded-shape-sm touch-target-44-expanded bg-accent text-[var(--text-primary)] hover:opacity-90 disabled:opacity-40 font-bold text-xs transition-all duration-fast shadow-2xs active:scale-95 cursor-pointer inline-flex items-center justify-center"
                       >
-                        {isRtl ? 'إرسال' : 'Send'}
+                        <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'إرسال' : 'Send'}</span>
                       </button>
                       {replyToCommentId && (
                         <button 
@@ -1700,10 +1723,10 @@ export const PostFeed: React.FC<PostFeedProps> = ({
           {onLoadMore && (
             <button
               onClick={onLoadMore}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-shape-sm bg-[var(--surface-card)] hover:bg-[var(--surface-subtle)] text-[var(--accent)] border border-[var(--border-default)] hover:border-[var(--border-accent)] text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+              className="h-8 min-h-[32px] max-h-[32px] px-3.5 rounded-shape-sm touch-target-44-expanded inline-flex items-center gap-1.5 bg-[var(--surface-card)] hover:bg-[var(--surface-subtle)] text-[var(--accent)] border border-[var(--border-default)] hover:border-[var(--border-accent)] text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
             >
               <RotateCcw size={14} />
-              <span>{isRtl ? 'تحديث ومواصلة التصفح المستمر' : 'Reload for continuous browsing'}</span>
+              <span className="h-[23px] leading-[23px] inline-flex items-center">{isRtl ? 'تحديث ومواصلة التصفح المستمر' : 'Reload for continuous browsing'}</span>
             </button>
           )}
         </div>

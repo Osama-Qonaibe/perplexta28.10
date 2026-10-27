@@ -628,6 +628,18 @@ input[type="range"] {
     justify-content: center;
   }
 
+  .touch-target-44-expanded {
+    position: relative;
+  }
+  .touch-target-44-expanded::before {
+    content: "";
+    position: absolute;
+    top: -6px;
+    bottom: -6px;
+    left: -6px;
+    right: -6px;
+  }
+
   @keyframes spinSlow {
     from {
       transform: rotate(0deg);
@@ -1726,11 +1738,14 @@ body,
 .platform-tab-btn,
 .vb-nav-btn {
   width: 100%;
-  padding: 0.45rem 0.75rem;
-  border-radius: 0.75rem;
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  padding: 0 0.625rem !important;
+  border-radius: var(--ref-shape-sm, 8px) !important;
   font-weight: 700;
   font-size: 0.75rem;
-  line-height: 1.125rem;
+  line-height: 23px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1776,10 +1791,14 @@ body,
 .platform-icon-btn,
 .vb-icon-btn {
   position: relative;
-  padding: 0.5rem;
-  min-height: 40px;
-  min-width: 40px;
-  border-radius: 0.75rem;
+  width: 32px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  min-width: 32px !important;
+  max-height: 32px !important;
+  max-width: 32px !important;
+  padding: 0 !important;
+  border-radius: var(--ref-shape-sm, 8px) !important;
   background-color: var(--surface-subtle);
   color: var(--text-muted);
   border: 1px solid var(--border-default);
@@ -1788,8 +1807,18 @@ body,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  shrink: 0;
+  flex-shrink: 0;
   user-select: none;
+}
+
+.platform-icon-btn::before,
+.vb-icon-btn::before {
+  content: "";
+  position: absolute;
+  top: -6px;
+  bottom: -6px;
+  left: -6px;
+  right: -6px;
 }
 
 .platform-icon-btn:hover,
@@ -1810,8 +1839,8 @@ body,
 .platform-item-btn,
 .vb-item-btn {
   width: 100%;
-  padding: 0.75rem;
-  border-radius: 0.875rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: var(--ref-shape-sm, 8px);
   background-color: var(--surface-card);
   color: var(--text-primary);
   border: 1px solid var(--border-default);
@@ -1841,13 +1870,16 @@ body,
 /* 4. Unified Action Pill Button */
 .platform-action-btn,
 .vb-btn-primary {
-  padding: 0.5rem 0.875rem;
-  min-height: 40px;
-  border-radius: var(--comp-button-radius, 6px);
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  padding: 0 0.75rem !important;
+  border-radius: var(--ref-shape-sm, 8px) !important;
   background-color: var(--comp-button-primary-bg);
   color: var(--comp-button-primary-fg);
   font-weight: 700;
-  font-size: 0.8125rem;
+  font-size: 0.75rem !important;
+  line-height: 23px;
   border: 1px solid var(--border-default);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
@@ -1879,13 +1911,16 @@ body,
   align-items: center;
   justify-content: center;
   gap: 0.375rem;
-  padding: 0.3rem 0.5rem;
-  min-height: 32px;
-  border-radius: 0.5rem;
+  padding: 0 0.5rem;
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  border-radius: var(--ref-shape-sm, 8px) !important;
   background-color: transparent;
   color: var(--text-muted);
   font-weight: 700;
   font-size: 0.75rem;
+  line-height: 23px;
   border: 1px solid transparent;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
@@ -1904,11 +1939,14 @@ body,
 
 /* 6. Unified Chip / Filter Button */
 .vb-chip-btn {
-  padding: 0.375rem 0.75rem;
-  min-height: 36px;
-  border-radius: 0.75rem;
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+  padding: 0 0.75rem !important;
+  border-radius: var(--ref-shape-sm, 8px) !important;
   font-weight: 700;
   font-size: 0.75rem;
+  line-height: 23px;
   background-color: var(--surface-subtle);
   color: var(--text-secondary);
   border: 1px solid var(--border-default);

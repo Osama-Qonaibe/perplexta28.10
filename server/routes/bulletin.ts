@@ -1729,10 +1729,32 @@ router.get('/ads', async (req, res) => {
         is_ai_generated: Boolean(row.is_ai_generated),
         archived_at: row.archived_at || null,
         deleted_at: row.deleted_at || null,
-        is_boosted: Boolean(row.is_boosted_active || row.is_boosted),
+        is_boosted: (() => {
+          if (!row.is_boosted) return false;
+          if (row.boosted_until && new Date(row.boosted_until).getTime() <= Date.now()) return false;
+          const schedIso = row.boost_settings?.scheduled_start_at;
+          if (schedIso && new Date(schedIso).getTime() > Date.now()) return false;
+          return true;
+        })(),
+        is_scheduled: Boolean(
+          row.is_boosted &&
+          row.boost_settings?.scheduled_start_at &&
+          new Date(row.boost_settings.scheduled_start_at).getTime() > Date.now()
+        ),
+        scheduled_start_at: row.boost_settings?.scheduled_start_at || null,
+        boost_status: (() => {
+          if (!row.is_boosted) return null;
+          if (row.boosted_until && new Date(row.boosted_until).getTime() <= Date.now()) return 'completed';
+          const schedIso = row.boost_settings?.scheduled_start_at;
+          if (schedIso && new Date(schedIso).getTime() > Date.now()) return 'scheduled';
+          return row.boost_settings?.boost_status || 'active';
+        })(),
         boosted_until: row.boosted_until || null,
         boost_tier: row.boost_tier || null,
         boost_price: Number(row.boost_price || 0),
+        boost_goal: row.boost_goal || null,
+        boost_daily_budget: row.boost_daily_budget ? Number(row.boost_daily_budget) : null,
+        boost_settings: row.boost_settings || null,
         starts_at: row.starts_at,
         expires_at: row.expires_at,
         created_at: row.created_at,
@@ -2000,11 +2022,21 @@ router.get('/ads/my', authenticateToken, async (req: any, res) => {
       [userId]
     );
 
-    const formatted = result.rows.map((row: any) => ({
-      ...row,
-      hashtags: row.hashtags ? row.hashtags.split(',').map((t: string) => t.trim()).filter(Boolean) : [],
-      media_gallery: (row.metadata && Array.isArray(row.metadata.media_gallery)) ? row.metadata.media_gallery : null
-    }));
+    const formatted = result.rows.map((row: any) => {
+      const meta = row.metadata || {};
+      const boostSettings = meta.boost_settings || {};
+      return {
+        ...row,
+        is_scheduled: Boolean(boostSettings.is_scheduled),
+        scheduled_start_at: boostSettings.scheduled_start_at || null,
+        boost_status: boostSettings.status || (row.is_boosted ? 'active' : null),
+        boost_goal: boostSettings.goal || null,
+        boost_daily_budget: boostSettings.daily_budget ? Number(boostSettings.daily_budget) : null,
+        boost_settings: boostSettings,
+        hashtags: row.hashtags ? row.hashtags.split(',').map((t: string) => t.trim()).filter(Boolean) : [],
+        media_gallery: Array.isArray(meta.media_gallery) ? meta.media_gallery : null
+      };
+    });
 
     res.json({ success: true, ads: formatted });
   } catch (error: any) {
@@ -3066,6 +3098,8 @@ router.post('/ads/:id/boost-wallet', authenticateToken, async (req: any, res) =>
       daily_budget,
       dailyBudget,
       goal = 'whatsapp_leads',
+      is_scheduled = false,
+      scheduled_start_at = null,
       settings = {}
     } = req.body;
     const durationNum = Math.max(1, parseInt(days) || 3);
@@ -3115,6 +3149,21 @@ router.post('/ads/:id/boost-wallet', authenticateToken, async (req: any, res) =>
       [cost, userId]
     );
 
+    const resolvedScheduledIso = scheduled_start_at || settings?.scheduled_start_at || null;
+    const isFutureScheduled = Boolean(
+      is_scheduled &&
+      resolvedScheduledIso &&
+      !isNaN(new Date(resolvedScheduledIso).getTime()) &&
+      new Date(resolvedScheduledIso).getTime() > Date.now() + 60 * 1000
+    );
+
+    const mergedSettings = {
+      ...(typeof settings === 'object' && settings !== null ? settings : {}),
+      is_scheduled: isFutureScheduled,
+      scheduled_start_at: isFutureScheduled ? new Date(resolvedScheduledIso).toISOString() : null,
+      boost_status: isFutureScheduled ? 'scheduled' : 'active'
+    };
+
     await client.query(`
       INSERT INTO ledger_transactions (wallet_id, user_id, amount, points, transaction_type, status, description, metadata)
       VALUES ($1, $2, $3, 0, 'bulletin_ad_boost', 'success', $4, $5)
@@ -3122,28 +3171,35 @@ router.post('/ads/:id/boost-wallet', authenticateToken, async (req: any, res) =>
       walletRes.rows[0].id,
       userId,
       -cost,
-      `تمويل وترويج الإعلان "${ad.title}" لمدة ${durationNum} أيام (${tierName} - $${dailyBudgetNum}/يوم)`,
-      JSON.stringify({ ad_id: adId, duration_days: durationNum, daily_budget: dailyBudgetNum, goal, settings })
+      isFutureScheduled
+        ? `جدولة وترويج الإعلان "${ad.title}" لمدة ${durationNum} أيام (${tierName} - $${dailyBudgetNum}/يوم)`
+        : `تمويل وترويج الإعلان "${ad.title}" لمدة ${durationNum} أيام (${tierName} - $${dailyBudgetNum}/يوم)`,
+      JSON.stringify({ ad_id: adId, duration_days: durationNum, daily_budget: dailyBudgetNum, goal, is_scheduled: isFutureScheduled, scheduled_start_at: mergedSettings.scheduled_start_at, settings: mergedSettings })
     ]);
 
     await client.query('COMMIT');
     client.release();
 
-    const mergedSettings = typeof settings === 'object' ? settings : {};
+    const startAnchorDate = isFutureScheduled ? new Date(resolvedScheduledIso) : new Date();
+    const currentBoostEnd = ad.boosted_until ? new Date(ad.boosted_until) : null;
+    const baseEndAnchor = (!isFutureScheduled && currentBoostEnd && currentBoostEnd.getTime() > Date.now())
+      ? currentBoostEnd
+      : startAnchorDate;
+    const computedBoostUntil = new Date(baseEndAnchor.getTime() + durationNum * 24 * 60 * 60 * 1000);
 
     const updateRes = await pool.query(`
       UPDATE bulletin_ads
       SET is_boosted = TRUE,
-          boosted_until = GREATEST(COALESCE(boosted_until, NOW()), NOW()) + INTERVAL '${durationNum} days',
-          boost_tier = $1,
-          boost_price = COALESCE(boost_price, 0) + $2,
-          boost_goal = $3,
-          boost_daily_budget = $4,
-          boost_settings = $5,
+          boosted_until = $1,
+          boost_tier = $2,
+          boost_price = COALESCE(boost_price, 0) + $3,
+          boost_goal = $4,
+          boost_daily_budget = $5,
+          boost_settings = $6,
           updated_at = CURRENT_TIMESTAMP
-      WHERE id = $6
+      WHERE id = $7
       RETURNING *
-    `, [tierName, cost, goal, dailyBudgetNum, JSON.stringify(mergedSettings), adId]);
+    `, [computedBoostUntil.toISOString(), tierName, cost, goal, dailyBudgetNum, JSON.stringify(mergedSettings), adId]);
 
     const updatedAd = updateRes.rows[0];
 
@@ -3151,11 +3207,15 @@ router.post('/ads/:id/boost-wallet', authenticateToken, async (req: any, res) =>
       await createNotification(
         userId,
         'bulletin_ad_boost',
-        'Ad Boosted Successfully',
-        'تم ترويج إعلانك وتنشيطه بنجاح! 🚀⚡',
-        `Your ad "${ad.title}" has been boosted for ${durationNum} days.`,
-        `تم خصم $${cost.toFixed(2)} USD من محفظتك وتمت ترقية الإعلان "${ad.title}" ليظهر في صدارة النتائج.`,
-        { ad_id: adId }
+        isFutureScheduled ? 'Ad Campaign Scheduled' : 'Ad Boosted Successfully',
+        isFutureScheduled ? 'تمت جدولة حملتك الإعلانية بنجاح! 📅🚀' : 'تم ترويج إعلانك وتنشيطه بنجاح! 🚀⚡',
+        isFutureScheduled
+          ? `Your ad "${ad.title}" is scheduled to start on ${new Date(resolvedScheduledIso).toLocaleString()} for ${durationNum} days.`
+          : `Your ad "${ad.title}" has been boosted for ${durationNum} days.`,
+        isFutureScheduled
+          ? `تم حجز ميزانية الحملة ($${cost.toFixed(2)} USD) للإعلان "${ad.title}" وسيبدأ التشغيل تلقائياً في الموعد المحدد.`
+          : `تم خصم $${cost.toFixed(2)} USD من محفظتك وتمت ترقية الإعلان "${ad.title}" ليظهر في صدارة النتائج.`,
+        { ad_id: adId, is_scheduled: isFutureScheduled, scheduled_start_at: mergedSettings.scheduled_start_at }
       );
     } catch (e) {}
 
@@ -3184,16 +3244,21 @@ router.post('/ads/:id/boost-wallet', authenticateToken, async (req: any, res) =>
     }
 
     if (io) {
-      io.emit('bulletin_ad_boosted', { ad_id: adId, is_boosted: true });
+      io.emit('bulletin_ad_boosted', { ad_id: adId, is_boosted: !isFutureScheduled, is_scheduled: isFutureScheduled });
       io.to(`user_${userId}`).emit('wallet_updated', { balance_usd: true });
     }
 
     return res.json({
       success: true,
-      message: `تم تمويل وتنشيط إعلانك بنجاح لمدة ${durationNum} أيام!`,
+      message: isFutureScheduled
+        ? `تمت جدولة حملتك الإعلانية بنجاح لمدة ${durationNum} أيام!`
+        : `تم تمويل وتنشيط إعلانك بنجاح لمدة ${durationNum} أيام!`,
       ad: {
         ...updatedAd,
-        is_boosted: true,
+        is_boosted: !isFutureScheduled,
+        is_scheduled: isFutureScheduled,
+        scheduled_start_at: mergedSettings.scheduled_start_at,
+        boost_status: isFutureScheduled ? 'scheduled' : 'active',
         boost_tier: tierName,
         boost_price: Number(updatedAd.boost_price)
       }
@@ -3214,9 +3279,13 @@ router.post('/ads/:id/boost-stripe', authenticateToken, async (req: any, res) =>
   try {
     const adId = parseInt(req.params.id);
     const userId = req.user.id;
-    const { days = 3, tierName = 'تنشيط ترويجي' } = req.body;
-    const durationNum = parseInt(days) || 3;
-    const cost = BOOST_PRICING[durationNum] || (durationNum * 2.00);
+    const { days = 3, tierName = 'تنشيط ترويجي', daily_budget, dailyBudget, goal = 'whatsapp_leads' } = req.body;
+    const durationNum = Math.max(1, parseInt(days) || 3);
+    const parsedDailyBudget = parseFloat(daily_budget || dailyBudget || 0);
+    const dailyBudgetNum = parsedDailyBudget > 0 ? parsedDailyBudget : 2.00;
+    const cost = (daily_budget || dailyBudget)
+      ? Number((durationNum * dailyBudgetNum).toFixed(2))
+      : (BOOST_PRICING[durationNum] || Number((durationNum * 2.00).toFixed(2)));
 
     const { getStripe } = await import('../services/payments.js');
     const stripe = await getStripe();
@@ -3254,6 +3323,8 @@ router.post('/ads/:id/boost-stripe', authenticateToken, async (req: any, res) =>
         userId: userId.toString(),
         adId: adId.toString(),
         days: durationNum.toString(),
+        dailyBudget: dailyBudgetNum.toString(),
+        goal: goal.toString(),
         cost: cost.toString(),
         tierName,
         type: 'bulletin_ad_boost'
@@ -3283,7 +3354,7 @@ router.get('/verify-boost-session', authenticateToken, async (req: any, res) => 
     const session = await stripe.checkout.sessions.retrieve(session_id.toString());
     if (!session) return res.status(404).json({ error: 'Session not found' });
 
-    const { userId, adId, days, cost, tierName, type } = session.metadata || {};
+    const { userId, adId, days, dailyBudget, goal, cost, tierName, type } = session.metadata || {};
     if (type !== 'bulletin_ad_boost' || userId !== req.user.id.toString()) {
       return res.status(403).json({ error: 'Unauthorized session' });
     }
@@ -3294,6 +3365,7 @@ router.get('/verify-boost-session', authenticateToken, async (req: any, res) => 
     const parsedAdId = parseInt(adId);
     const durationNum = parseInt(days) || 3;
     const costNum = parseFloat(cost) || 5.0;
+    const dailyBudgetNum = parseFloat(dailyBudget) || Number((costNum / durationNum).toFixed(2));
 
     const target = ledgerPool || pool;
     const eventCheck = await target.query('SELECT 1 FROM stripe_events WHERE stripe_event_id = $1', [session.id]);
@@ -3307,13 +3379,15 @@ router.get('/verify-boost-session', authenticateToken, async (req: any, res) => 
         const updateAdRes = await pool.query(`
           UPDATE bulletin_ads
           SET is_boosted = TRUE,
-              boosted_until = GREATEST(COALESCE(boosted_until, NOW()), NOW()) + INTERVAL '${durationNum} days',
+              boosted_until = GREATEST(COALESCE(boosted_until, NOW()), NOW()) + ($4::text || ' days')::interval,
               boost_tier = $1,
               boost_price = COALESCE(boost_price, 0) + $2,
+              boost_goal = COALESCE($5, boost_goal),
+              boost_daily_budget = $6,
               updated_at = CURRENT_TIMESTAMP
           WHERE id = $3
           RETURNING *
-        `, [tierName || 'ترويج مميز', costNum, parsedAdId]);
+        `, [tierName || 'ترويج مميز', costNum, parsedAdId, durationNum, goal || 'whatsapp_leads', dailyBudgetNum]);
 
         const updatedAd = updateAdRes.rows[0];
 
@@ -3346,8 +3420,8 @@ router.get('/verify-boost-session', authenticateToken, async (req: any, res) => 
                 boostPrice: costNum.toFixed(2),
                 boostedUntil: formattedBoostedUntil
               },
-          );
               user.language || 'en'
+            );
           }
         } catch (emailErr) {
           console.error('[Bulletin Stripe Boost API] Email send error:', emailErr);
@@ -3376,9 +3450,13 @@ router.post('/ads/:id/boost-x402', authenticateToken, async (req: any, res) => {
   try {
     const adId = parseInt(req.params.id);
     const userId = req.user.id;
-    const { days = 3, tierName = 'تنشيط كريبتو X402', txHash } = req.body;
-    const durationNum = parseInt(days) || 3;
-    const cost = BOOST_PRICING[durationNum] || (durationNum * 2.00);
+    const { days = 3, tierName = 'تنشيط كريبتو X402', txHash, daily_budget, dailyBudget, goal = 'whatsapp_leads', settings = {} } = req.body;
+    const durationNum = Math.max(1, parseInt(days) || 3);
+    const parsedDailyBudget = parseFloat(daily_budget || dailyBudget || 0);
+    const dailyBudgetNum = parsedDailyBudget > 0 ? parsedDailyBudget : 2.00;
+    const cost = (daily_budget || dailyBudget)
+      ? Number((durationNum * dailyBudgetNum).toFixed(2))
+      : (BOOST_PRICING[durationNum] || Number((durationNum * 2.00).toFixed(2)));
 
     const adRes = await pool.query('SELECT * FROM bulletin_ads WHERE id = $1', [adId]);
     if (adRes.rows.length === 0) {
@@ -3405,13 +3483,16 @@ router.post('/ads/:id/boost-x402', authenticateToken, async (req: any, res) => {
     const updateRes = await pool.query(`
       UPDATE bulletin_ads
       SET is_boosted = TRUE,
-          boosted_until = GREATEST(COALESCE(boosted_until, NOW()), NOW()) + INTERVAL '${durationNum} days',
+          boosted_until = GREATEST(COALESCE(boosted_until, NOW()), NOW()) + ($4::text || ' days')::interval,
           boost_tier = $1,
           boost_price = COALESCE(boost_price, 0) + $2,
+          boost_goal = $5,
+          boost_daily_budget = $6,
+          boost_settings = $7,
           updated_at = CURRENT_TIMESTAMP
       WHERE id = $3
       RETURNING *
-    `, [tierName, cost, adId]);
+    `, [tierName, cost, adId, durationNum, goal, dailyBudgetNum, JSON.stringify(settings || {})]);
 
     const updatedAd = updateRes.rows[0];
 
@@ -4492,10 +4573,10 @@ router.get('/my-analytics', authenticateToken, async (req: any, res) => {
       d.setDate(d.getDate() - i);
       const dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       
-      const factor = 1 + Math.sin(i * 0.4) * 0.35;
-      const dayImp = Math.round((totalImpressions / 12) * factor) + Math.floor(Math.random() * 8);
-      const dayClk = Math.round(dayImp * (ctr / 100 || 0.04)) + Math.floor(Math.random() * 2);
-      const dayInq = Math.round(dayClk * 0.15);
+      const factor = 1 + Math.sin(i * 0.4) * 0.25;
+      const dayImp = totalImpressions > 0 ? Math.round((totalImpressions / 14) * factor) : 0;
+      const dayClk = totalClicks > 0 ? Math.round((totalClicks / 14) * factor) : 0;
+      const dayInq = totalInquiries > 0 ? Math.round((totalInquiries / 14) * factor) : 0;
 
       timeSeries.push({
         date: dateStr,

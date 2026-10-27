@@ -13,3 +13,4 @@ export * from './Button';
 export * from './AssistantIcon';
 export * from './AdaptiveMenu';
 export * from './SelectDropdown';
+export * from './UnifiedCloudSyncBadge';

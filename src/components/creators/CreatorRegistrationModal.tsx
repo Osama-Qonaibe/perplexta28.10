@@ -148,7 +148,7 @@ export const CreatorRegistrationModal: React.FC<CreatorRegistrationModalProps> =
         <div className="relative p-6 bg-gradient-to-r from-[var(--surface-subtle)] via-[color-mix(in_oklab,var(--accent)_10%,transparent)] to-[var(--surface-subtle)] border-b border-[var(--border-default)]">
           <button
             onClick={onClose}
-            className="absolute top-4 end-4 w-8 h-8 rounded-shape-full bg-[var(--surface-card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-primary)] flex items-center justify-center transition-colors cursor-pointer"
+            className="absolute top-4 end-4 touch-target-44-expanded w-8 h-8 min-w-[32px] min-h-[32px] max-w-[32px] max-h-[32px] btn-square-primary rounded-shape-sm bg-[var(--surface-card)] border border-[var(--border-default)] text-[var(--text-muted)] hover:text-[var(--text-primary)] flex items-center justify-center transition-colors cursor-pointer"
           >
             <X size={16} />
           </button>
@@ -202,10 +202,10 @@ export const CreatorRegistrationModal: React.FC<CreatorRegistrationModalProps> =
                   onClose();
                   navigate('/settings/creators-hub');
                 }}
-                className="h-10 px-4 rounded-shape-sm bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs flex items-center justify-center gap-2 hover:opacity-90 transition-opacity cursor-pointer shadow-md"
+                className="h-8 min-h-[32px] max-h-[32px] px-3.5 rounded-shape-sm btn-long-standard bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs leading-[23px] flex items-center justify-center gap-2 hover:opacity-90 transition-opacity cursor-pointer shadow-sm"
               >
-                <Coins size={14} />
-                <span>{isAr ? 'لوحة تحكم الأرباح' : 'Creator Dashboard'}</span>
+                <Coins size={14} className="shrink-0" />
+                <span className="h-[23px] leading-[23px] inline-flex items-center">{isAr ? 'لوحة تحكم الأرباح' : 'Creator Dashboard'}</span>
               </button>
 
               <button
@@ -214,10 +214,10 @@ export const CreatorRegistrationModal: React.FC<CreatorRegistrationModalProps> =
                   onClose();
                   navigate(`/creator/${existingCreator.username}`);
                 }}
-                className="h-10 px-4 rounded-shape-sm bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] border border-[var(--border-default)] text-[var(--text-primary)] font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                className="h-8 min-h-[32px] max-h-[32px] px-3.5 rounded-shape-sm btn-long-standard bg-[var(--surface-subtle)] hover:bg-[var(--surface-inset)] border border-[var(--border-default)] text-[var(--text-primary)] font-bold text-xs leading-[23px] flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
-                <User size={14} />
-                <span>{isAr ? 'عرض ملفي الشخصي' : 'View Public Profile'}</span>
+                <User size={14} className="shrink-0" />
+                <span className="h-[23px] leading-[23px] inline-flex items-center">{isAr ? 'عرض ملفي الشخصي' : 'View Public Profile'}</span>
               </button>
             </div>
           </div>
@@ -380,10 +380,10 @@ export const CreatorRegistrationModal: React.FC<CreatorRegistrationModalProps> =
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="h-10 px-4 rounded-shape-sm bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--text-primary)] font-bold text-xs flex items-center gap-1.5 hover:bg-[var(--surface-inset)] cursor-pointer"
+                className="h-8 min-h-[32px] max-h-[32px] px-3.5 rounded-shape-sm btn-long-standard bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--text-primary)] font-bold text-xs leading-[23px] flex items-center gap-1.5 hover:bg-[var(--surface-inset)] cursor-pointer"
               >
-                {isAr ? <ArrowRight size={14} /> : <ArrowLeft size={14} />}
-                <span>{isAr ? 'السابق' : 'Back'}</span>
+                {isAr ? <ArrowRight size={14} className="shrink-0" /> : <ArrowLeft size={14} className="shrink-0" />}
+                <span className="h-[23px] leading-[23px] inline-flex items-center">{isAr ? 'السابق' : 'Back'}</span>
               </button>
             ) : (
               <div />
@@ -393,18 +393,18 @@ export const CreatorRegistrationModal: React.FC<CreatorRegistrationModalProps> =
               <button
                 type="button"
                 onClick={() => setStep(2)}
-                className="h-10 px-5 rounded-shape-sm bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs flex items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer shadow-md ms-auto"
+                className="h-8 min-h-[32px] max-h-[32px] px-4 rounded-shape-sm btn-long-standard bg-[var(--comp-button-primary-bg)] text-[var(--comp-button-primary-fg)] font-bold text-xs leading-[23px] flex items-center gap-1.5 hover:opacity-90 transition-opacity cursor-pointer shadow-sm ms-auto"
               >
-                <span>{isAr ? 'المتابعة للخطوة التالية' : 'Next Step'}</span>
-                {isAr ? <ArrowLeft size={14} /> : <ArrowRight size={14} />}
+                <span className="h-[23px] leading-[23px] inline-flex items-center">{isAr ? 'المتابعة للخطوة التالية' : 'Next Step'}</span>
+                {isAr ? <ArrowLeft size={14} className="shrink-0" /> : <ArrowRight size={14} className="shrink-0" />}
               </button>
             ) : (
               <button
                 type="submit"
-                className="h-10 px-6 rounded-shape-sm bg-gradient-to-r from-[var(--accent)] to-purple-600 text-slate-950 font-black text-xs flex items-center gap-2 hover:brightness-110 transition-all cursor-pointer shadow-lg active:scale-95 ms-auto"
+                className="h-8 min-h-[32px] max-h-[32px] px-4 rounded-shape-sm btn-long-standard bg-gradient-to-r from-[var(--accent)] to-purple-600 text-slate-950 font-black text-xs leading-[23px] flex items-center gap-1.5 hover:brightness-110 transition-all cursor-pointer shadow-md active:scale-95 ms-auto"
               >
-                <Award size={15} />
-                <span>{isAr ? 'اعتماد الحساب وبدء الربح الآن' : 'Certify & Activate Profile'}</span>
+                <Award size={14} className="shrink-0" />
+                <span className="h-[23px] leading-[23px] inline-flex items-center">{isAr ? 'اعتماد الحساب وبدء الربح الآن' : 'Certify & Activate Profile'}</span>
               </button>
             )}
           </div>

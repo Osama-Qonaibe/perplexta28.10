@@ -146,7 +146,7 @@ const ChatPage: React.FC = () => {
       { id: 'audio_studio', label: dir === 'rtl' ? 'استوديو الصوت' : 'Audio Studio', icon: <Music size={14} />, isRouter: true },
     ];
     if (isMobile) {
-      return list.filter(t => t.id !== 'code' && t.id !== 'audio_studio');
+      return list.filter(t => !['code', 'audio_studio', 'video_studio', 'image_studio'].includes(t.id));
     }
     return list;
   }, [dir, isMobile]);
